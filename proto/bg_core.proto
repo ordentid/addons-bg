@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+// import "bg_gorm_db.proto";
+
+package bg.service.v1;
+option go_package = "./pb";
+
+// import "mwitkow/go-proto-validators/validator.proto";
+// import "google/protobuf/timestamp.proto";
+// import "google/api/field_behavior.proto";
+// import "protoc-gen-openapiv2/options/annotations.proto";
+// import "google/protobuf/struct.proto";
+
+enum Direction {
+    DESC = 0;
+    ASC = 1;
+}
+
+message Empty {}
+
+message ErrorBodyResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+}
+
+message Sort {
+    string column = 1;
+    string direction = 2;
+}
+
+message PaginationResponse {
+    int32 limit = 1;
+    int32 page = 2;
+    int64 totalRows = 3;   
+    int32 totalPages = 4;   
+}

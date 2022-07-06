@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+import "google/api/field_behavior.proto";
+import "protoc-gen-gorm/options/gorm.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+// import "mwitkow/go-proto-validators/validator.proto";
+
+package bg.service.v1;
+option go_package = "./pb";
+
+message Transaction {
+    option (gorm.opts) = {
+        ormable: true,
+        table: "transactions",
+    };
+    uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
+    uint64 transactionID = 2 [(gorm.field).tag = {not_null: true}];
+    uint64 thirdPartyID = 3;
+    string referenceNo = 4 [(gorm.field).tag = {not_null: true}];
+    string applicantName = 5 [(gorm.field).tag = {not_null: true}];
+    string beneficiaryName = 6 [(gorm.field).tag = {not_null: true}];
+    string issueDate = 7 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            format: "date",
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
+            example: "\"2022-07-06\""
+        },
+        (gorm.field).tag = {not_null: true}
+    ];
+    string effectiveDate = 8 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            format: "date",
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
+            example: "\"2022-07-06\""
+        },
+        (gorm.field).tag = {not_null: true}
+    ];
+    string expiryDate = 9 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            format: "date",
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
+            example: "\"2022-07-06\""
+        },
+        (gorm.field).tag = {not_null: true}
+    ];
+    uint64 claimPeriod = 10 [(gorm.field).tag = {not_null: true}];
+    string closingDate = 11 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            format: "date",
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
+            example: "\"2022-07-06\""
+        },
+        (gorm.field).tag = {not_null: true}
+    ];
+    string currency = 12 [(gorm.field).tag = {not_null: true}];
+    double amount = 13 [(gorm.field).tag = {not_null: true}];
+    string remark = 14 [(gorm.field).tag = {not_null: true}];
+    string transactionStatus = 15 [(gorm.field).tag = {not_null: true}];
+    uint64 channelID = 16;
+    string channelName = 17;
+    uint64 transactionTypeID = 18;
+    string documentPath = 19;
+    uint64 companyID = 21 [(gorm.field).tag = {not_null: true}];
+    string status = 20 [(gorm.field).tag = {not_null: true}];
+    bool isAllowBeneficiary = 22 [(gorm.field).tag = {not_null: true}];
+    uint64 createdByID = 41 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (gorm.field).tag = {not_null: true}
+    ];
+    uint64 updatedByID = 42 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (gorm.field).tag = {not_null: true}
+    ];
+    google.protobuf.Timestamp createdAt = 51 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (gorm.field).tag = {not_null: true}
+    ];
+    google.protobuf.Timestamp updatedAt = 52 [
+        (google.api.field_behavior) = OUTPUT_ONLY, 
+        (gorm.field).tag = {not_null: true}
+    ];
+}

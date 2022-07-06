@@ -1,0 +1,67 @@
+package db
+
+import (
+	"context"
+	"errors"
+
+	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+)
+
+func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagination *pb.PaginationResponse, sort *pb.Sort) ([]*pb.TransactionORM, error) {
+	data := []*pb.TransactionORM{}
+	query := p.db_main
+	if v.Data != nil {
+		query = query.Preload(clause.Associations).Where(v.Data)
+	}
+
+	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
+	query = query.Scopes(Paginate(data, pagination, query), Sort(sort))
+
+	if err := query.Find(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	return data, nil
+}
+
+func (p *GormProvider) GetTransactionDetail(ctx context.Context, data *pb.TransactionORM) (*pb.TransactionORM, error) {
+	query := p.db_main
+	var err error
+	if err = query.First(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+	}
+	return data, err
+}
+
+func (p *GormProvider) UpdateOrCreateTransaction(ctx context.Context, data *pb.TransactionORM) (*pb.TransactionORM, error) {
+	if data.Id > 0 {
+		model := &pb.TransactionORM{
+			Id: data.Id,
+		}
+		if err := p.db_main.Model(&model).Updates(&data).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "ID Not Found")
+			} else {
+				return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+			}
+		}
+
+		return model, nil
+	} else {
+		if err := p.db_main.Create(&data).Error; err != nil {
+			return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+		}
+
+		return data, nil
+	}
+}

@@ -1,0 +1,10 @@
+.editorconfig
+.git
+generate.sh
+start-server.sh
+README.md
+**/README.md
+build/
+helm-chart/
+vendor/
+!vendor/modules.txt
