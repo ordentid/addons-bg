@@ -7,14 +7,102 @@ package bg.service.v1;
 option go_package = "./pb";
 
 // import "mwitkow/go-proto-validators/validator.proto";
-// import "google/protobuf/timestamp.proto";
-// import "google/api/field_behavior.proto";
+import "google/protobuf/timestamp.proto";
+import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 // import "google/protobuf/struct.proto";
+
+enum TaskStatus {
+    AllStatus = 0;
+    Pending = 1;
+    Draft = 2;
+    Returned = 3;
+    Approved = 4;
+    Rejected = 5;
+    DeleteRequest = 6;
+    Deleted = 7;
+}
+
+enum TaskStep {
+    AllStep = 0;
+    Maker = 1;
+    Checker = 2;
+    Signer = 3;
+    Releaser = 4;
+}
+
+message Task {
+    uint64 taskID = 1;
+    string type = 2;
+    string status = 3;
+    string step = 4;
+    uint64 featureID = 5;
+    uint64 lastApprovedByID = 6;
+    uint64 lastRejectedByID = 7;
+    string lastApprovedByName = 8;
+    string lastRejectedByName = 9;
+    string createdByName = 10;
+    string updatedByName = 11;
+    string reasons = 12;
+    string comment = 13;
+    google.protobuf.Timestamp createdAt = 101 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp updatedAt = 102 [(google.api.field_behavior) = OUTPUT_ONLY];
+}
+
+message TransactionTask {
+    Transaction transaction = 1;
+    Task task = 2;
+}
 
 message HealthCheckRequest {}
 message HealthCheckResponse {
     string message = 1;
+}
+
+message GetTransactionTaskRequest {
+    TaskStatus status = 1;
+    TaskStep step = 2;
+    int32 limit = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Limit data per page. Default value '-1' for disable limit",
+	}];
+    int32 page = 4 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Page number to get data. Default value '-1' for disable page",
+	}];
+    string sort = 5 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Order data by column name",
+	}];
+    Direction dir = 6 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Sort DirectionEnum should be ASC or DESC",
+	}];
+    string filter = 7 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement => Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key:>=value' => 'key >= value' \n - 'key:<=value' => 'key <= value' \n - 'key1:>=value1,key2:<=value2' => 'key1 >= value1 AND key2 <= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
+	}];
+    string query = 8 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement => Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
+	}];
+}
+message GetTransactionTaskResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated TransactionTask data = 4;
+    PaginationResponse pagination = 5;
+}
+
+message CreateTransactionTaskThirdParty {
+    uint64 thirdPartyID = 1;
+    bool isAllowBeneficiary = 2;
+}
+message CreateTransactionTaskRequest {
+    uint64 companyID = 1;
+    repeated CreateTransactionTaskThirdParty thirdParty = 2;
+    bool isDraft = 3;
+}
+message CreateTransactionTaskResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated Task data = 4;
 }
 
 message GetTransactionRequest {

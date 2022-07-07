@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-type ListTransactionRequest struct {
+type ApiListTransactionRequest struct {
 	StartDate             string `url:"startDate"`
 	EndDate               string `url:"endDate"`
 	Branch                string `url:"branch"`
@@ -38,21 +38,21 @@ type ListTransactionRequest struct {
 	Limit                 string `url:"limit"`
 }
 
-type ListTransactionResponse struct {
-	ResponseCode    uint64             `json:"responseCode,string"`
-	ResponseMessage string             `json:"responseMessage"`
-	Pagination      PaginationData     `json:"pagination"`
-	ResponseData    []*TransactionData `json:"responseData"`
+type ApiListTransactionResponse struct {
+	ResponseCode    uint64                `json:"responseCode,string"`
+	ResponseMessage string                `json:"responseMessage"`
+	Pagination      ApiPaginationResponse `json:"pagination"`
+	ResponseData    []*ApiTransaction     `json:"responseData"`
 }
 
-type PaginationData struct {
+type ApiPaginationResponse struct {
 	Page        uint64 `json:"page,string"`
 	Limit       uint64 `json:"limit,string"`
 	TotalRecord uint64 `json:"totalRecord,string"`
 	TotalPage   uint32 `json:"totalPage"`
 }
 
-type TransactionData struct {
+type ApiTransaction struct {
 	TransactionId     uint64  `json:"transactionId,string"`
 	ThirdPartyId      uint64  `json:"thirdPartyId,string"`
 	ReferenceNo       string  `json:"referenceNo"`
@@ -185,8 +185,17 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		return nil, status.Errorf(codes.NotFound, "Company not found.")
 	}
 
+	// taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	// if err != nil {
+	// 	logrus.Errorln("Failed connect to Task Service: %v", err)
+	// 	return nil, status.Errorf(codes.Internal, "Error Internal")
+	// }
+	// defer taskConn.Close()
+
+	// taskClient := task_pb.NewTaskServiceClient(taskConn)
+
 	for _, v := range req.ThirdParty {
-		httpReqParamsOpt := ListTransactionRequest{
+		httpReqParamsOpt := ApiListTransactionRequest{
 			ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
 			Page:         "1",
 			Limit:        "10",
@@ -216,7 +225,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		}
 		defer httpRes.Body.Close()
 
-		var httpResData ListTransactionResponse
+		var httpResData ApiListTransactionResponse
 		httpResBody, err := ioutil.ReadAll(httpRes.Body)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)

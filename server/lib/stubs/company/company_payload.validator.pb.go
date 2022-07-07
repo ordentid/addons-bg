@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "github.com/mwitkow/go-proto-validators"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -280,6 +280,9 @@ func (this *CreateCompanyGroupResponse) Validate() error {
 func (this *BricamsGetCustomerReq) Validate() error {
 	return nil
 }
+func (this *BricamsGetCustomerGroupReq) Validate() error {
+	return nil
+}
 func (this *BricamsGetCustomerByIdReq) Validate() error {
 	return nil
 }
@@ -390,6 +393,9 @@ func (this *DeleteCompanyTaskRes) Validate() error {
 	}
 	return nil
 }
+func (this *GetCompanyTaskByHoldingIDReq) Validate() error {
+	return nil
+}
 func (this *GetCompanyTaskByIDReq) Validate() error {
 	return nil
 }
@@ -477,6 +483,33 @@ func (this *BRICaMSSvcCompanyV2) Validate() error {
 	}
 	return nil
 }
+func (this *GetGroupIDStoreReq) Validate() error {
+	return nil
+}
+func (this *GetGroupIDStoreRes) Validate() error {
+	return nil
+}
+func (this *DeleteCompanyRes) Validate() error {
+	return nil
+}
+func (this *CekCompanyIDAvaibilityReq) Validate() error {
+	return nil
+}
+func (this *CompanySubsidiaryValidationReq) Validate() error {
+	return nil
+}
+func (this *CompanySubsidiaryValidationRes) Validate() error {
+	return nil
+}
+func (this *CheckCompanyIDTaskAndData) Validate() error {
+	return nil
+}
+func (this *CekCompanyIDAvaibilityRes) Validate() error {
+	return nil
+}
+func (this *TempGenToken) Validate() error {
+	return nil
+}
 func (this *BRICaMSSvcCompanyV2CG) Validate() error {
 	if this.CompanyGroup != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CompanyGroup); err != nil {
@@ -530,5 +563,8 @@ func (this *BRICaMSSvcSingleResV2) Validate() error {
 	return nil
 }
 func (this *FileListCompanyTaskRequest) Validate() error {
+	return nil
+}
+func (this *ErrorBodyResponse) Validate() error {
 	return nil
 }

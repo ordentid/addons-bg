@@ -24,6 +24,119 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type BgStatus int32
+
+const (
+	BgStatus_Active   BgStatus = 0
+	BgStatus_InActive BgStatus = 1
+	BgStatus_Claimed  BgStatus = 2
+)
+
+// Enum value maps for BgStatus.
+var (
+	BgStatus_name = map[int32]string{
+		0: "Active",
+		1: "InActive",
+		2: "Claimed",
+	}
+	BgStatus_value = map[string]int32{
+		"Active":   0,
+		"InActive": 1,
+		"Claimed":  2,
+	}
+)
+
+func (x BgStatus) Enum() *BgStatus {
+	p := new(BgStatus)
+	*p = x
+	return p
+}
+
+func (x BgStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BgStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_bg_gorm_db_proto_enumTypes[0].Descriptor()
+}
+
+func (BgStatus) Type() protoreflect.EnumType {
+	return &file_bg_gorm_db_proto_enumTypes[0]
+}
+
+func (x BgStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BgStatus.Descriptor instead.
+func (BgStatus) EnumDescriptor() ([]byte, []int) {
+	return file_bg_gorm_db_proto_rawDescGZIP(), []int{0}
+}
+
+type BgType int32
+
+const (
+	BgType_BidBond                    BgType = 0
+	BgType_AdvancePayment             BgType = 1
+	BgType_PerformanceBond            BgType = 2
+	BgType_GovernmentPaymentGuarantee BgType = 3
+	BgType_MaintenanceBond            BgType = 4
+	BgType_ProcurementBond            BgType = 5
+	BgType_TransactionRiskBond        BgType = 6
+	BgType_CustomsBond                BgType = 7
+)
+
+// Enum value maps for BgType.
+var (
+	BgType_name = map[int32]string{
+		0: "BidBond",
+		1: "AdvancePayment",
+		2: "PerformanceBond",
+		3: "GovernmentPaymentGuarantee",
+		4: "MaintenanceBond",
+		5: "ProcurementBond",
+		6: "TransactionRiskBond",
+		7: "CustomsBond",
+	}
+	BgType_value = map[string]int32{
+		"BidBond":                    0,
+		"AdvancePayment":             1,
+		"PerformanceBond":            2,
+		"GovernmentPaymentGuarantee": 3,
+		"MaintenanceBond":            4,
+		"ProcurementBond":            5,
+		"TransactionRiskBond":        6,
+		"CustomsBond":                7,
+	}
+)
+
+func (x BgType) Enum() *BgType {
+	p := new(BgType)
+	*p = x
+	return p
+}
+
+func (x BgType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BgType) Descriptor() protoreflect.EnumDescriptor {
+	return file_bg_gorm_db_proto_enumTypes[1].Descriptor()
+}
+
+func (BgType) Type() protoreflect.EnumType {
+	return &file_bg_gorm_db_proto_enumTypes[1]
+}
+
+func (x BgType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BgType.Descriptor instead.
+func (BgType) EnumDescriptor() ([]byte, []int) {
+	return file_bg_gorm_db_proto_rawDescGZIP(), []int{1}
+}
+
 type Transaction struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -373,8 +486,22 @@ var file_bg_gorm_db_proto_rawDesc = []byte{
 	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x0b, 0xe0, 0x41, 0x03, 0xba, 0xb9,
 	0x19, 0x04, 0x0a, 0x02, 0x40, 0x01, 0x52, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41,
 	0x74, 0x3a, 0x14, 0xba, 0xb9, 0x19, 0x10, 0x08, 0x01, 0x1a, 0x0c, 0x74, 0x72, 0x61, 0x6e, 0x73,
-	0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x42, 0x06, 0x5a, 0x04, 0x2e, 0x2f, 0x70, 0x62, 0x62,
-	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2a, 0x31, 0x0a, 0x08, 0x42, 0x67, 0x53, 0x74, 0x61,
+	0x74, 0x75, 0x73, 0x12, 0x0a, 0x0a, 0x06, 0x41, 0x63, 0x74, 0x69, 0x76, 0x65, 0x10, 0x00, 0x12,
+	0x0c, 0x0a, 0x08, 0x49, 0x6e, 0x41, 0x63, 0x74, 0x69, 0x76, 0x65, 0x10, 0x01, 0x12, 0x0b, 0x0a,
+	0x07, 0x43, 0x6c, 0x61, 0x69, 0x6d, 0x65, 0x64, 0x10, 0x02, 0x2a, 0xb2, 0x01, 0x0a, 0x06, 0x42,
+	0x67, 0x54, 0x79, 0x70, 0x65, 0x12, 0x0b, 0x0a, 0x07, 0x42, 0x69, 0x64, 0x42, 0x6f, 0x6e, 0x64,
+	0x10, 0x00, 0x12, 0x12, 0x0a, 0x0e, 0x41, 0x64, 0x76, 0x61, 0x6e, 0x63, 0x65, 0x50, 0x61, 0x79,
+	0x6d, 0x65, 0x6e, 0x74, 0x10, 0x01, 0x12, 0x13, 0x0a, 0x0f, 0x50, 0x65, 0x72, 0x66, 0x6f, 0x72,
+	0x6d, 0x61, 0x6e, 0x63, 0x65, 0x42, 0x6f, 0x6e, 0x64, 0x10, 0x02, 0x12, 0x1e, 0x0a, 0x1a, 0x47,
+	0x6f, 0x76, 0x65, 0x72, 0x6e, 0x6d, 0x65, 0x6e, 0x74, 0x50, 0x61, 0x79, 0x6d, 0x65, 0x6e, 0x74,
+	0x47, 0x75, 0x61, 0x72, 0x61, 0x6e, 0x74, 0x65, 0x65, 0x10, 0x03, 0x12, 0x13, 0x0a, 0x0f, 0x4d,
+	0x61, 0x69, 0x6e, 0x74, 0x65, 0x6e, 0x61, 0x6e, 0x63, 0x65, 0x42, 0x6f, 0x6e, 0x64, 0x10, 0x04,
+	0x12, 0x13, 0x0a, 0x0f, 0x50, 0x72, 0x6f, 0x63, 0x75, 0x72, 0x65, 0x6d, 0x65, 0x6e, 0x74, 0x42,
+	0x6f, 0x6e, 0x64, 0x10, 0x05, 0x12, 0x17, 0x0a, 0x13, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63,
+	0x74, 0x69, 0x6f, 0x6e, 0x52, 0x69, 0x73, 0x6b, 0x42, 0x6f, 0x6e, 0x64, 0x10, 0x06, 0x12, 0x0f,
+	0x0a, 0x0b, 0x43, 0x75, 0x73, 0x74, 0x6f, 0x6d, 0x73, 0x42, 0x6f, 0x6e, 0x64, 0x10, 0x07, 0x42,
+	0x06, 0x5a, 0x04, 0x2e, 0x2f, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -389,14 +516,17 @@ func file_bg_gorm_db_proto_rawDescGZIP() []byte {
 	return file_bg_gorm_db_proto_rawDescData
 }
 
+var file_bg_gorm_db_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
 var file_bg_gorm_db_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_bg_gorm_db_proto_goTypes = []interface{}{
-	(*Transaction)(nil),           // 0: bg.service.v1.Transaction
-	(*timestamppb.Timestamp)(nil), // 1: google.protobuf.Timestamp
+	(BgStatus)(0),                 // 0: bg.service.v1.BgStatus
+	(BgType)(0),                   // 1: bg.service.v1.BgType
+	(*Transaction)(nil),           // 2: bg.service.v1.Transaction
+	(*timestamppb.Timestamp)(nil), // 3: google.protobuf.Timestamp
 }
 var file_bg_gorm_db_proto_depIdxs = []int32{
-	1, // 0: bg.service.v1.Transaction.createdAt:type_name -> google.protobuf.Timestamp
-	1, // 1: bg.service.v1.Transaction.updatedAt:type_name -> google.protobuf.Timestamp
+	3, // 0: bg.service.v1.Transaction.createdAt:type_name -> google.protobuf.Timestamp
+	3, // 1: bg.service.v1.Transaction.updatedAt:type_name -> google.protobuf.Timestamp
 	2, // [2:2] is the sub-list for method output_type
 	2, // [2:2] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name
@@ -428,13 +558,14 @@ func file_bg_gorm_db_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_bg_gorm_db_proto_rawDesc,
-			NumEnums:      0,
+			NumEnums:      2,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
 		GoTypes:           file_bg_gorm_db_proto_goTypes,
 		DependencyIndexes: file_bg_gorm_db_proto_depIdxs,
+		EnumInfos:         file_bg_gorm_db_proto_enumTypes,
 		MessageInfos:      file_bg_gorm_db_proto_msgTypes,
 	}.Build()
 	File_bg_gorm_db_proto = out.File
