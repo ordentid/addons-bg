@@ -42,9 +42,32 @@ service ApiService {
         };
     };
 
+    rpc GetTransactionTask(GetTransactionTaskRequest) returns (GetTransactionTaskResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/transaction/task"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction Task"]
+            summary: "Transaction Task List"
+            description: "This API for transaction task list"
+        };
+    };
+    
+    rpc CreateTransactionTask(CreateTransactionTaskRequest) returns (CreateTransactionTaskResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/transaction/task"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction Task"]
+            summary: "Create Transaction Task"
+            description: "This API for create transaction task"
+        };
+    };
+
     rpc GetTransaction(GetTransactionRequest) returns (GetTransactionResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction"
+            get: "/api/bg/transaction/data"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {} // Disable security key
@@ -56,7 +79,7 @@ service ApiService {
 
     rpc GetTransactionDetail(GetTransactionDetailRequest) returns (GetTransactionDetailResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/{transactionID}"
+            get: "/api/bg/transaction/data/{transactionID}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {} // Disable security key
@@ -68,7 +91,7 @@ service ApiService {
 
     rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse) {
         option (google.api.http) = {
-            post: "/api/bg/transaction"
+            post: "/api/bg/transaction/data"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -80,7 +103,7 @@ service ApiService {
 
     rpc UpdateTransaction(UpdateTransactionRequest) returns (UpdateTransactionResponse) {
         option (google.api.http) = {
-            post: "/api/bg/transaction/{transactionID}"
+            post: "/api/bg/transaction/data/{transactionID}"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

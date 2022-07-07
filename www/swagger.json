@@ -47,7 +47,7 @@
         "security": []
       }
     },
-    "/api/bg/transaction": {
+    "/api/bg/transaction/data": {
       "get": {
         "summary": "Transaction List",
         "description": "This API for transaction list",
@@ -327,7 +327,7 @@
         ]
       }
     },
-    "/api/bg/transaction/{transactionID}": {
+    "/api/bg/transaction/data/{transactionID}": {
       "get": {
         "summary": "Transaction Detail",
         "description": "This API for transaction detail",
@@ -404,6 +404,144 @@
           "Transaction"
         ]
       }
+    },
+    "/api/bg/transaction/task": {
+      "get": {
+        "summary": "Transaction Task List",
+        "description": "This API for transaction task list",
+        "operationId": "ApiService_GetTransactionTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTransactionTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStatus",
+              "Pending",
+              "Draft",
+              "Returned",
+              "Approved",
+              "Rejected",
+              "DeleteRequest",
+              "Deleted"
+            ],
+            "default": "AllStatus"
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStep",
+              "Maker",
+              "Checker",
+              "Signer",
+              "Releaser"
+            ],
+            "default": "AllStep"
+          },
+          {
+            "name": "limit",
+            "description": "Limit data per page. Default value '-1' for disable limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page",
+            "description": "Page number to get data. Default value '-1' for disable page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sort",
+            "description": "Order data by column name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "dir",
+            "description": "Sort DirectionEnum should be ASC or DESC",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DESC",
+              "ASC"
+            ],
+            "default": "DESC"
+          },
+          {
+            "name": "filter",
+            "description": "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement =\u003e Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key:\u003e=value' =\u003e 'key \u003e= value' \n - 'key:\u003c=value' =\u003e 'key \u003c= value' \n - 'key1:\u003e=value1,key2:\u003c=value2' =\u003e 'key1 \u003e= value1 AND key2 \u003c= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Transaction Task"
+        ]
+      },
+      "post": {
+        "summary": "Create Transaction Task",
+        "description": "This API for create transaction task",
+        "operationId": "ApiService_CreateTransactionTask",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateTransactionTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTransactionTaskRequest"
+            }
+          }
+        ],
+        "tags": [
+          "Transaction Task"
+        ]
+      }
     }
   },
   "definitions": {
@@ -473,6 +611,57 @@
         }
       }
     },
+    "v1CreateTransactionTaskRequest": {
+      "type": "object",
+      "properties": {
+        "companyID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "thirdParty": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1CreateTransactionTaskThirdParty"
+          }
+        },
+        "isDraft": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1CreateTransactionTaskResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Task"
+          }
+        }
+      }
+    },
+    "v1CreateTransactionTaskThirdParty": {
+      "type": "object",
+      "properties": {
+        "thirdPartyID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "isAllowBeneficiary": {
+          "type": "boolean"
+        }
+      }
+    },
     "v1CreateTransactionThirdParty": {
       "type": "object",
       "properties": {
@@ -535,6 +724,30 @@
         }
       }
     },
+    "v1GetTransactionTaskResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TransactionTask"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/v1PaginationResponse"
+        }
+      }
+    },
     "v1HealthCheckResponse": {
       "type": "object",
       "properties": {
@@ -563,6 +776,89 @@
           "format": "int32"
         }
       }
+    },
+    "v1Task": {
+      "type": "object",
+      "properties": {
+        "taskID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "type": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "step": {
+          "type": "string"
+        },
+        "featureID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "lastApprovedByID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "lastRejectedByID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "lastApprovedByName": {
+          "type": "string"
+        },
+        "lastRejectedByName": {
+          "type": "string"
+        },
+        "createdByName": {
+          "type": "string"
+        },
+        "updatedByName": {
+          "type": "string"
+        },
+        "reasons": {
+          "type": "string"
+        },
+        "comment": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
+    "v1TaskStatus": {
+      "type": "string",
+      "enum": [
+        "AllStatus",
+        "Pending",
+        "Draft",
+        "Returned",
+        "Approved",
+        "Rejected",
+        "DeleteRequest",
+        "Deleted"
+      ],
+      "default": "AllStatus"
+    },
+    "v1TaskStep": {
+      "type": "string",
+      "enum": [
+        "AllStep",
+        "Maker",
+        "Checker",
+        "Signer",
+        "Releaser"
+      ],
+      "default": "AllStep"
     },
     "v1Transaction": {
       "type": "object",
@@ -672,6 +968,17 @@
           "type": "string",
           "format": "date-time",
           "readOnly": true
+        }
+      }
+    },
+    "v1TransactionTask": {
+      "type": "object",
+      "properties": {
+        "transaction": {
+          "$ref": "#/definitions/v1Transaction"
+        },
+        "task": {
+          "$ref": "#/definitions/v1Task"
         }
       }
     },

@@ -9,6 +9,23 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 package bg.service.v1;
 option go_package = "./pb";
 
+enum BgStatus {
+    Active = 0;
+    InActive = 1;
+    Claimed = 2;
+}
+
+enum BgType {
+    BidBond = 0;
+    AdvancePayment = 1;
+    PerformanceBond = 2;
+    GovernmentPaymentGuarantee = 3;
+    MaintenanceBond = 4;
+    ProcurementBond = 5;
+    TransactionRiskBond = 6;
+    CustomsBond = 7;
+}
+
 message Transaction {
     option (gorm.opts) = {
         ormable: true,

@@ -25,11 +25,13 @@ const _ = grpc.SupportPackageIsVersion7
 type ApiServiceClient interface {
 	DownloadListCompanyTasks(ctx context.Context, in *FileListCompanyTaskRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	CreateCompanyTask(ctx context.Context, in *CreateCompanyTaskReq, opts ...grpc.CallOption) (*CreateCompanyTaskRes, error)
+	GetCompanyTaskByHolding(ctx context.Context, in *GetCompanyTaskByHoldingIDReq, opts ...grpc.CallOption) (*GetCompanyTaskByIDRes, error)
 	DeleteCompany(ctx context.Context, in *CreateCompanyTaskReq, opts ...grpc.CallOption) (*DeleteCompanyRes, error)
 	DeleteCompanyTask(ctx context.Context, in *GetCompanyTaskByIDReq, opts ...grpc.CallOption) (*GetCompanyTaskByIDRes, error)
 	CreateCompany(ctx context.Context, in *CreateCompanyReq, opts ...grpc.CallOption) (*CreateCompanyRes, error)
 	ListCompanyTask(ctx context.Context, in *ListCompanyTaskReq, opts ...grpc.CallOption) (*ListCompanyTaskRes, error)
 	GetCompanyTaskByID(ctx context.Context, in *GetCompanyTaskByIDReq, opts ...grpc.CallOption) (*GetCompanyTaskByIDRes, error)
+	ListCompanyDataV2(ctx context.Context, in *ListCompanyDataReq, opts ...grpc.CallOption) (*ListCompanyDataRes, error)
 	ListCompanyData(ctx context.Context, in *ListCompanyDataReq, opts ...grpc.CallOption) (*ListCompanyDataRes, error)
 	ListGroupLimit(ctx context.Context, in *ListGroupLimitReq, opts ...grpc.CallOption) (*ListGroupLimitRes, error)
 	ListLimit(ctx context.Context, in *ListLimitReq, opts ...grpc.CallOption) (*ListLimitRes, error)
@@ -41,8 +43,10 @@ type ApiServiceClient interface {
 	BRICaMSgetCustomerByIDV2(ctx context.Context, in *BricamsGetCustomerByIdReq, opts ...grpc.CallOption) (*BRICaMSSvcSingleResV2, error)
 	BRICaMSgetCustomerByUserV2(ctx context.Context, in *BricamsGetCustomerByUserReq, opts ...grpc.CallOption) (*BRICaMSSvcSingleResV2, error)
 	CekCompanyIDAvaibility(ctx context.Context, in *CekCompanyIDAvaibilityReq, opts ...grpc.CallOption) (*CekCompanyIDAvaibilityRes, error)
-	BRICaMSCustomerMapping(ctx context.Context, in *BricamsGetCustomerReq, opts ...grpc.CallOption) (*BRICaMSSvcMultipleResV2, error)
+	BRICaMSCustomerMapping(ctx context.Context, in *BricamsGetCustomerGroupReq, opts ...grpc.CallOption) (*BRICaMSSvcMultipleResV2CG, error)
 	CompanySubsidiaryValidation(ctx context.Context, in *CompanySubsidiaryValidationReq, opts ...grpc.CallOption) (*CompanySubsidiaryValidationRes, error)
+	GetMyTasks(ctx context.Context, in *ListCompanyTaskReq, opts ...grpc.CallOption) (*ListCompanyTaskRes, error)
+	GetGroupIDStore(ctx context.Context, in *GetGroupIDStoreReq, opts ...grpc.CallOption) (*GetGroupIDStoreRes, error)
 }
 
 type apiServiceClient struct {
@@ -65,6 +69,15 @@ func (c *apiServiceClient) DownloadListCompanyTasks(ctx context.Context, in *Fil
 func (c *apiServiceClient) CreateCompanyTask(ctx context.Context, in *CreateCompanyTaskReq, opts ...grpc.CallOption) (*CreateCompanyTaskRes, error) {
 	out := new(CreateCompanyTaskRes)
 	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/CreateCompanyTask", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetCompanyTaskByHolding(ctx context.Context, in *GetCompanyTaskByHoldingIDReq, opts ...grpc.CallOption) (*GetCompanyTaskByIDRes, error) {
+	out := new(GetCompanyTaskByIDRes)
+	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/GetCompanyTaskByHolding", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -110,6 +123,15 @@ func (c *apiServiceClient) ListCompanyTask(ctx context.Context, in *ListCompanyT
 func (c *apiServiceClient) GetCompanyTaskByID(ctx context.Context, in *GetCompanyTaskByIDReq, opts ...grpc.CallOption) (*GetCompanyTaskByIDRes, error) {
 	out := new(GetCompanyTaskByIDRes)
 	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/GetCompanyTaskByID", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) ListCompanyDataV2(ctx context.Context, in *ListCompanyDataReq, opts ...grpc.CallOption) (*ListCompanyDataRes, error) {
+	out := new(ListCompanyDataRes)
+	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/ListCompanyDataV2", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -215,8 +237,8 @@ func (c *apiServiceClient) CekCompanyIDAvaibility(ctx context.Context, in *CekCo
 	return out, nil
 }
 
-func (c *apiServiceClient) BRICaMSCustomerMapping(ctx context.Context, in *BricamsGetCustomerReq, opts ...grpc.CallOption) (*BRICaMSSvcMultipleResV2, error) {
-	out := new(BRICaMSSvcMultipleResV2)
+func (c *apiServiceClient) BRICaMSCustomerMapping(ctx context.Context, in *BricamsGetCustomerGroupReq, opts ...grpc.CallOption) (*BRICaMSSvcMultipleResV2CG, error) {
+	out := new(BRICaMSSvcMultipleResV2CG)
 	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/BRICaMSCustomerMapping", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -233,17 +255,37 @@ func (c *apiServiceClient) CompanySubsidiaryValidation(ctx context.Context, in *
 	return out, nil
 }
 
+func (c *apiServiceClient) GetMyTasks(ctx context.Context, in *ListCompanyTaskReq, opts ...grpc.CallOption) (*ListCompanyTaskRes, error) {
+	out := new(ListCompanyTaskRes)
+	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/GetMyTasks", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetGroupIDStore(ctx context.Context, in *GetGroupIDStoreReq, opts ...grpc.CallOption) (*GetGroupIDStoreRes, error) {
+	out := new(GetGroupIDStoreRes)
+	err := c.cc.Invoke(ctx, "/company.service.v1.ApiService/GetGroupIDStore", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServiceServer is the server API for ApiService service.
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility
 type ApiServiceServer interface {
 	DownloadListCompanyTasks(context.Context, *FileListCompanyTaskRequest) (*httpbody.HttpBody, error)
 	CreateCompanyTask(context.Context, *CreateCompanyTaskReq) (*CreateCompanyTaskRes, error)
+	GetCompanyTaskByHolding(context.Context, *GetCompanyTaskByHoldingIDReq) (*GetCompanyTaskByIDRes, error)
 	DeleteCompany(context.Context, *CreateCompanyTaskReq) (*DeleteCompanyRes, error)
 	DeleteCompanyTask(context.Context, *GetCompanyTaskByIDReq) (*GetCompanyTaskByIDRes, error)
 	CreateCompany(context.Context, *CreateCompanyReq) (*CreateCompanyRes, error)
 	ListCompanyTask(context.Context, *ListCompanyTaskReq) (*ListCompanyTaskRes, error)
 	GetCompanyTaskByID(context.Context, *GetCompanyTaskByIDReq) (*GetCompanyTaskByIDRes, error)
+	ListCompanyDataV2(context.Context, *ListCompanyDataReq) (*ListCompanyDataRes, error)
 	ListCompanyData(context.Context, *ListCompanyDataReq) (*ListCompanyDataRes, error)
 	ListGroupLimit(context.Context, *ListGroupLimitReq) (*ListGroupLimitRes, error)
 	ListLimit(context.Context, *ListLimitReq) (*ListLimitRes, error)
@@ -255,8 +297,10 @@ type ApiServiceServer interface {
 	BRICaMSgetCustomerByIDV2(context.Context, *BricamsGetCustomerByIdReq) (*BRICaMSSvcSingleResV2, error)
 	BRICaMSgetCustomerByUserV2(context.Context, *BricamsGetCustomerByUserReq) (*BRICaMSSvcSingleResV2, error)
 	CekCompanyIDAvaibility(context.Context, *CekCompanyIDAvaibilityReq) (*CekCompanyIDAvaibilityRes, error)
-	BRICaMSCustomerMapping(context.Context, *BricamsGetCustomerReq) (*BRICaMSSvcMultipleResV2, error)
+	BRICaMSCustomerMapping(context.Context, *BricamsGetCustomerGroupReq) (*BRICaMSSvcMultipleResV2CG, error)
 	CompanySubsidiaryValidation(context.Context, *CompanySubsidiaryValidationReq) (*CompanySubsidiaryValidationRes, error)
+	GetMyTasks(context.Context, *ListCompanyTaskReq) (*ListCompanyTaskRes, error)
+	GetGroupIDStore(context.Context, *GetGroupIDStoreReq) (*GetGroupIDStoreRes, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -269,6 +313,9 @@ func (UnimplementedApiServiceServer) DownloadListCompanyTasks(context.Context, *
 }
 func (UnimplementedApiServiceServer) CreateCompanyTask(context.Context, *CreateCompanyTaskReq) (*CreateCompanyTaskRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateCompanyTask not implemented")
+}
+func (UnimplementedApiServiceServer) GetCompanyTaskByHolding(context.Context, *GetCompanyTaskByHoldingIDReq) (*GetCompanyTaskByIDRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCompanyTaskByHolding not implemented")
 }
 func (UnimplementedApiServiceServer) DeleteCompany(context.Context, *CreateCompanyTaskReq) (*DeleteCompanyRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method DeleteCompany not implemented")
@@ -284,6 +331,9 @@ func (UnimplementedApiServiceServer) ListCompanyTask(context.Context, *ListCompa
 }
 func (UnimplementedApiServiceServer) GetCompanyTaskByID(context.Context, *GetCompanyTaskByIDReq) (*GetCompanyTaskByIDRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetCompanyTaskByID not implemented")
+}
+func (UnimplementedApiServiceServer) ListCompanyDataV2(context.Context, *ListCompanyDataReq) (*ListCompanyDataRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method ListCompanyDataV2 not implemented")
 }
 func (UnimplementedApiServiceServer) ListCompanyData(context.Context, *ListCompanyDataReq) (*ListCompanyDataRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ListCompanyData not implemented")
@@ -318,11 +368,17 @@ func (UnimplementedApiServiceServer) BRICaMSgetCustomerByUserV2(context.Context,
 func (UnimplementedApiServiceServer) CekCompanyIDAvaibility(context.Context, *CekCompanyIDAvaibilityReq) (*CekCompanyIDAvaibilityRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CekCompanyIDAvaibility not implemented")
 }
-func (UnimplementedApiServiceServer) BRICaMSCustomerMapping(context.Context, *BricamsGetCustomerReq) (*BRICaMSSvcMultipleResV2, error) {
+func (UnimplementedApiServiceServer) BRICaMSCustomerMapping(context.Context, *BricamsGetCustomerGroupReq) (*BRICaMSSvcMultipleResV2CG, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method BRICaMSCustomerMapping not implemented")
 }
 func (UnimplementedApiServiceServer) CompanySubsidiaryValidation(context.Context, *CompanySubsidiaryValidationReq) (*CompanySubsidiaryValidationRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CompanySubsidiaryValidation not implemented")
+}
+func (UnimplementedApiServiceServer) GetMyTasks(context.Context, *ListCompanyTaskReq) (*ListCompanyTaskRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMyTasks not implemented")
+}
+func (UnimplementedApiServiceServer) GetGroupIDStore(context.Context, *GetGroupIDStoreReq) (*GetGroupIDStoreRes, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetGroupIDStore not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 
@@ -369,6 +425,24 @@ func _ApiService_CreateCompanyTask_Handler(srv interface{}, ctx context.Context,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).CreateCompanyTask(ctx, req.(*CreateCompanyTaskReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetCompanyTaskByHolding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCompanyTaskByHoldingIDReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetCompanyTaskByHolding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/company.service.v1.ApiService/GetCompanyTaskByHolding",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetCompanyTaskByHolding(ctx, req.(*GetCompanyTaskByHoldingIDReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -459,6 +533,24 @@ func _ApiService_GetCompanyTaskByID_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).GetCompanyTaskByID(ctx, req.(*GetCompanyTaskByIDReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_ListCompanyDataV2_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCompanyDataReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).ListCompanyDataV2(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/company.service.v1.ApiService/ListCompanyDataV2",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).ListCompanyDataV2(ctx, req.(*ListCompanyDataReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -662,7 +754,7 @@ func _ApiService_CekCompanyIDAvaibility_Handler(srv interface{}, ctx context.Con
 }
 
 func _ApiService_BRICaMSCustomerMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BricamsGetCustomerReq)
+	in := new(BricamsGetCustomerGroupReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -674,7 +766,7 @@ func _ApiService_BRICaMSCustomerMapping_Handler(srv interface{}, ctx context.Con
 		FullMethod: "/company.service.v1.ApiService/BRICaMSCustomerMapping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).BRICaMSCustomerMapping(ctx, req.(*BricamsGetCustomerReq))
+		return srv.(ApiServiceServer).BRICaMSCustomerMapping(ctx, req.(*BricamsGetCustomerGroupReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -697,6 +789,42 @@ func _ApiService_CompanySubsidiaryValidation_Handler(srv interface{}, ctx contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_GetMyTasks_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListCompanyTaskReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetMyTasks(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/company.service.v1.ApiService/GetMyTasks",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetMyTasks(ctx, req.(*ListCompanyTaskReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetGroupIDStore_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetGroupIDStoreReq)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetGroupIDStore(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/company.service.v1.ApiService/GetGroupIDStore",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetGroupIDStore(ctx, req.(*GetGroupIDStoreReq))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -711,6 +839,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateCompanyTask",
 			Handler:    _ApiService_CreateCompanyTask_Handler,
+		},
+		{
+			MethodName: "GetCompanyTaskByHolding",
+			Handler:    _ApiService_GetCompanyTaskByHolding_Handler,
 		},
 		{
 			MethodName: "DeleteCompany",
@@ -731,6 +863,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetCompanyTaskByID",
 			Handler:    _ApiService_GetCompanyTaskByID_Handler,
+		},
+		{
+			MethodName: "ListCompanyDataV2",
+			Handler:    _ApiService_ListCompanyDataV2_Handler,
 		},
 		{
 			MethodName: "ListCompanyData",
@@ -783,6 +919,14 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CompanySubsidiaryValidation",
 			Handler:    _ApiService_CompanySubsidiaryValidation_Handler,
+		},
+		{
+			MethodName: "GetMyTasks",
+			Handler:    _ApiService_GetMyTasks_Handler,
+		},
+		{
+			MethodName: "GetGroupIDStore",
+			Handler:    _ApiService_GetGroupIDStore_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

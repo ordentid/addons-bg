@@ -23,6 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
+	GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error)
+	CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error)
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
 	GetTransactionDetail(ctx context.Context, in *GetTransactionDetailRequest, opts ...grpc.CallOption) (*GetTransactionDetailResponse, error)
 	CreateTransaction(ctx context.Context, in *CreateTransactionRequest, opts ...grpc.CallOption) (*CreateTransactionResponse, error)
@@ -40,6 +42,24 @@ func NewApiServiceClient(cc grpc.ClientConnInterface) ApiServiceClient {
 func (c *apiServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
 	out := new(HealthCheckResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/HealthCheck", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error) {
+	out := new(GetTransactionTaskResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTransactionTask", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error) {
+	out := new(CreateTransactionTaskResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/CreateTransactionTask", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +107,8 @@ func (c *apiServiceClient) UpdateTransaction(ctx context.Context, in *UpdateTran
 // for forward compatibility
 type ApiServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+	GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error)
+	CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error)
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
 	GetTransactionDetail(context.Context, *GetTransactionDetailRequest) (*GetTransactionDetailResponse, error)
 	CreateTransaction(context.Context, *CreateTransactionRequest) (*CreateTransactionResponse, error)
@@ -100,6 +122,12 @@ type UnimplementedApiServiceServer struct {
 
 func (UnimplementedApiServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedApiServiceServer) GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTask not implemented")
+}
+func (UnimplementedApiServiceServer) CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTransactionTask not implemented")
 }
 func (UnimplementedApiServiceServer) GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransaction not implemented")
@@ -140,6 +168,42 @@ func _ApiService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetTransactionTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTransactionTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetTransactionTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetTransactionTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetTransactionTask(ctx, req.(*GetTransactionTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_CreateTransactionTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTransactionTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).CreateTransactionTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/CreateTransactionTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).CreateTransactionTask(ctx, req.(*CreateTransactionTaskRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -226,6 +290,14 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HealthCheck",
 			Handler:    _ApiService_HealthCheck_Handler,
+		},
+		{
+			MethodName: "GetTransactionTask",
+			Handler:    _ApiService_GetTransactionTask_Handler,
+		},
+		{
+			MethodName: "CreateTransactionTask",
+			Handler:    _ApiService_CreateTransactionTask_Handler,
 		},
 		{
 			MethodName: "GetTransaction",
