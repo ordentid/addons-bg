@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Thu Jul  7 10:07:41 2022
+# Make data base, printed on Thu Jul  7 20:48:24 2022
 
 # Variables
 
@@ -30,7 +29,6 @@ CURDIR := /Users/farizrachmanyusuf/Codes/addons-bg-service
 SHELL = /bin/sh
 # makefile (from `Makefile', line 8)
 BUILD_DATE = $(shell date -u +'%Y-%m-%dT00:00:00Z')
- 
 # environment
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
@@ -50,7 +48,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_IPC_HOOK_EXTHOST = /var/folders/jh/skt_b4rx5fdflcy1mkmh_6nr0000gn/T/vscode-ipc-0840438e-275f-4e65-8527-1b2702f7e0a0.sock
+VSCODE_IPC_HOOK_EXTHOST = /var/folders/jh/skt_b4rx5fdflcy1mkmh_6nr0000gn/T/vscode-ipc-12c7ad81-9137-4224-9f16-16d059de888a.sock
 # environment
 VSCODE_CWD = /
 # environment
@@ -170,7 +168,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 31523
+VSCODE_PID = 65133
 # variable set hash-table stats:
 # Load=79/1024=8%, Rehash=0, Collisions=2/111=2%
 
@@ -200,7 +198,6 @@ all: depend generate build unit-test
 #  Command-line target.
 #  Implicit rule search has not been done.
 #  File does not exist.
- 
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
@@ -287,6 +284,7 @@ vet:
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 36):
 	@echo "Running Go static code analysis with go vet"
+ 
 	go vet -asmdecl -atomic -bool -buildtags -copylocks -httpresponse -loopclosure -lostcancel -methods -nilfunc -printf -rangeloops -shift -structtag -tests -unreachable -unsafeptr ./...
 	@echo "go vet complete"
 	
@@ -411,6 +409,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Thu Jul  7 10:07:41 2022
+# Finished Make data base on Thu Jul  7 20:48:25 2022
 
  

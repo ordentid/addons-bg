@@ -52,7 +52,7 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
 	filter := &task_pb.Task{
-		Type: "BG",
+		Type: "BG Mapping",
 	}
 
 	if req.Status.Number() > 0 {
@@ -242,7 +242,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 
 				taskReq := &task_pb.SaveTaskRequest{
 					Task: &task_pb.Task{
-						Type:        "BG",
+						Type:        "BG Mapping",
 						Data:        string(data),
 						CreatedByID: 1,
 					},
