@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strconv"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
@@ -89,13 +88,13 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	proxyURL, err := url.Parse("http://localhost:5002")
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	// proxyURL, err := url.Parse("http://localhost:5002")
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
 
-	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	// client := &http.Client{}
+	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	client := &http.Client{}
 	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
