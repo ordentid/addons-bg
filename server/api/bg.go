@@ -16,8 +16,6 @@ import (
 )
 
 type ApiListTransactionRequest struct {
-	StartDate             string `url:"startDate"`
-	EndDate               string `url:"endDate"`
 	Branch                string `url:"branch"`
 	ApplicantName         string `url:"applicationName"`
 	ClaimPeriod           string `url:"claimPeriod"`
@@ -34,7 +32,7 @@ type ApiListTransactionRequest struct {
 }
 
 type ApiListTransactionResponse struct {
-	ResponseCode    uint64                `json:"responseCode,string"`
+	ResponseCode    string                `json:"responseCode"`
 	ResponseMessage string                `json:"responseMessage"`
 	Pagination      ApiPaginationResponse `json:"pagination"`
 	ResponseData    []*ApiTransaction     `json:"responseData"`
@@ -80,7 +78,7 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 
 	httpReqParamsOpt := ApiListTransactionRequest{
 		Page:  "1",
-		Limit: "200",
+		Limit: "100",
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -95,6 +93,9 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 
 	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	client := &http.Client{}
+
+	logrus.Println(httpReqParams.Encode())
+
 	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -114,12 +115,14 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	logrus.Println(string(httpResBody))
+
 	err = json.Unmarshal(httpResBody, &httpResData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	if httpResData.ResponseCode != 00 {
+	if httpResData.ResponseCode != "00" {
 		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
 	} else {
 		for _, d := range httpResData.ResponseData {

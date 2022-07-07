@@ -29,7 +29,7 @@ import (
 )
 
 const defaultPort = 9090
-const serviceName = "Abonnement"
+const serviceName = "BG"
 
 var s *grpc.Server
 
