@@ -578,15 +578,8 @@
     "v1CreateTransactionRequest": {
       "type": "object",
       "properties": {
-        "companyID": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "thirdParty": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1CreateTransactionThirdParty"
-          }
+        "data": {
+          "$ref": "#/definitions/v1Transaction"
         }
       }
     },
@@ -604,10 +597,7 @@
           "type": "string"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Transaction"
-          }
+          "$ref": "#/definitions/v1Transaction"
         }
       }
     },
@@ -651,18 +641,6 @@
       }
     },
     "v1CreateTransactionTaskThirdParty": {
-      "type": "object",
-      "properties": {
-        "thirdPartyID": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "isAllowBeneficiary": {
-          "type": "boolean"
-        }
-      }
-    },
-    "v1CreateTransactionThirdParty": {
       "type": "object",
       "properties": {
         "thirdPartyID": {

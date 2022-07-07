@@ -144,19 +144,14 @@ message GetTransactionDetailResponse {
     Transaction data = 4;
 }
 
-message CreateTransactionThirdParty {
-    uint64 thirdPartyID = 1;
-    bool isAllowBeneficiary = 2;
-}
 message CreateTransactionRequest {
-    uint64 companyID = 1;
-    repeated CreateTransactionThirdParty thirdParty = 2;
+    Transaction data = 1;
 }
 message CreateTransactionResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    repeated Transaction data = 4;
+    Transaction data = 4;
 }
 
 message UpdateTransactionRequest {
