@@ -59,6 +59,14 @@ message HealthCheckResponse {
     string message = 1;
 }
 
+message GetThirdPartyIDRequest {}
+message GetThirdPartyIDResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated string data = 4;
+}
+
 message GetTransactionTaskRequest {
     TaskStatus status = 1;
     TaskStep step = 2;

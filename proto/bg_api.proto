@@ -42,6 +42,17 @@ service ApiService {
         };
     };
 
+    rpc GetThirdPartyID(GetThirdPartyIDRequest) returns (GetThirdPartyIDResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/third-party"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Third Party"]
+            summary: "Third Party"
+            description: "This API for third party list"
+        };
+    };
+
     rpc GetTransactionTask(GetTransactionTaskRequest) returns (GetTransactionTaskResponse) {
         option (google.api.http) = {
             get: "/api/bg/transaction/task"

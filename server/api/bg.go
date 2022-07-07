@@ -2,9 +2,16 @@ package api
 
 import (
 	"context"
+	"encoding/json"
+	"io/ioutil"
+	"net/http"
+	"net/url"
+	"strconv"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
+	"github.com/google/go-querystring/query"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -62,6 +69,71 @@ type ApiTransaction struct {
 	ChannelName       string  `json:"channelName"`
 	TransactionTypeId uint64  `json:"transactionTypeId,string"`
 	DocumentPath      string  `json:"documentPath"`
+}
+
+func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDRequest) (*pb.GetThirdPartyIDResponse, error) {
+	result := &pb.GetThirdPartyIDResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []string{},
+	}
+
+	httpReqParamsOpt := ApiListTransactionRequest{
+		Page:  "1",
+		Limit: "200",
+	}
+
+	httpReqParams, err := query.Values(httpReqParamsOpt)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	proxyURL, err := url.Parse("http://localhost:5002")
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	// client := &http.Client{}
+	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiListTransactionResponse
+	httpResBody, err := ioutil.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	err = json.Unmarshal(httpResBody, &httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if httpResData.ResponseCode != 00 {
+		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+	} else {
+		for _, d := range httpResData.ResponseData {
+			if d.ThirdPartyId > 0 {
+				thirdPartyID := strconv.FormatUint(d.ThirdPartyId, 10)
+				if !contains(result.Data, thirdPartyID) {
+					result.Data = append(result.Data, thirdPartyID)
+				}
+			}
+		}
+	}
+
+	return result, nil
 }
 
 func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error) {

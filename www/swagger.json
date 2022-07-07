@@ -47,6 +47,30 @@
         "security": []
       }
     },
+    "/api/bg/third-party": {
+      "get": {
+        "summary": "Third Party",
+        "description": "This API for third party list",
+        "operationId": "ApiService_GetThirdPartyID",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetThirdPartyIDResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Third Party"
+        ]
+      }
+    },
     "/api/bg/transaction/data": {
       "get": {
         "summary": "Transaction List",
@@ -659,6 +683,27 @@
         "ASC"
       ],
       "default": "DESC"
+    },
+    "v1GetThirdPartyIDResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "v1GetTransactionDetailResponse": {
       "type": "object",
