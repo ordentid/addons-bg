@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -86,13 +85,13 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	proxyURL, err := url.Parse("http://localhost:5002")
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	// proxyURL, err := url.Parse("http://localhost:5002")
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
 
-	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	// client := &http.Client{}
+	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	client := &http.Client{}
 
 	logrus.Println(httpReqParams.Encode())
 
