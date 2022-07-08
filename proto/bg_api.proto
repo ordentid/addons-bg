@@ -42,7 +42,7 @@ service ApiService {
         };
     };
 
-    rpc GetThirdPartyID(GetThirdPartyIDRequest) returns (GetThirdPartyIDResponse) {
+    rpc GetThirdParty(GetThirdPartyRequest) returns (GetThirdPartyResponse) {
         option (google.api.http) = {
             get: "/api/bg/third-party"
         };
@@ -50,6 +50,18 @@ service ApiService {
             tags: ["Third Party"]
             summary: "Third Party"
             description: "This API for third party list"
+        };
+    };
+
+    rpc GenerateThirdParty(GenerateThirdPartyRequest) returns (GenerateThirdPartyResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/third-party"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Third Party"]
+            summary: "Generate Third Party"
+            description: "This API for generate third party"
         };
     };
 

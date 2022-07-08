@@ -51,12 +51,12 @@
       "get": {
         "summary": "Third Party",
         "description": "This API for third party list",
-        "operationId": "ApiService_GetThirdPartyID",
+        "operationId": "ApiService_GetThirdParty",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1GetThirdPartyIDResponse"
+              "$ref": "#/definitions/v1GetThirdPartyResponse"
             }
           },
           "default": {
@@ -66,6 +66,38 @@
             }
           }
         },
+        "tags": [
+          "Third Party"
+        ]
+      },
+      "post": {
+        "summary": "Generate Third Party",
+        "description": "This API for generate third party",
+        "operationId": "ApiService_GenerateThirdParty",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GenerateThirdPartyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GenerateThirdPartyRequest"
+            }
+          }
+        ],
         "tags": [
           "Third Party"
         ]
@@ -114,6 +146,12 @@
           },
           {
             "name": "transaction.referenceNo",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "transaction.registrationNo",
             "in": "query",
             "required": false,
             "type": "string"
@@ -599,6 +637,27 @@
         }
       }
     },
+    "v1ApiPaginationResponse": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "totalRecord": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "totalPage": {
+          "type": "integer",
+          "format": "int64"
+        }
+      }
+    },
     "v1Company": {
       "type": "object",
       "properties": {
@@ -711,7 +770,38 @@
       ],
       "default": "DESC"
     },
-    "v1GetThirdPartyIDResponse": {
+    "v1GenerateThirdPartyRequest": {
+      "type": "object",
+      "properties": {
+        "page": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "limit": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1GenerateThirdPartyResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "pagination": {
+          "$ref": "#/definitions/v1ApiPaginationResponse"
+        }
+      }
+    },
+    "v1GetThirdPartyResponse": {
       "type": "object",
       "properties": {
         "error": {
@@ -915,6 +1005,10 @@
           "type": "string",
           "format": "uint64"
         },
+        "thirdPartyID": {
+          "type": "string",
+          "format": "uint64"
+        },
         "name": {
           "type": "string"
         },
@@ -946,6 +1040,9 @@
           "format": "uint64"
         },
         "referenceNo": {
+          "type": "string"
+        },
+        "registrationNo": {
           "type": "string"
         },
         "applicantName": {
@@ -1044,17 +1141,20 @@
     "v1TransactionTask": {
       "type": "object",
       "properties": {
-        "transaction": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Transaction"
-          }
-        },
         "task": {
           "$ref": "#/definitions/v1Task"
         },
         "company": {
           "$ref": "#/definitions/v1Company"
+        },
+        "thirdParty": {
+          "$ref": "#/definitions/v1ThirdParty"
+        },
+        "transaction": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transaction"
+          }
         }
       }
     },

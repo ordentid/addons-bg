@@ -44,13 +44,6 @@ func (this *Company) Validate() error {
 	return nil
 }
 func (this *TransactionTask) Validate() error {
-	for _, item := range this.Transaction {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Transaction", err)
-			}
-		}
-	}
 	if this.Task != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Task", err)
@@ -61,6 +54,21 @@ func (this *TransactionTask) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Company", err)
 		}
 	}
+	if this.ThirdParty != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ThirdParty); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ThirdParty", err)
+		}
+	}
+	for _, item := range this.Transaction {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Transaction", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *ApiPaginationResponse) Validate() error {
 	return nil
 }
 func (this *HealthCheckRequest) Validate() error {
@@ -69,10 +77,21 @@ func (this *HealthCheckRequest) Validate() error {
 func (this *HealthCheckResponse) Validate() error {
 	return nil
 }
-func (this *GetThirdPartyIDRequest) Validate() error {
+func (this *GenerateThirdPartyRequest) Validate() error {
 	return nil
 }
-func (this *GetThirdPartyIDResponse) Validate() error {
+func (this *GenerateThirdPartyResponse) Validate() error {
+	if this.Pagination != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pagination); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Pagination", err)
+		}
+	}
+	return nil
+}
+func (this *GetThirdPartyRequest) Validate() error {
+	return nil
+}
+func (this *GetThirdPartyResponse) Validate() error {
 	for _, item := range this.Data {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {

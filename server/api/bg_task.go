@@ -108,6 +108,7 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 		}
 
 		var company *pb.Company
+		var thirdParty pb.ThirdParty
 
 		if len(transaction) > 0 {
 			companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
@@ -127,12 +128,23 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
 				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
 			}
+
+			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: transaction[0].GetThirdPartyID()})
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			thirdParty, err = thirdPartyORM.ToPB(ctx)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 		}
 
 		result.Data = append(result.Data, &pb.TransactionTask{
-			Transaction: transaction,
 			Task:        task,
 			Company:     company,
+			ThirdParty:  &thirdParty,
+			Transaction: transaction,
 		})
 	}
 
@@ -157,6 +169,14 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 	if err != nil {
 		return nil, err
 	}
+
+	// proxyURL, err := url.Parse("http://localhost:5002")
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
+
+	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	client := &http.Client{}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -195,22 +215,14 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 	for _, v := range req.ThirdParty {
 		httpReqParamsOpt := ApiListTransactionRequest{
 			ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
-			Page:         "1",
-			Limit:        "10",
+			Page:         1,
+			Limit:        100,
 		}
 
 		httpReqParams, err := query.Values(httpReqParamsOpt)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
-
-		// proxyURL, err := url.Parse("http://localhost:5002")
-		// if err != nil {
-		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		// }
-
-		// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-		client := &http.Client{}
 
 		logrus.Println(httpReqParams.Encode())
 
@@ -260,6 +272,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 					IsAllowBeneficiary: v.IsAllowBeneficiary,
 					IssueDate:          d.IssueDate,
 					ReferenceNo:        d.ReferenceNo,
+					RegistrationNo:     d.RegistrationNo,
 					Remark:             d.Remark,
 					Status:             "Pending",
 					ThirdPartyID:       d.ThirdPartyId,

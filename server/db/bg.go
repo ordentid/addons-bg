@@ -28,7 +28,7 @@ func (p *GormProvider) GetThirdParty(ctx context.Context) ([]*pb.ThirdPartyORM, 
 func (p *GormProvider) GetThirdPartyDetail(ctx context.Context, data *pb.ThirdPartyORM) (*pb.ThirdPartyORM, error) {
 	query := p.db_main
 	var err error
-	if err = query.First(&data).Error; err != nil {
+	if err = query.First(&data, &data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -82,7 +82,7 @@ func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagina
 func (p *GormProvider) GetTransactionDetail(ctx context.Context, data *pb.TransactionORM) (*pb.TransactionORM, error) {
 	query := p.db_main
 	var err error
-	if err = query.First(&data).Error; err != nil {
+	if err = query.First(&data, &data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)

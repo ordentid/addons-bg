@@ -3,8 +3,9 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
+	"errors"
 	"net/http"
+	"strconv"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -12,7 +13,15 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
+
+type ApiPaginationResponse struct {
+	Page        uint64 `json:"page,string"`
+	Limit       uint64 `json:"limit,string"`
+	TotalRecord uint64 `json:"totalRecord,string"`
+	TotalPage   uint32 `json:"totalPage"`
+}
 
 type ApiListTransactionRequest struct {
 	Branch                string `url:"branch"`
@@ -26,8 +35,8 @@ type ApiListTransactionRequest struct {
 	ChannelId             string `url:"channel_id"`
 	ApplicationCustomerId string `url:"applicant_customer_id"`
 	BeneficiaryCustomerId string `url:"beneficiary_customer_id"`
-	Page                  string `url:"page"`
-	Limit                 string `url:"limit"`
+	Page                  uint64 `url:"page,string"`
+	Limit                 uint64 `url:"limit,string"`
 }
 
 type ApiListTransactionResponse struct {
@@ -37,17 +46,11 @@ type ApiListTransactionResponse struct {
 	ResponseData    []*ApiTransaction     `json:"responseData"`
 }
 
-type ApiPaginationResponse struct {
-	Page        uint64 `json:"page,string"`
-	Limit       uint64 `json:"limit,string"`
-	TotalRecord uint64 `json:"totalRecord,string"`
-	TotalPage   uint32 `json:"totalPage"`
-}
-
 type ApiTransaction struct {
 	TransactionId     uint64  `json:"transactionId,string"`
 	ThirdPartyId      uint64  `json:"thirdPartyId,string"`
 	ReferenceNo       string  `json:"referenceNo"`
+	RegistrationNo    string  `json:"registrationNo"`
 	ApplicantName     string  `json:"applicantName"`
 	BeneficiaryName   string  `json:"beneficiaryName"`
 	IssueDate         string  `json:"issueDate"`
@@ -67,17 +70,57 @@ type ApiTransaction struct {
 	DocumentPath      string  `json:"documentPath"`
 }
 
-func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDRequest) (*pb.GetThirdPartyIDResponse, error) {
-	result := &pb.GetThirdPartyIDResponse{
+type ApiInquiryThirdPartyByIDRequest struct {
+	ThirdPartyID uint64 `json:"thirdPartyId,string"`
+}
+
+type ApiInquiryThirdPartyByIDResponse struct {
+	ResponseCode    uint64                `json:"responseCode,string"`
+	ResponseMessage uint64                `json:"responseMessage,string"`
+	ResponseData    *ApiInquiryThirdParty `json:"responseData"`
+}
+
+type ApiInquiryThirdParty struct {
+	ThirdPartyID uint64 `json:"thirdPartyId,string"`
+	Cif          string `json:"cif"`
+	FullName     string `json:"fullName"`
+	Status       string `json:"status"`
+}
+
+func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest) (*pb.GetThirdPartyResponse, error) {
+	result := &pb.GetThirdPartyResponse{
 		Error:   false,
 		Code:    200,
 		Message: "List Data",
 		Data:    []*pb.ThirdParty{},
 	}
 
+	thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	for _, v := range thirdPartyORMList {
+		thirdParty, err := v.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		result.Data = append(result.Data, &thirdParty)
+	}
+
+	return result, nil
+}
+
+func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPartyRequest) (*pb.GenerateThirdPartyResponse, error) {
+	result := &pb.GenerateThirdPartyResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Success",
+	}
+
 	httpReqParamsOpt := ApiListTransactionRequest{
-		Page:  "1",
-		Limit: "100",
+		Page:  req.Page,
+		Limit: req.Limit,
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -93,8 +136,6 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	client := &http.Client{}
 
-	logrus.Println(httpReqParams.Encode())
-
 	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -109,14 +150,7 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 	defer httpRes.Body.Close()
 
 	var httpResData ApiListTransactionResponse
-	httpResBody, err := ioutil.ReadAll(httpRes.Body)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	logrus.Println(string(httpResBody))
-
-	err = json.Unmarshal(httpResBody, &httpResData)
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -124,34 +158,72 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 	if httpResData.ResponseCode != "00" {
 		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
 	} else {
+		idList := []string{}
 		for _, d := range httpResData.ResponseData {
 			if d.ThirdPartyId > 0 {
-				thirdPartyORM, _ := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{Id: d.ThirdPartyId})
-				var thirdPartyData *pb.ThirdPartyORM
-				if thirdPartyORM == nil {
-					thirdPartyData = &pb.ThirdPartyORM{Name: "-"}
-				} else {
-					thirdPartyData = &pb.ThirdPartyORM{Id: thirdPartyORM.Id, Name: "-"}
-				}
-				_, err := s.provider.UpdateOrCreateThirdParty(ctx, thirdPartyData)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				if !contains(idList, strconv.FormatUint(d.ThirdPartyId, 10)) {
+					logrus.Println("Third Party ID:", d.ThirdPartyId)
+					idList = append(idList, strconv.FormatUint(d.ThirdPartyId, 10))
 				}
 			}
 		}
-	}
 
-	thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+		logrus.Println(idList)
+		for _, d := range idList {
+			id, err := strconv.ParseUint(d, 10, 64)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 
-	for _, v := range thirdPartyORMList {
-		thirdParty, err := v.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			_, err = s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: id})
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				} else {
+					logrus.Println("THIRD PARTY " + d)
+
+					// httpReqBodyData := &ApiInquiryThirdPartyByIDRequest{
+					// 	ThirdPartyID: id,
+					// }
+
+					// httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+					// if err != nil {
+					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					// }
+
+					// httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", strings.NewReader(string(httpReqBodyByte)))
+					// if err != nil {
+					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					// }
+
+					// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+					// httpRes, err := client.Do(httpReq)
+					// if err != nil {
+					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					// }
+					// defer httpRes.Body.Close()
+
+					// var httpResData ApiInquiryThirdPartyByIDResponse
+					// err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+					// if err != nil {
+					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					// }
+
+					_, err := s.provider.UpdateOrCreateThirdParty(ctx, &pb.ThirdPartyORM{ThirdPartyID: id, Name: "THIRD PARTY " + d})
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+			}
 		}
-		result.Data = append(result.Data, &thirdParty)
+
+		result.Pagination = &pb.ApiPaginationResponse{
+			Page:        httpResData.Pagination.Page,
+			Limit:       httpResData.Pagination.Limit,
+			TotalRecord: httpResData.Pagination.TotalRecord,
+			TotalPage:   httpResData.Pagination.TotalPage,
+		}
 	}
 
 	return result, nil
@@ -258,6 +330,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		IsAllowBeneficiary: req.Data.IsAllowBeneficiary,
 		IssueDate:          req.Data.IssueDate,
 		ReferenceNo:        req.Data.ReferenceNo,
+		RegistrationNo:     req.Data.RegistrationNo,
 		Remark:             req.Data.Remark,
 		Status:             "Pending",
 		ThirdPartyID:       req.Data.ThirdPartyID,

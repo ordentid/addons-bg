@@ -23,7 +23,8 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
-	GetThirdPartyID(ctx context.Context, in *GetThirdPartyIDRequest, opts ...grpc.CallOption) (*GetThirdPartyIDResponse, error)
+	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
+	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
 	GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error)
 	CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error)
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
@@ -49,9 +50,18 @@ func (c *apiServiceClient) HealthCheck(ctx context.Context, in *HealthCheckReque
 	return out, nil
 }
 
-func (c *apiServiceClient) GetThirdPartyID(ctx context.Context, in *GetThirdPartyIDRequest, opts ...grpc.CallOption) (*GetThirdPartyIDResponse, error) {
-	out := new(GetThirdPartyIDResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetThirdPartyID", in, out, opts...)
+func (c *apiServiceClient) GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error) {
+	out := new(GetThirdPartyResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetThirdParty", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error) {
+	out := new(GenerateThirdPartyResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GenerateThirdParty", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -117,7 +127,8 @@ func (c *apiServiceClient) UpdateTransaction(ctx context.Context, in *UpdateTran
 // for forward compatibility
 type ApiServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
-	GetThirdPartyID(context.Context, *GetThirdPartyIDRequest) (*GetThirdPartyIDResponse, error)
+	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
+	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
 	GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error)
 	CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error)
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
@@ -134,8 +145,11 @@ type UnimplementedApiServiceServer struct {
 func (UnimplementedApiServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
 }
-func (UnimplementedApiServiceServer) GetThirdPartyID(context.Context, *GetThirdPartyIDRequest) (*GetThirdPartyIDResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetThirdPartyID not implemented")
+func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetThirdParty not implemented")
+}
+func (UnimplementedApiServiceServer) GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateThirdParty not implemented")
 }
 func (UnimplementedApiServiceServer) GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTask not implemented")
@@ -186,20 +200,38 @@ func _ApiService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_GetThirdPartyID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetThirdPartyIDRequest)
+func _ApiService_GetThirdParty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetThirdPartyRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).GetThirdPartyID(ctx, in)
+		return srv.(ApiServiceServer).GetThirdParty(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/GetThirdPartyID",
+		FullMethod: "/bg.service.v1.ApiService/GetThirdParty",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetThirdPartyID(ctx, req.(*GetThirdPartyIDRequest))
+		return srv.(ApiServiceServer).GetThirdParty(ctx, req.(*GetThirdPartyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GenerateThirdParty_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateThirdPartyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GenerateThirdParty(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GenerateThirdParty",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GenerateThirdParty(ctx, req.(*GenerateThirdPartyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -324,8 +356,12 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ApiService_HealthCheck_Handler,
 		},
 		{
-			MethodName: "GetThirdPartyID",
-			Handler:    _ApiService_GetThirdPartyID_Handler,
+			MethodName: "GetThirdParty",
+			Handler:    _ApiService_GetThirdParty_Handler,
+		},
+		{
+			MethodName: "GenerateThirdParty",
+			Handler:    _ApiService_GenerateThirdParty_Handler,
 		},
 		{
 			MethodName: "GetTransactionTask",

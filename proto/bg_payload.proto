@@ -60,9 +60,17 @@ message Company {
 }
 
 message TransactionTask {
-    repeated Transaction transaction = 1;
-    Task task = 2;
-    Company company = 3;
+    Task task = 1;
+    Company company = 2;
+    ThirdParty thirdParty = 3;
+    repeated Transaction transaction = 4;
+}
+
+message ApiPaginationResponse {
+    uint64 page = 1;
+    uint64 limit = 2;
+    uint64 totalRecord = 3;
+    uint32 totalPage = 4;
 }
 
 message HealthCheckRequest {}
@@ -70,8 +78,19 @@ message HealthCheckResponse {
     string message = 1;
 }
 
-message GetThirdPartyIDRequest {}
-message GetThirdPartyIDResponse {
+message GenerateThirdPartyRequest {
+    uint64 page = 1;
+    uint64 limit = 2;
+}
+message GenerateThirdPartyResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    ApiPaginationResponse pagination = 4;
+}
+
+message GetThirdPartyRequest {}
+message GetThirdPartyResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
