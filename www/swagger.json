@@ -599,6 +599,36 @@
         }
       }
     },
+    "v1Company": {
+      "type": "object",
+      "properties": {
+        "companyID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "holdingID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "groupName": {
+          "type": "string"
+        },
+        "companyName": {
+          "type": "string"
+        },
+        "holdingCompanyName": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
     "v1CreateTransactionRequest": {
       "type": "object",
       "properties": {
@@ -657,10 +687,7 @@
           "type": "string"
         },
         "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Task"
-          }
+          "$ref": "#/definitions/v1Task"
         }
       }
     },
@@ -700,7 +727,7 @@
         "data": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/v1ThirdParty"
           }
         }
       }
@@ -848,13 +875,11 @@
         },
         "createdAt": {
           "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "format": "date-time"
         },
         "updatedAt": {
           "type": "string",
-          "format": "date-time",
-          "readOnly": true
+          "format": "date-time"
         }
       }
     },
@@ -882,6 +907,28 @@
         "Releaser"
       ],
       "default": "AllStep"
+    },
+    "v1ThirdParty": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
     },
     "v1Transaction": {
       "type": "object",
@@ -998,10 +1045,16 @@
       "type": "object",
       "properties": {
         "transaction": {
-          "$ref": "#/definitions/v1Transaction"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transaction"
+          }
         },
         "task": {
           "$ref": "#/definitions/v1Task"
+        },
+        "company": {
+          "$ref": "#/definitions/v1Company"
         }
       }
     },

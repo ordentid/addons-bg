@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
-	"strconv"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -73,7 +72,7 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 		Error:   false,
 		Code:    200,
 		Message: "List Data",
-		Data:    []string{},
+		Data:    []*pb.ThirdParty{},
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
@@ -127,12 +126,36 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 	} else {
 		for _, d := range httpResData.ResponseData {
 			if d.ThirdPartyId > 0 {
-				thirdPartyID := strconv.FormatUint(d.ThirdPartyId, 10)
-				if !contains(result.Data, thirdPartyID) {
-					result.Data = append(result.Data, thirdPartyID)
+				thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{Id: d.ThirdPartyId})
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+				thirdPartyData := &pb.ThirdPartyORM{}
+				if thirdPartyORM == nil {
+					thirdPartyData.Name = "-"
+				} else {
+					thirdPartyData.Id = thirdPartyORM.Id
+					thirdPartyData.Name = "-"
+				}
+				_, err = s.provider.UpdateOrCreateThirdParty(ctx, thirdPartyData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 			}
 		}
+	}
+
+	thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	for _, v := range thirdPartyORMList {
+		thirdParty, err := v.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		result.Data = append(result.Data, &thirdParty)
 	}
 
 	return result, nil

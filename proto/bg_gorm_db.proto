@@ -26,6 +26,23 @@ enum BgType {
     CustomsBond = 7;
 }
 
+message ThirdParty {
+    option (gorm.opts) = {
+        ormable: true,
+        table: "third_parties",
+    };
+    uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
+    string name = 2 [(gorm.field).tag = {not_null: true}];
+    google.protobuf.Timestamp createdAt = 51 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (gorm.field).tag = {not_null: true}
+    ];
+    google.protobuf.Timestamp updatedAt = 52 [
+        (google.api.field_behavior) = OUTPUT_ONLY, 
+        (gorm.field).tag = {not_null: true}
+    ];
+}
+
 message Transaction {
     option (gorm.opts) = {
         ormable: true,

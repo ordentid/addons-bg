@@ -51,6 +51,14 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
+	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	}
+	defer companyConn.Close()
+
+	companyClient := company_pb.NewApiServiceClient(companyConn)
+
 	filter := &task_pb.Task{
 		Type: "BG Mapping",
 	}
@@ -78,7 +86,7 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	}
 
 	for _, v := range dataList.Data {
-		transaction := &pb.Transaction{}
+		transaction := []*pb.Transaction{}
 		json.Unmarshal([]byte(v.Data), &transaction)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -99,9 +107,32 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 			UpdatedAt:          v.GetUpdatedAt(),
 		}
 
+		var company *pb.Company
+
+		if len(transaction) > 0 {
+			companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+			if !(len(companyRes.GetData()) > 0) {
+				return nil, status.Errorf(codes.NotFound, "Company not found.")
+			}
+
+			company = &pb.Company{
+				CompanyID:          companyRes.Data[0].GetCompanyID(),
+				HoldingID:          companyRes.Data[0].GetHoldingID(),
+				GroupName:          companyRes.Data[0].GetGroupName(),
+				CompanyName:        companyRes.Data[0].GetCompanyName(),
+				HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+			}
+		}
+
 		result.Data = append(result.Data, &pb.TransactionTask{
 			Transaction: transaction,
 			Task:        task,
+			Company:     company,
 		})
 	}
 
@@ -120,7 +151,6 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 		Error:   false,
 		Code:    200,
 		Message: "Data",
-		Data:    []*pb.Task{},
 	}
 
 	me, err := s.manager.GetMeFromJWT(ctx, "")
@@ -211,6 +241,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 		if httpResData.ResponseCode != "00" {
 			logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
 		} else {
+			transactionDataList := []*pb.Transaction{}
 			for _, d := range httpResData.ResponseData {
 				transactionData := &pb.Transaction{
 					Amount:             d.Amount,
@@ -237,48 +268,48 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 					TransactionTypeID:  d.TransactionTypeId,
 					UpdatedByID:        me.UserID,
 				}
+				transactionDataList = append(transactionDataList, transactionData)
+			}
 
-				data, err := json.Marshal(transactionData)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
+			data, err := json.Marshal(transactionDataList)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 
-				taskReq := &task_pb.SaveTaskRequest{
-					Task: &task_pb.Task{
-						Type:        "BG Mapping",
-						Data:        string(data),
-						CreatedByID: 1,
-					},
-				}
+			taskReq := &task_pb.SaveTaskRequest{
+				Task: &task_pb.Task{
+					Type:        "BG Mapping",
+					Data:        string(data),
+					CreatedByID: me.UserID,
+				},
+			}
 
-				if req.IsDraft {
-					taskReq.IsDraft = true
-				}
+			if req.IsDraft {
+				taskReq.IsDraft = true
+			}
 
-				taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
-				if err != nil {
-					logrus.Errorln(err)
-					return nil, err
-				}
+			taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+			if err != nil {
+				logrus.Errorln(err)
+				return nil, err
+			}
 
-				result.Data = append(result.Data, &pb.Task{
-					TaskID:             taskRes.Data.TaskID,
-					Type:               taskRes.Data.Type,
-					Status:             taskRes.Data.Status.String(),
-					Step:               taskRes.Data.Step.String(),
-					FeatureID:          taskRes.Data.FeatureID,
-					LastApprovedByID:   taskRes.Data.LastApprovedByID,
-					LastRejectedByID:   taskRes.Data.LastRejectedByID,
-					LastApprovedByName: taskRes.Data.LastApprovedByName,
-					LastRejectedByName: taskRes.Data.LastRejectedByName,
-					CreatedByName:      taskRes.Data.CreatedByName,
-					UpdatedByName:      taskRes.Data.UpdatedByName,
-					Reasons:            taskRes.Data.Reasons,
-					Comment:            taskRes.Data.Comment,
-					CreatedAt:          taskRes.Data.CreatedAt,
-					UpdatedAt:          taskRes.Data.UpdatedAt,
-				})
-
+			result.Data = &pb.Task{
+				TaskID:             taskRes.Data.TaskID,
+				Type:               taskRes.Data.Type,
+				Status:             taskRes.Data.Status.String(),
+				Step:               taskRes.Data.Step.String(),
+				FeatureID:          taskRes.Data.FeatureID,
+				LastApprovedByID:   taskRes.Data.LastApprovedByID,
+				LastRejectedByID:   taskRes.Data.LastRejectedByID,
+				LastApprovedByName: taskRes.Data.LastApprovedByName,
+				LastRejectedByName: taskRes.Data.LastRejectedByName,
+				CreatedByName:      taskRes.Data.CreatedByName,
+				UpdatedByName:      taskRes.Data.UpdatedByName,
+				Reasons:            taskRes.Data.Reasons,
+				Comment:            taskRes.Data.Comment,
+				CreatedAt:          taskRes.Data.CreatedAt,
+				UpdatedAt:          taskRes.Data.UpdatedAt,
 			}
 		}
 	}

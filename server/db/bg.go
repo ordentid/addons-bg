@@ -12,6 +12,54 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func (p *GormProvider) GetThirdParty(ctx context.Context) ([]*pb.ThirdPartyORM, error) {
+	data := []*pb.ThirdPartyORM{}
+	query := p.db_main
+
+	if err := query.Find(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	return data, nil
+}
+
+func (p *GormProvider) GetThirdPartyDetail(ctx context.Context, data *pb.ThirdPartyORM) (*pb.ThirdPartyORM, error) {
+	query := p.db_main
+	var err error
+	if err = query.First(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+	}
+	return data, err
+}
+
+func (p *GormProvider) UpdateOrCreateThirdParty(ctx context.Context, data *pb.ThirdPartyORM) (*pb.ThirdPartyORM, error) {
+	if data.Id > 0 {
+		model := &pb.ThirdPartyORM{
+			Id: data.Id,
+		}
+		if err := p.db_main.Model(&model).Updates(&data).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Error(codes.NotFound, "ID Not Found")
+			} else {
+				return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+			}
+		}
+
+		return model, nil
+	} else {
+		if err := p.db_main.Create(&data).Error; err != nil {
+			return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+		}
+
+		return data, nil
+	}
+}
+
 func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagination *pb.PaginationResponse, sort *pb.Sort) ([]*pb.TransactionORM, error) {
 	data := []*pb.TransactionORM{}
 	query := p.db_main

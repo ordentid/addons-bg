@@ -8,7 +8,7 @@ option go_package = "./pb";
 
 // import "mwitkow/go-proto-validators/validator.proto";
 import "google/protobuf/timestamp.proto";
-import "google/api/field_behavior.proto";
+// import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 // import "google/protobuf/struct.proto";
 
@@ -45,13 +45,24 @@ message Task {
     string updatedByName = 11;
     string reasons = 12;
     string comment = 13;
-    google.protobuf.Timestamp createdAt = 101 [(google.api.field_behavior) = OUTPUT_ONLY];
-    google.protobuf.Timestamp updatedAt = 102 [(google.api.field_behavior) = OUTPUT_ONLY];
+    google.protobuf.Timestamp createdAt = 101;
+    google.protobuf.Timestamp updatedAt = 102;
+}
+
+message Company {
+    uint64 companyID = 1;
+    uint64 holdingID = 2;
+    string groupName = 3;
+    string companyName = 4;
+    string holdingCompanyName = 5;
+    google.protobuf.Timestamp createdAt = 101;
+    google.protobuf.Timestamp updatedAt = 102;
 }
 
 message TransactionTask {
-    Transaction transaction = 1;
+    repeated Transaction transaction = 1;
     Task task = 2;
+    Company company = 3;
 }
 
 message HealthCheckRequest {}
@@ -64,7 +75,7 @@ message GetThirdPartyIDResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    repeated string data = 4;
+    repeated ThirdParty data = 4;
 }
 
 message GetTransactionTaskRequest {
@@ -110,7 +121,7 @@ message CreateTransactionTaskResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    repeated Task data = 4;
+    Task data = 4;
 }
 
 message GetTransactionRequest {

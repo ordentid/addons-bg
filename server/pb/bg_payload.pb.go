@@ -8,7 +8,6 @@ package pb
 
 import (
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
@@ -301,19 +300,115 @@ func (x *Task) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type Company struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	CompanyID          uint64                 `protobuf:"varint,1,opt,name=companyID,proto3" json:"companyID,omitempty"`
+	HoldingID          uint64                 `protobuf:"varint,2,opt,name=holdingID,proto3" json:"holdingID,omitempty"`
+	GroupName          string                 `protobuf:"bytes,3,opt,name=groupName,proto3" json:"groupName,omitempty"`
+	CompanyName        string                 `protobuf:"bytes,4,opt,name=companyName,proto3" json:"companyName,omitempty"`
+	HoldingCompanyName string                 `protobuf:"bytes,5,opt,name=holdingCompanyName,proto3" json:"holdingCompanyName,omitempty"`
+	CreatedAt          *timestamppb.Timestamp `protobuf:"bytes,101,opt,name=createdAt,proto3" json:"createdAt,omitempty"`
+	UpdatedAt          *timestamppb.Timestamp `protobuf:"bytes,102,opt,name=updatedAt,proto3" json:"updatedAt,omitempty"`
+}
+
+func (x *Company) Reset() {
+	*x = Company{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bg_payload_proto_msgTypes[1]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *Company) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Company) ProtoMessage() {}
+
+func (x *Company) ProtoReflect() protoreflect.Message {
+	mi := &file_bg_payload_proto_msgTypes[1]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Company.ProtoReflect.Descriptor instead.
+func (*Company) Descriptor() ([]byte, []int) {
+	return file_bg_payload_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *Company) GetCompanyID() uint64 {
+	if x != nil {
+		return x.CompanyID
+	}
+	return 0
+}
+
+func (x *Company) GetHoldingID() uint64 {
+	if x != nil {
+		return x.HoldingID
+	}
+	return 0
+}
+
+func (x *Company) GetGroupName() string {
+	if x != nil {
+		return x.GroupName
+	}
+	return ""
+}
+
+func (x *Company) GetCompanyName() string {
+	if x != nil {
+		return x.CompanyName
+	}
+	return ""
+}
+
+func (x *Company) GetHoldingCompanyName() string {
+	if x != nil {
+		return x.HoldingCompanyName
+	}
+	return ""
+}
+
+func (x *Company) GetCreatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.CreatedAt
+	}
+	return nil
+}
+
+func (x *Company) GetUpdatedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.UpdatedAt
+	}
+	return nil
+}
+
 type TransactionTask struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Transaction *Transaction `protobuf:"bytes,1,opt,name=transaction,proto3" json:"transaction,omitempty"`
-	Task        *Task        `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	Transaction []*Transaction `protobuf:"bytes,1,rep,name=transaction,proto3" json:"transaction,omitempty"`
+	Task        *Task          `protobuf:"bytes,2,opt,name=task,proto3" json:"task,omitempty"`
+	Company     *Company       `protobuf:"bytes,3,opt,name=company,proto3" json:"company,omitempty"`
 }
 
 func (x *TransactionTask) Reset() {
 	*x = TransactionTask{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[1]
+		mi := &file_bg_payload_proto_msgTypes[2]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -326,7 +421,7 @@ func (x *TransactionTask) String() string {
 func (*TransactionTask) ProtoMessage() {}
 
 func (x *TransactionTask) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[1]
+	mi := &file_bg_payload_proto_msgTypes[2]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -339,10 +434,10 @@ func (x *TransactionTask) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use TransactionTask.ProtoReflect.Descriptor instead.
 func (*TransactionTask) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{1}
+	return file_bg_payload_proto_rawDescGZIP(), []int{2}
 }
 
-func (x *TransactionTask) GetTransaction() *Transaction {
+func (x *TransactionTask) GetTransaction() []*Transaction {
 	if x != nil {
 		return x.Transaction
 	}
@@ -356,6 +451,13 @@ func (x *TransactionTask) GetTask() *Task {
 	return nil
 }
 
+func (x *TransactionTask) GetCompany() *Company {
+	if x != nil {
+		return x.Company
+	}
+	return nil
+}
+
 type HealthCheckRequest struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -365,7 +467,7 @@ type HealthCheckRequest struct {
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[2]
+		mi := &file_bg_payload_proto_msgTypes[3]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -378,7 +480,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[2]
+	mi := &file_bg_payload_proto_msgTypes[3]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -391,7 +493,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{2}
+	return file_bg_payload_proto_rawDescGZIP(), []int{3}
 }
 
 type HealthCheckResponse struct {
@@ -405,7 +507,7 @@ type HealthCheckResponse struct {
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[3]
+		mi := &file_bg_payload_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -418,7 +520,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[3]
+	mi := &file_bg_payload_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -431,7 +533,7 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{3}
+	return file_bg_payload_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *HealthCheckResponse) GetMessage() string {
@@ -450,7 +552,7 @@ type GetThirdPartyIDRequest struct {
 func (x *GetThirdPartyIDRequest) Reset() {
 	*x = GetThirdPartyIDRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[4]
+		mi := &file_bg_payload_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -463,7 +565,7 @@ func (x *GetThirdPartyIDRequest) String() string {
 func (*GetThirdPartyIDRequest) ProtoMessage() {}
 
 func (x *GetThirdPartyIDRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[4]
+	mi := &file_bg_payload_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -476,7 +578,7 @@ func (x *GetThirdPartyIDRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetThirdPartyIDRequest.ProtoReflect.Descriptor instead.
 func (*GetThirdPartyIDRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{4}
+	return file_bg_payload_proto_rawDescGZIP(), []int{5}
 }
 
 type GetThirdPartyIDResponse struct {
@@ -484,16 +586,16 @@ type GetThirdPartyIDResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Error   bool     `protobuf:"varint,1,opt,name=error,proto3" json:"error,omitempty"`
-	Code    uint32   `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
-	Message string   `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	Data    []string `protobuf:"bytes,4,rep,name=data,proto3" json:"data,omitempty"`
+	Error   bool          `protobuf:"varint,1,opt,name=error,proto3" json:"error,omitempty"`
+	Code    uint32        `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
+	Message string        `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	Data    []*ThirdParty `protobuf:"bytes,4,rep,name=data,proto3" json:"data,omitempty"`
 }
 
 func (x *GetThirdPartyIDResponse) Reset() {
 	*x = GetThirdPartyIDResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[5]
+		mi := &file_bg_payload_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -506,7 +608,7 @@ func (x *GetThirdPartyIDResponse) String() string {
 func (*GetThirdPartyIDResponse) ProtoMessage() {}
 
 func (x *GetThirdPartyIDResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[5]
+	mi := &file_bg_payload_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -519,7 +621,7 @@ func (x *GetThirdPartyIDResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetThirdPartyIDResponse.ProtoReflect.Descriptor instead.
 func (*GetThirdPartyIDResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{5}
+	return file_bg_payload_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetThirdPartyIDResponse) GetError() bool {
@@ -543,7 +645,7 @@ func (x *GetThirdPartyIDResponse) GetMessage() string {
 	return ""
 }
 
-func (x *GetThirdPartyIDResponse) GetData() []string {
+func (x *GetThirdPartyIDResponse) GetData() []*ThirdParty {
 	if x != nil {
 		return x.Data
 	}
@@ -568,7 +670,7 @@ type GetTransactionTaskRequest struct {
 func (x *GetTransactionTaskRequest) Reset() {
 	*x = GetTransactionTaskRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[6]
+		mi := &file_bg_payload_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -581,7 +683,7 @@ func (x *GetTransactionTaskRequest) String() string {
 func (*GetTransactionTaskRequest) ProtoMessage() {}
 
 func (x *GetTransactionTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[6]
+	mi := &file_bg_payload_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -594,7 +696,7 @@ func (x *GetTransactionTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{6}
+	return file_bg_payload_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetTransactionTaskRequest) GetStatus() TaskStatus {
@@ -668,7 +770,7 @@ type GetTransactionTaskResponse struct {
 func (x *GetTransactionTaskResponse) Reset() {
 	*x = GetTransactionTaskResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[7]
+		mi := &file_bg_payload_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -681,7 +783,7 @@ func (x *GetTransactionTaskResponse) String() string {
 func (*GetTransactionTaskResponse) ProtoMessage() {}
 
 func (x *GetTransactionTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[7]
+	mi := &file_bg_payload_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -694,7 +796,7 @@ func (x *GetTransactionTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{7}
+	return file_bg_payload_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetTransactionTaskResponse) GetError() bool {
@@ -744,7 +846,7 @@ type CreateTransactionTaskThirdParty struct {
 func (x *CreateTransactionTaskThirdParty) Reset() {
 	*x = CreateTransactionTaskThirdParty{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[8]
+		mi := &file_bg_payload_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -757,7 +859,7 @@ func (x *CreateTransactionTaskThirdParty) String() string {
 func (*CreateTransactionTaskThirdParty) ProtoMessage() {}
 
 func (x *CreateTransactionTaskThirdParty) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[8]
+	mi := &file_bg_payload_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -770,7 +872,7 @@ func (x *CreateTransactionTaskThirdParty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskThirdParty.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskThirdParty) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{8}
+	return file_bg_payload_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *CreateTransactionTaskThirdParty) GetThirdPartyID() uint64 {
@@ -800,7 +902,7 @@ type CreateTransactionTaskRequest struct {
 func (x *CreateTransactionTaskRequest) Reset() {
 	*x = CreateTransactionTaskRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[9]
+		mi := &file_bg_payload_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -813,7 +915,7 @@ func (x *CreateTransactionTaskRequest) String() string {
 func (*CreateTransactionTaskRequest) ProtoMessage() {}
 
 func (x *CreateTransactionTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[9]
+	mi := &file_bg_payload_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +928,7 @@ func (x *CreateTransactionTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskRequest.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{9}
+	return file_bg_payload_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *CreateTransactionTaskRequest) GetCompanyID() uint64 {
@@ -855,16 +957,16 @@ type CreateTransactionTaskResponse struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Error   bool    `protobuf:"varint,1,opt,name=error,proto3" json:"error,omitempty"`
-	Code    uint32  `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
-	Message string  `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
-	Data    []*Task `protobuf:"bytes,4,rep,name=data,proto3" json:"data,omitempty"`
+	Error   bool   `protobuf:"varint,1,opt,name=error,proto3" json:"error,omitempty"`
+	Code    uint32 `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
+	Message string `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
+	Data    *Task  `protobuf:"bytes,4,opt,name=data,proto3" json:"data,omitempty"`
 }
 
 func (x *CreateTransactionTaskResponse) Reset() {
 	*x = CreateTransactionTaskResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[10]
+		mi := &file_bg_payload_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -877,7 +979,7 @@ func (x *CreateTransactionTaskResponse) String() string {
 func (*CreateTransactionTaskResponse) ProtoMessage() {}
 
 func (x *CreateTransactionTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[10]
+	mi := &file_bg_payload_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -890,7 +992,7 @@ func (x *CreateTransactionTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskResponse.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{10}
+	return file_bg_payload_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *CreateTransactionTaskResponse) GetError() bool {
@@ -914,7 +1016,7 @@ func (x *CreateTransactionTaskResponse) GetMessage() string {
 	return ""
 }
 
-func (x *CreateTransactionTaskResponse) GetData() []*Task {
+func (x *CreateTransactionTaskResponse) GetData() *Task {
 	if x != nil {
 		return x.Data
 	}
@@ -938,7 +1040,7 @@ type GetTransactionRequest struct {
 func (x *GetTransactionRequest) Reset() {
 	*x = GetTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[11]
+		mi := &file_bg_payload_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -951,7 +1053,7 @@ func (x *GetTransactionRequest) String() string {
 func (*GetTransactionRequest) ProtoMessage() {}
 
 func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[11]
+	mi := &file_bg_payload_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -964,7 +1066,7 @@ func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{11}
+	return file_bg_payload_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetTransactionRequest) GetTransaction() *Transaction {
@@ -1031,7 +1133,7 @@ type GetTransactionResponse struct {
 func (x *GetTransactionResponse) Reset() {
 	*x = GetTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[12]
+		mi := &file_bg_payload_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1044,7 +1146,7 @@ func (x *GetTransactionResponse) String() string {
 func (*GetTransactionResponse) ProtoMessage() {}
 
 func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[12]
+	mi := &file_bg_payload_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1057,7 +1159,7 @@ func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{12}
+	return file_bg_payload_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetTransactionResponse) GetError() bool {
@@ -1106,7 +1208,7 @@ type GetTransactionDetailRequest struct {
 func (x *GetTransactionDetailRequest) Reset() {
 	*x = GetTransactionDetailRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[13]
+		mi := &file_bg_payload_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1119,7 +1221,7 @@ func (x *GetTransactionDetailRequest) String() string {
 func (*GetTransactionDetailRequest) ProtoMessage() {}
 
 func (x *GetTransactionDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[13]
+	mi := &file_bg_payload_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1132,7 +1234,7 @@ func (x *GetTransactionDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionDetailRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{13}
+	return file_bg_payload_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetTransactionDetailRequest) GetTransactionID() uint64 {
@@ -1156,7 +1258,7 @@ type GetTransactionDetailResponse struct {
 func (x *GetTransactionDetailResponse) Reset() {
 	*x = GetTransactionDetailResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[14]
+		mi := &file_bg_payload_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1169,7 +1271,7 @@ func (x *GetTransactionDetailResponse) String() string {
 func (*GetTransactionDetailResponse) ProtoMessage() {}
 
 func (x *GetTransactionDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[14]
+	mi := &file_bg_payload_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1182,7 +1284,7 @@ func (x *GetTransactionDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionDetailResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{14}
+	return file_bg_payload_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetTransactionDetailResponse) GetError() bool {
@@ -1224,7 +1326,7 @@ type CreateTransactionRequest struct {
 func (x *CreateTransactionRequest) Reset() {
 	*x = CreateTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[15]
+		mi := &file_bg_payload_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1237,7 +1339,7 @@ func (x *CreateTransactionRequest) String() string {
 func (*CreateTransactionRequest) ProtoMessage() {}
 
 func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[15]
+	mi := &file_bg_payload_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1250,7 +1352,7 @@ func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*CreateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{15}
+	return file_bg_payload_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateTransactionRequest) GetData() *Transaction {
@@ -1274,7 +1376,7 @@ type CreateTransactionResponse struct {
 func (x *CreateTransactionResponse) Reset() {
 	*x = CreateTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[16]
+		mi := &file_bg_payload_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1287,7 +1389,7 @@ func (x *CreateTransactionResponse) String() string {
 func (*CreateTransactionResponse) ProtoMessage() {}
 
 func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[16]
+	mi := &file_bg_payload_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1300,7 +1402,7 @@ func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*CreateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{16}
+	return file_bg_payload_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateTransactionResponse) GetError() bool {
@@ -1343,7 +1445,7 @@ type UpdateTransactionRequest struct {
 func (x *UpdateTransactionRequest) Reset() {
 	*x = UpdateTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[17]
+		mi := &file_bg_payload_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1356,7 +1458,7 @@ func (x *UpdateTransactionRequest) String() string {
 func (*UpdateTransactionRequest) ProtoMessage() {}
 
 func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[17]
+	mi := &file_bg_payload_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1369,7 +1471,7 @@ func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{17}
+	return file_bg_payload_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *UpdateTransactionRequest) GetTransactionID() uint64 {
@@ -1400,7 +1502,7 @@ type UpdateTransactionResponse struct {
 func (x *UpdateTransactionResponse) Reset() {
 	*x = UpdateTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[18]
+		mi := &file_bg_payload_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1413,7 +1515,7 @@ func (x *UpdateTransactionResponse) String() string {
 func (*UpdateTransactionResponse) ProtoMessage() {}
 
 func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[18]
+	mi := &file_bg_payload_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1426,7 +1528,7 @@ func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{18}
+	return file_bg_payload_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *UpdateTransactionResponse) GetError() bool {
@@ -1466,68 +1568,89 @@ var file_bg_payload_proto_rawDesc = []byte{
 	0x6f, 0x74, 0x6f, 0x1a, 0x0d, 0x62, 0x67, 0x5f, 0x63, 0x6f, 0x72, 0x65, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x1a, 0x1f, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f,
 	0x62, 0x75, 0x66, 0x2f, 0x74, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x2e, 0x70, 0x72,
-	0x6f, 0x74, 0x6f, 0x1a, 0x1f, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2f, 0x61, 0x70, 0x69, 0x2f,
-	0x66, 0x69, 0x65, 0x6c, 0x64, 0x5f, 0x62, 0x65, 0x68, 0x61, 0x76, 0x69, 0x6f, 0x72, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x2d, 0x67, 0x65, 0x6e,
-	0x2d, 0x6f, 0x70, 0x65, 0x6e, 0x61, 0x70, 0x69, 0x76, 0x32, 0x2f, 0x6f, 0x70, 0x74, 0x69, 0x6f,
-	0x6e, 0x73, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70,
-	0x72, 0x6f, 0x74, 0x6f, 0x22, 0xb2, 0x04, 0x0a, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x16, 0x0a,
-	0x06, 0x74, 0x61, 0x73, 0x6b, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x06, 0x74,
-	0x61, 0x73, 0x6b, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x09, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61,
-	0x74, 0x75, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75,
-	0x73, 0x12, 0x12, 0x0a, 0x04, 0x73, 0x74, 0x65, 0x70, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52,
-	0x04, 0x73, 0x74, 0x65, 0x70, 0x12, 0x1c, 0x0a, 0x09, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65,
-	0x49, 0x44, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72,
-	0x65, 0x49, 0x44, 0x12, 0x2a, 0x0a, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f,
-	0x76, 0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x52, 0x10, 0x6c,
-	0x61, 0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x12,
-	0x2a, 0x0a, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42,
-	0x79, 0x49, 0x44, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04, 0x52, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x52,
-	0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x12, 0x2e, 0x0a, 0x12, 0x6c,
-	0x61, 0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d,
-	0x65, 0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x6c, 0x61, 0x73, 0x74, 0x41, 0x70, 0x70,
-	0x72, 0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2e, 0x0a, 0x12, 0x6c,
-	0x61, 0x73, 0x74, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d,
-	0x65, 0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x6c, 0x61, 0x73, 0x74, 0x52, 0x65, 0x6a,
-	0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x24, 0x0a, 0x0d, 0x63,
-	0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x0a, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x0d, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d,
-	0x65, 0x12, 0x24, 0x0a, 0x0d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61,
-	0x6d, 0x65, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65,
-	0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x72, 0x65, 0x61, 0x73, 0x6f,
-	0x6e, 0x73, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e,
-	0x73, 0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x0d, 0x20, 0x01,
-	0x28, 0x09, 0x52, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x12, 0x3d, 0x0a, 0x09, 0x63,
-	0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x18, 0x65, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a,
-	0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66,
-	0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x03, 0xe0, 0x41, 0x03, 0x52,
-	0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x12, 0x3d, 0x0a, 0x09, 0x75, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x18, 0x66, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
+	0x6f, 0x74, 0x6f, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x63, 0x2d, 0x67, 0x65, 0x6e, 0x2d,
+	0x6f, 0x70, 0x65, 0x6e, 0x61, 0x70, 0x69, 0x76, 0x32, 0x2f, 0x6f, 0x70, 0x74, 0x69, 0x6f, 0x6e,
+	0x73, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73, 0x2e, 0x70, 0x72,
+	0x6f, 0x74, 0x6f, 0x22, 0xa8, 0x04, 0x0a, 0x04, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x16, 0x0a, 0x06,
+	0x74, 0x61, 0x73, 0x6b, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x06, 0x74, 0x61,
+	0x73, 0x6b, 0x49, 0x44, 0x12, 0x12, 0x0a, 0x04, 0x74, 0x79, 0x70, 0x65, 0x18, 0x02, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x04, 0x74, 0x79, 0x70, 0x65, 0x12, 0x16, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74,
+	0x75, 0x73, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
+	0x12, 0x12, 0x0a, 0x04, 0x73, 0x74, 0x65, 0x70, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x04,
+	0x73, 0x74, 0x65, 0x70, 0x12, 0x1c, 0x0a, 0x09, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65, 0x49,
+	0x44, 0x18, 0x05, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x66, 0x65, 0x61, 0x74, 0x75, 0x72, 0x65,
+	0x49, 0x44, 0x12, 0x2a, 0x0a, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76,
+	0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x18, 0x06, 0x20, 0x01, 0x28, 0x04, 0x52, 0x10, 0x6c, 0x61,
+	0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x12, 0x2a,
+	0x0a, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79,
+	0x49, 0x44, 0x18, 0x07, 0x20, 0x01, 0x28, 0x04, 0x52, 0x10, 0x6c, 0x61, 0x73, 0x74, 0x52, 0x65,
+	0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x49, 0x44, 0x12, 0x2e, 0x0a, 0x12, 0x6c, 0x61,
+	0x73, 0x74, 0x41, 0x70, 0x70, 0x72, 0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65,
+	0x18, 0x08, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x6c, 0x61, 0x73, 0x74, 0x41, 0x70, 0x70, 0x72,
+	0x6f, 0x76, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2e, 0x0a, 0x12, 0x6c, 0x61,
+	0x73, 0x74, 0x52, 0x65, 0x6a, 0x65, 0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65,
+	0x18, 0x09, 0x20, 0x01, 0x28, 0x09, 0x52, 0x12, 0x6c, 0x61, 0x73, 0x74, 0x52, 0x65, 0x6a, 0x65,
+	0x63, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x24, 0x0a, 0x0d, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x0a, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x0d, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65,
+	0x12, 0x24, 0x0a, 0x0d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x42, 0x79, 0x4e, 0x61, 0x6d,
+	0x65, 0x18, 0x0b, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0d, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64,
+	0x42, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e,
+	0x73, 0x18, 0x0c, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x72, 0x65, 0x61, 0x73, 0x6f, 0x6e, 0x73,
+	0x12, 0x18, 0x0a, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x18, 0x0d, 0x20, 0x01, 0x28,
+	0x09, 0x52, 0x07, 0x63, 0x6f, 0x6d, 0x6d, 0x65, 0x6e, 0x74, 0x12, 0x38, 0x0a, 0x09, 0x63, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x18, 0x65, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e,
 	0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e,
-	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x42, 0x03, 0xe0, 0x41, 0x03, 0x52, 0x09,
-	0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0x78, 0x0a, 0x0f, 0x54, 0x72, 0x61,
-	0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x3c, 0x0a, 0x0b,
-	0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x0b, 0x32, 0x1a, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76,
-	0x31, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0b, 0x74,
-	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x27, 0x0a, 0x04, 0x74, 0x61,
-	0x73, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65,
-	0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x04, 0x74,
-	0x61, 0x73, 0x6b, 0x22, 0x14, 0x0a, 0x12, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68, 0x65,
-	0x63, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x2f, 0x0a, 0x13, 0x48, 0x65, 0x61,
-	0x6c, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65,
-	0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x01, 0x20, 0x01, 0x28,
-	0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x18, 0x0a, 0x16, 0x47, 0x65,
-	0x74, 0x54, 0x68, 0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x49, 0x44, 0x52, 0x65, 0x71,
-	0x75, 0x65, 0x73, 0x74, 0x22, 0x71, 0x0a, 0x17, 0x47, 0x65, 0x74, 0x54, 0x68, 0x69, 0x72, 0x64,
-	0x50, 0x61, 0x72, 0x74, 0x79, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x12,
-	0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20, 0x01, 0x28, 0x08, 0x52, 0x05,
-	0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20,
-	0x01, 0x28, 0x0d, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73,
-	0x73, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x12, 0x12, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x04, 0x20, 0x03, 0x28,
-	0x09, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0xb9, 0x0a, 0x0a, 0x19, 0x47, 0x65, 0x74, 0x54,
+	0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74,
+	0x65, 0x64, 0x41, 0x74, 0x12, 0x38, 0x0a, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41,
+	0x74, 0x18, 0x66, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65,
+	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74,
+	0x61, 0x6d, 0x70, 0x52, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0xa9,
+	0x02, 0x0a, 0x07, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x12, 0x1c, 0x0a, 0x09, 0x63, 0x6f,
+	0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x44, 0x18, 0x01, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x63,
+	0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x49, 0x44, 0x12, 0x1c, 0x0a, 0x09, 0x68, 0x6f, 0x6c, 0x64,
+	0x69, 0x6e, 0x67, 0x49, 0x44, 0x18, 0x02, 0x20, 0x01, 0x28, 0x04, 0x52, 0x09, 0x68, 0x6f, 0x6c,
+	0x64, 0x69, 0x6e, 0x67, 0x49, 0x44, 0x12, 0x1c, 0x0a, 0x09, 0x67, 0x72, 0x6f, 0x75, 0x70, 0x4e,
+	0x61, 0x6d, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x09, 0x67, 0x72, 0x6f, 0x75, 0x70,
+	0x4e, 0x61, 0x6d, 0x65, 0x12, 0x20, 0x0a, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x4e,
+	0x61, 0x6d, 0x65, 0x18, 0x04, 0x20, 0x01, 0x28, 0x09, 0x52, 0x0b, 0x63, 0x6f, 0x6d, 0x70, 0x61,
+	0x6e, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x2e, 0x0a, 0x12, 0x68, 0x6f, 0x6c, 0x64, 0x69, 0x6e,
+	0x67, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x18, 0x05, 0x20, 0x01,
+	0x28, 0x09, 0x52, 0x12, 0x68, 0x6f, 0x6c, 0x64, 0x69, 0x6e, 0x67, 0x43, 0x6f, 0x6d, 0x70, 0x61,
+	0x6e, 0x79, 0x4e, 0x61, 0x6d, 0x65, 0x12, 0x38, 0x0a, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65,
+	0x64, 0x41, 0x74, 0x18, 0x65, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67,
+	0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65,
+	0x73, 0x74, 0x61, 0x6d, 0x70, 0x52, 0x09, 0x63, 0x72, 0x65, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74,
+	0x12, 0x38, 0x0a, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x18, 0x66, 0x20,
+	0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
+	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52,
+	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0xaa, 0x01, 0x0a, 0x0f, 0x54,
+	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x3c,
+	0x0a, 0x0b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x18, 0x01, 0x20,
+	0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65,
+	0x2e, 0x76, 0x31, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52,
+	0x0b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x12, 0x27, 0x0a, 0x04,
+	0x74, 0x61, 0x73, 0x6b, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x62, 0x67, 0x2e,
+	0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x52,
+	0x04, 0x74, 0x61, 0x73, 0x6b, 0x12, 0x30, 0x0a, 0x07, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79,
+	0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x52, 0x07,
+	0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x22, 0x14, 0x0a, 0x12, 0x48, 0x65, 0x61, 0x6c, 0x74,
+	0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x2f, 0x0a,
+	0x13, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18,
+	0x01, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x22, 0x18,
+	0x0a, 0x16, 0x47, 0x65, 0x74, 0x54, 0x68, 0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x49,
+	0x44, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x22, 0x8c, 0x01, 0x0a, 0x17, 0x47, 0x65, 0x74,
+	0x54, 0x68, 0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x49, 0x44, 0x52, 0x65, 0x73, 0x70,
+	0x6f, 0x6e, 0x73, 0x65, 0x12, 0x14, 0x0a, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x18, 0x01, 0x20,
+	0x01, 0x28, 0x08, 0x52, 0x05, 0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f,
+	0x64, 0x65, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0d, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x18,
+	0x0a, 0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52,
+	0x07, 0x6d, 0x65, 0x73, 0x73, 0x61, 0x67, 0x65, 0x12, 0x2d, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61,
+	0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x19, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76,
+	0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x68, 0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74,
+	0x79, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0xb9, 0x0a, 0x0a, 0x19, 0x47, 0x65, 0x74, 0x54,
 	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x65,
 	0x71, 0x75, 0x65, 0x73, 0x74, 0x12, 0x31, 0x0a, 0x06, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73, 0x18,
 	0x01, 0x20, 0x01, 0x28, 0x0e, 0x32, 0x19, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69,
@@ -1649,7 +1772,7 @@ var file_bg_payload_proto_rawDesc = []byte{
 	0x65, 0x72, 0x72, 0x6f, 0x72, 0x12, 0x12, 0x0a, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x18, 0x02, 0x20,
 	0x01, 0x28, 0x0d, 0x52, 0x04, 0x63, 0x6f, 0x64, 0x65, 0x12, 0x18, 0x0a, 0x07, 0x6d, 0x65, 0x73,
 	0x73, 0x61, 0x67, 0x65, 0x18, 0x03, 0x20, 0x01, 0x28, 0x09, 0x52, 0x07, 0x6d, 0x65, 0x73, 0x73,
-	0x61, 0x67, 0x65, 0x12, 0x27, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x04, 0x20, 0x03, 0x28,
+	0x61, 0x67, 0x65, 0x12, 0x27, 0x0a, 0x04, 0x64, 0x61, 0x74, 0x61, 0x18, 0x04, 0x20, 0x01, 0x28,
 	0x0b, 0x32, 0x13, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76,
 	0x31, 0x2e, 0x54, 0x61, 0x73, 0x6b, 0x52, 0x04, 0x64, 0x61, 0x74, 0x61, 0x22, 0x93, 0x0a, 0x0a,
 	0x15, 0x47, 0x65, 0x74, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52,
@@ -1819,60 +1942,66 @@ func file_bg_payload_proto_rawDescGZIP() []byte {
 }
 
 var file_bg_payload_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_bg_payload_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_bg_payload_proto_msgTypes = make([]protoimpl.MessageInfo, 20)
 var file_bg_payload_proto_goTypes = []interface{}{
 	(TaskStatus)(0),                         // 0: bg.service.v1.TaskStatus
 	(TaskStep)(0),                           // 1: bg.service.v1.TaskStep
 	(*Task)(nil),                            // 2: bg.service.v1.Task
-	(*TransactionTask)(nil),                 // 3: bg.service.v1.TransactionTask
-	(*HealthCheckRequest)(nil),              // 4: bg.service.v1.HealthCheckRequest
-	(*HealthCheckResponse)(nil),             // 5: bg.service.v1.HealthCheckResponse
-	(*GetThirdPartyIDRequest)(nil),          // 6: bg.service.v1.GetThirdPartyIDRequest
-	(*GetThirdPartyIDResponse)(nil),         // 7: bg.service.v1.GetThirdPartyIDResponse
-	(*GetTransactionTaskRequest)(nil),       // 8: bg.service.v1.GetTransactionTaskRequest
-	(*GetTransactionTaskResponse)(nil),      // 9: bg.service.v1.GetTransactionTaskResponse
-	(*CreateTransactionTaskThirdParty)(nil), // 10: bg.service.v1.CreateTransactionTaskThirdParty
-	(*CreateTransactionTaskRequest)(nil),    // 11: bg.service.v1.CreateTransactionTaskRequest
-	(*CreateTransactionTaskResponse)(nil),   // 12: bg.service.v1.CreateTransactionTaskResponse
-	(*GetTransactionRequest)(nil),           // 13: bg.service.v1.GetTransactionRequest
-	(*GetTransactionResponse)(nil),          // 14: bg.service.v1.GetTransactionResponse
-	(*GetTransactionDetailRequest)(nil),     // 15: bg.service.v1.GetTransactionDetailRequest
-	(*GetTransactionDetailResponse)(nil),    // 16: bg.service.v1.GetTransactionDetailResponse
-	(*CreateTransactionRequest)(nil),        // 17: bg.service.v1.CreateTransactionRequest
-	(*CreateTransactionResponse)(nil),       // 18: bg.service.v1.CreateTransactionResponse
-	(*UpdateTransactionRequest)(nil),        // 19: bg.service.v1.UpdateTransactionRequest
-	(*UpdateTransactionResponse)(nil),       // 20: bg.service.v1.UpdateTransactionResponse
-	(*timestamppb.Timestamp)(nil),           // 21: google.protobuf.Timestamp
-	(*Transaction)(nil),                     // 22: bg.service.v1.Transaction
-	(Direction)(0),                          // 23: bg.service.v1.Direction
-	(*PaginationResponse)(nil),              // 24: bg.service.v1.PaginationResponse
+	(*Company)(nil),                         // 3: bg.service.v1.Company
+	(*TransactionTask)(nil),                 // 4: bg.service.v1.TransactionTask
+	(*HealthCheckRequest)(nil),              // 5: bg.service.v1.HealthCheckRequest
+	(*HealthCheckResponse)(nil),             // 6: bg.service.v1.HealthCheckResponse
+	(*GetThirdPartyIDRequest)(nil),          // 7: bg.service.v1.GetThirdPartyIDRequest
+	(*GetThirdPartyIDResponse)(nil),         // 8: bg.service.v1.GetThirdPartyIDResponse
+	(*GetTransactionTaskRequest)(nil),       // 9: bg.service.v1.GetTransactionTaskRequest
+	(*GetTransactionTaskResponse)(nil),      // 10: bg.service.v1.GetTransactionTaskResponse
+	(*CreateTransactionTaskThirdParty)(nil), // 11: bg.service.v1.CreateTransactionTaskThirdParty
+	(*CreateTransactionTaskRequest)(nil),    // 12: bg.service.v1.CreateTransactionTaskRequest
+	(*CreateTransactionTaskResponse)(nil),   // 13: bg.service.v1.CreateTransactionTaskResponse
+	(*GetTransactionRequest)(nil),           // 14: bg.service.v1.GetTransactionRequest
+	(*GetTransactionResponse)(nil),          // 15: bg.service.v1.GetTransactionResponse
+	(*GetTransactionDetailRequest)(nil),     // 16: bg.service.v1.GetTransactionDetailRequest
+	(*GetTransactionDetailResponse)(nil),    // 17: bg.service.v1.GetTransactionDetailResponse
+	(*CreateTransactionRequest)(nil),        // 18: bg.service.v1.CreateTransactionRequest
+	(*CreateTransactionResponse)(nil),       // 19: bg.service.v1.CreateTransactionResponse
+	(*UpdateTransactionRequest)(nil),        // 20: bg.service.v1.UpdateTransactionRequest
+	(*UpdateTransactionResponse)(nil),       // 21: bg.service.v1.UpdateTransactionResponse
+	(*timestamppb.Timestamp)(nil),           // 22: google.protobuf.Timestamp
+	(*Transaction)(nil),                     // 23: bg.service.v1.Transaction
+	(*ThirdParty)(nil),                      // 24: bg.service.v1.ThirdParty
+	(Direction)(0),                          // 25: bg.service.v1.Direction
+	(*PaginationResponse)(nil),              // 26: bg.service.v1.PaginationResponse
 }
 var file_bg_payload_proto_depIdxs = []int32{
-	21, // 0: bg.service.v1.Task.createdAt:type_name -> google.protobuf.Timestamp
-	21, // 1: bg.service.v1.Task.updatedAt:type_name -> google.protobuf.Timestamp
-	22, // 2: bg.service.v1.TransactionTask.transaction:type_name -> bg.service.v1.Transaction
-	2,  // 3: bg.service.v1.TransactionTask.task:type_name -> bg.service.v1.Task
-	0,  // 4: bg.service.v1.GetTransactionTaskRequest.status:type_name -> bg.service.v1.TaskStatus
-	1,  // 5: bg.service.v1.GetTransactionTaskRequest.step:type_name -> bg.service.v1.TaskStep
-	23, // 6: bg.service.v1.GetTransactionTaskRequest.dir:type_name -> bg.service.v1.Direction
-	3,  // 7: bg.service.v1.GetTransactionTaskResponse.data:type_name -> bg.service.v1.TransactionTask
-	24, // 8: bg.service.v1.GetTransactionTaskResponse.pagination:type_name -> bg.service.v1.PaginationResponse
-	10, // 9: bg.service.v1.CreateTransactionTaskRequest.thirdParty:type_name -> bg.service.v1.CreateTransactionTaskThirdParty
-	2,  // 10: bg.service.v1.CreateTransactionTaskResponse.data:type_name -> bg.service.v1.Task
-	22, // 11: bg.service.v1.GetTransactionRequest.transaction:type_name -> bg.service.v1.Transaction
-	23, // 12: bg.service.v1.GetTransactionRequest.dir:type_name -> bg.service.v1.Direction
-	22, // 13: bg.service.v1.GetTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	24, // 14: bg.service.v1.GetTransactionResponse.pagination:type_name -> bg.service.v1.PaginationResponse
-	22, // 15: bg.service.v1.GetTransactionDetailResponse.data:type_name -> bg.service.v1.Transaction
-	22, // 16: bg.service.v1.CreateTransactionRequest.data:type_name -> bg.service.v1.Transaction
-	22, // 17: bg.service.v1.CreateTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	22, // 18: bg.service.v1.UpdateTransactionRequest.data:type_name -> bg.service.v1.Transaction
-	22, // 19: bg.service.v1.UpdateTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	20, // [20:20] is the sub-list for method output_type
-	20, // [20:20] is the sub-list for method input_type
-	20, // [20:20] is the sub-list for extension type_name
-	20, // [20:20] is the sub-list for extension extendee
-	0,  // [0:20] is the sub-list for field type_name
+	22, // 0: bg.service.v1.Task.createdAt:type_name -> google.protobuf.Timestamp
+	22, // 1: bg.service.v1.Task.updatedAt:type_name -> google.protobuf.Timestamp
+	22, // 2: bg.service.v1.Company.createdAt:type_name -> google.protobuf.Timestamp
+	22, // 3: bg.service.v1.Company.updatedAt:type_name -> google.protobuf.Timestamp
+	23, // 4: bg.service.v1.TransactionTask.transaction:type_name -> bg.service.v1.Transaction
+	2,  // 5: bg.service.v1.TransactionTask.task:type_name -> bg.service.v1.Task
+	3,  // 6: bg.service.v1.TransactionTask.company:type_name -> bg.service.v1.Company
+	24, // 7: bg.service.v1.GetThirdPartyIDResponse.data:type_name -> bg.service.v1.ThirdParty
+	0,  // 8: bg.service.v1.GetTransactionTaskRequest.status:type_name -> bg.service.v1.TaskStatus
+	1,  // 9: bg.service.v1.GetTransactionTaskRequest.step:type_name -> bg.service.v1.TaskStep
+	25, // 10: bg.service.v1.GetTransactionTaskRequest.dir:type_name -> bg.service.v1.Direction
+	4,  // 11: bg.service.v1.GetTransactionTaskResponse.data:type_name -> bg.service.v1.TransactionTask
+	26, // 12: bg.service.v1.GetTransactionTaskResponse.pagination:type_name -> bg.service.v1.PaginationResponse
+	11, // 13: bg.service.v1.CreateTransactionTaskRequest.thirdParty:type_name -> bg.service.v1.CreateTransactionTaskThirdParty
+	2,  // 14: bg.service.v1.CreateTransactionTaskResponse.data:type_name -> bg.service.v1.Task
+	23, // 15: bg.service.v1.GetTransactionRequest.transaction:type_name -> bg.service.v1.Transaction
+	25, // 16: bg.service.v1.GetTransactionRequest.dir:type_name -> bg.service.v1.Direction
+	23, // 17: bg.service.v1.GetTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	26, // 18: bg.service.v1.GetTransactionResponse.pagination:type_name -> bg.service.v1.PaginationResponse
+	23, // 19: bg.service.v1.GetTransactionDetailResponse.data:type_name -> bg.service.v1.Transaction
+	23, // 20: bg.service.v1.CreateTransactionRequest.data:type_name -> bg.service.v1.Transaction
+	23, // 21: bg.service.v1.CreateTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	23, // 22: bg.service.v1.UpdateTransactionRequest.data:type_name -> bg.service.v1.Transaction
+	23, // 23: bg.service.v1.UpdateTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	24, // [24:24] is the sub-list for method output_type
+	24, // [24:24] is the sub-list for method input_type
+	24, // [24:24] is the sub-list for extension type_name
+	24, // [24:24] is the sub-list for extension extendee
+	0,  // [0:24] is the sub-list for field type_name
 }
 
 func init() { file_bg_payload_proto_init() }
@@ -1896,7 +2025,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[1].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*TransactionTask); i {
+			switch v := v.(*Company); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1908,7 +2037,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[2].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HealthCheckRequest); i {
+			switch v := v.(*TransactionTask); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1920,7 +2049,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HealthCheckResponse); i {
+			switch v := v.(*HealthCheckRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1932,7 +2061,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetThirdPartyIDRequest); i {
+			switch v := v.(*HealthCheckResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1944,7 +2073,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetThirdPartyIDResponse); i {
+			switch v := v.(*GetThirdPartyIDRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1956,7 +2085,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskRequest); i {
+			switch v := v.(*GetThirdPartyIDResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1968,7 +2097,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskResponse); i {
+			switch v := v.(*GetTransactionTaskRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1980,7 +2109,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskThirdParty); i {
+			switch v := v.(*GetTransactionTaskResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -1992,7 +2121,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskRequest); i {
+			switch v := v.(*CreateTransactionTaskThirdParty); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2004,7 +2133,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskResponse); i {
+			switch v := v.(*CreateTransactionTaskRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2016,7 +2145,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionRequest); i {
+			switch v := v.(*CreateTransactionTaskResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2028,7 +2157,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionResponse); i {
+			switch v := v.(*GetTransactionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2040,7 +2169,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionDetailRequest); i {
+			switch v := v.(*GetTransactionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2052,7 +2181,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionDetailResponse); i {
+			switch v := v.(*GetTransactionDetailRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2064,7 +2193,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionRequest); i {
+			switch v := v.(*GetTransactionDetailResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2076,7 +2205,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionResponse); i {
+			switch v := v.(*CreateTransactionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2088,7 +2217,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateTransactionRequest); i {
+			switch v := v.(*CreateTransactionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2100,6 +2229,18 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateTransactionRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bg_payload_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateTransactionResponse); i {
 			case 0:
 				return &v.state
@@ -2118,7 +2259,7 @@ func file_bg_payload_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_bg_payload_proto_rawDesc,
 			NumEnums:      2,
-			NumMessages:   19,
+			NumMessages:   20,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
