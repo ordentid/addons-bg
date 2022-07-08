@@ -11,6 +11,7 @@ import (
 func migrationStart() {
 	if err := db_main.AutoMigrate(
 		&pb.TransactionORM{},
+		&pb.ThirdPartyORM{},
 	); err != nil {
 		logrus.Fatalf("Migration failed: %v", err)
 		os.Exit(1)

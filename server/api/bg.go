@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -85,13 +86,13 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	// proxyURL, err := url.Parse("http://localhost:5002")
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// }
+	proxyURL, err := url.Parse("http://localhost:5002")
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
 
-	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	client := &http.Client{}
+	client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	// client := &http.Client{}
 
 	logrus.Println(httpReqParams.Encode())
 
@@ -126,18 +127,14 @@ func (s *Server) GetThirdPartyID(ctx context.Context, req *pb.GetThirdPartyIDReq
 	} else {
 		for _, d := range httpResData.ResponseData {
 			if d.ThirdPartyId > 0 {
-				thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{Id: d.ThirdPartyId})
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-				thirdPartyData := &pb.ThirdPartyORM{}
+				thirdPartyORM, _ := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{Id: d.ThirdPartyId})
+				var thirdPartyData *pb.ThirdPartyORM
 				if thirdPartyORM == nil {
-					thirdPartyData.Name = "-"
+					thirdPartyData = &pb.ThirdPartyORM{Name: "-"}
 				} else {
-					thirdPartyData.Id = thirdPartyORM.Id
-					thirdPartyData.Name = "-"
+					thirdPartyData = &pb.ThirdPartyORM{Id: thirdPartyORM.Id, Name: "-"}
 				}
-				_, err = s.provider.UpdateOrCreateThirdParty(ctx, thirdPartyData)
+				_, err := s.provider.UpdateOrCreateThirdParty(ctx, thirdPartyData)
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
