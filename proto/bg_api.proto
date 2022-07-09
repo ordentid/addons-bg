@@ -75,6 +75,17 @@ service ApiService {
             description: "This API for transaction task list"
         };
     };
+
+    rpc GetTransactionTaskDetail(GetTransactionTaskDetailRequest) returns (GetTransactionTaskDetailResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/transaction/task/{taskID}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction Task"]
+            summary: "Transaction Task Detail"
+            description: "This API for transaction task detail"
+        };
+    };
     
     rpc CreateTransactionTask(CreateTransactionTaskRequest) returns (CreateTransactionTaskResponse) {
         option (google.api.http) = {

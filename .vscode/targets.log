@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Fri Jul  8 19:58:25 2022
+# Make data base, printed on Sun Jul 10 05:51:28 2022
 
 # Variables
 
@@ -73,7 +72,7 @@ VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Co
 # environment
 LOGNAME = farizrachmanyusuf
 # environment
-APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = 1
 # environment
 ZSH = /Users/farizrachmanyusuf/.oh-my-zsh
 # environment
@@ -155,7 +154,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 8700
+VSCODE_PID = 18939
 # variable set hash-table stats:
 # Load=72/1024=7%, Rehash=0, Collisions=1/104=1%
 
@@ -283,6 +282,7 @@ default: depend
 generate:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 46):
 	go generate ./...
@@ -296,7 +296,6 @@ solr:
 
 depend:
 #  Phony target (prerequisite of .PHONY).
- 
 #  Implicit rule search has not been done.
 #  Implicit/static pattern stem: `'
 #  File does not exist.
@@ -396,6 +395,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Fri Jul  8 19:58:25 2022
+# Finished Make data base on Sun Jul 10 05:51:28 2022
 
  

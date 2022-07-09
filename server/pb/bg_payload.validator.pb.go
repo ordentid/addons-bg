@@ -119,6 +119,17 @@ func (this *GetTransactionTaskResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetTransactionTaskDetailRequest) Validate() error {
+	return nil
+}
+func (this *GetTransactionTaskDetailResponse) Validate() error {
+	if this.Data != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+		}
+	}
+	return nil
+}
 func (this *CreateTransactionTaskThirdParty) Validate() error {
 	return nil
 }

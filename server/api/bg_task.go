@@ -158,6 +158,114 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	return result, nil
 }
 
+func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransactionTaskDetailRequest) (*pb.GetTransactionTaskDetailResponse, error) {
+	result := &pb.GetTransactionTaskDetailResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Success",
+	}
+
+	// me, err := s.manager.GetMeFromJWT(ctx, "")
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	}
+	defer companyConn.Close()
+
+	companyClient := company_pb.NewApiServiceClient(companyConn)
+
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	transaction := []*pb.Transaction{}
+	json.Unmarshal([]byte(taskRes.Data.Data), &transaction)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	task := &pb.Task{
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		TaskID:             taskRes.Data.GetTaskID(),
+		Status:             taskRes.Data.GetStatus().Enum().String(),
+		Type:               taskRes.Data.GetType(),
+		Step:               taskRes.Data.GetStep().String(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		CreatedByName:      taskRes.Data.GetCreatedByName(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
+	}
+
+	var company *pb.Company
+	var thirdParty pb.ThirdParty
+
+	if len(transaction) > 0 {
+		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		if !(len(companyRes.GetData()) > 0) {
+			return nil, status.Errorf(codes.NotFound, "Company not found.")
+		}
+
+		company = &pb.Company{
+			CompanyID:          companyRes.Data[0].GetCompanyID(),
+			HoldingID:          companyRes.Data[0].GetHoldingID(),
+			GroupName:          companyRes.Data[0].GetGroupName(),
+			CompanyName:        companyRes.Data[0].GetCompanyName(),
+			HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+			CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+			UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+		}
+
+		thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: transaction[0].GetThirdPartyID()})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		thirdParty, err = thirdPartyORM.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+	}
+
+	result.Data = &pb.TransactionTask{
+		Task:        task,
+		Company:     company,
+		ThirdParty:  &thirdParty,
+		Transaction: transaction,
+	}
+
+	return result, nil
+}
+
 func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransactionTaskRequest) (*pb.CreateTransactionTaskResponse, error) {
 	result := &pb.CreateTransactionTaskResponse{
 		Error:   false,

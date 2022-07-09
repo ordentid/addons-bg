@@ -604,6 +604,39 @@
           "Transaction Task"
         ]
       }
+    },
+    "/api/bg/transaction/task/{taskID}": {
+      "get": {
+        "summary": "Transaction Task Detail",
+        "description": "This API for transaction task detail",
+        "operationId": "ApiService_GetTransactionTaskDetail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTransactionTaskDetailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Transaction Task"
+        ]
+      }
     }
   },
   "definitions": {
@@ -861,6 +894,24 @@
         },
         "pagination": {
           "$ref": "#/definitions/v1PaginationResponse"
+        }
+      }
+    },
+    "v1GetTransactionTaskDetailResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1TransactionTask"
         }
       }
     },

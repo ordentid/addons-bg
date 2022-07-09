@@ -127,6 +127,16 @@ message GetTransactionTaskResponse {
     PaginationResponse pagination = 5;
 }
 
+message GetTransactionTaskDetailRequest {
+    uint64 taskID = 1;
+}
+message GetTransactionTaskDetailResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    TransactionTask data = 4;
+}
+
 message CreateTransactionTaskThirdParty {
     uint64 thirdPartyID = 1;
     bool isAllowBeneficiary = 2;
