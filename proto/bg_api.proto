@@ -91,11 +91,17 @@ service ApiService {
         option (google.api.http) = {
             post: "/api/bg/transaction/task"
             body: "*"
+            additional_bindings: [
+				{
+					put: "/api/bg/transaction/task/{taskID}"
+					body: "*"
+				}
+			]
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["Transaction Task"]
-            summary: "Create Transaction Task"
-            description: "This API for create transaction task"
+            summary: "Update Or Create Transaction Task"
+            description: "This API for update or create transaction task"
         };
     };
 

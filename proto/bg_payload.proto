@@ -142,9 +142,10 @@ message CreateTransactionTaskThirdParty {
     bool isAllowBeneficiary = 2;
 }
 message CreateTransactionTaskRequest {
-    uint64 companyID = 1;
-    repeated CreateTransactionTaskThirdParty thirdParty = 2;
-    bool isDraft = 3;
+    uint64 taskID = 1;
+    uint64 companyID = 2;
+    repeated CreateTransactionTaskThirdParty thirdParty = 3;
+    bool isDraft = 4;
 }
 message CreateTransactionTaskResponse {
     bool error = 1;

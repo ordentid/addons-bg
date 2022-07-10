@@ -573,8 +573,8 @@
         ]
       },
       "post": {
-        "summary": "Create Transaction Task",
-        "description": "This API for create transaction task",
+        "summary": "Update Or Create Transaction Task",
+        "description": "This API for update or create transaction task",
         "operationId": "ApiService_CreateTransactionTask",
         "responses": {
           "200": {
@@ -631,6 +631,60 @@
             "required": true,
             "type": "string",
             "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Transaction Task"
+        ]
+      },
+      "put": {
+        "summary": "Update Or Create Transaction Task",
+        "description": "This API for update or create transaction task",
+        "operationId": "ApiService_CreateTransactionTask2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateTransactionTaskResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "companyID": {
+                  "type": "string",
+                  "format": "uint64"
+                },
+                "thirdParty": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/definitions/v1CreateTransactionTaskThirdParty"
+                  }
+                },
+                "isDraft": {
+                  "type": "boolean"
+                }
+              }
+            }
           }
         ],
         "tags": [
@@ -750,6 +804,10 @@
     "v1CreateTransactionTaskRequest": {
       "type": "object",
       "properties": {
+        "taskID": {
+          "type": "string",
+          "format": "uint64"
+        },
         "companyID": {
           "type": "string",
           "format": "uint64"

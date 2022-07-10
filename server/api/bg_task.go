@@ -398,6 +398,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 			}
 
 			taskReq := &task_pb.SaveTaskRequest{
+				TaskID: req.TaskID,
 				Task: &task_pb.Task{
 					Type:        "BG Mapping",
 					Data:        string(data),
@@ -411,8 +412,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 
 			taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
 			if err != nil {
-				logrus.Errorln(err)
-				return nil, err
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
 			result.Data = &pb.Task{
