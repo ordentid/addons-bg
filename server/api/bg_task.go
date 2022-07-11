@@ -3,7 +3,6 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -174,18 +173,8 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 				}
 			}
 
-			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.ThirdParty.GetThirdPartyID()})
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			thirdParty, err := thirdPartyORM.ToPB(ctx)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
 			transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
-				ThirdParty:  &thirdParty,
+				ThirdParty:  v.ThirdParty,
 				Transaction: v.Transaction,
 			})
 		}
@@ -297,18 +286,8 @@ func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransa
 			}
 		}
 
-		thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.ThirdParty.GetThirdPartyID()})
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		thirdParty, err := thirdPartyORM.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
 		transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
-			ThirdParty:  &thirdParty,
+			ThirdParty:  v.ThirdParty,
 			Transaction: v.Transaction,
 		})
 	}
@@ -448,11 +427,19 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 				}
 				transactionDataList = append(transactionDataList, transactionData)
 			}
+
+			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.GetThirdPartyID()})
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			thirdParty, err := thirdPartyORM.ToPB(ctx)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
 			taskData = append(taskData, &pb.TransactionTaskData{
-				ThirdParty: &pb.ThirdParty{
-					Id:   v.GetThirdPartyID(),
-					Name: fmt.Sprintf("THIRD PARTY %s", v.GetThirdPartyID()),
-				},
+				ThirdParty:  &thirdParty,
 				Transaction: transactionDataList,
 			})
 		}
@@ -482,21 +469,21 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 	}
 
 	result.Data = &pb.Task{
-		TaskID:             taskRes.Data.TaskID,
-		Type:               taskRes.Data.Type,
-		Status:             taskRes.Data.Status.String(),
-		Step:               taskRes.Data.Step.String(),
-		FeatureID:          taskRes.Data.FeatureID,
-		LastApprovedByID:   taskRes.Data.LastApprovedByID,
-		LastRejectedByID:   taskRes.Data.LastRejectedByID,
-		LastApprovedByName: taskRes.Data.LastApprovedByName,
-		LastRejectedByName: taskRes.Data.LastRejectedByName,
-		CreatedByName:      taskRes.Data.CreatedByName,
-		UpdatedByName:      taskRes.Data.UpdatedByName,
-		Reasons:            taskRes.Data.Reasons,
-		Comment:            taskRes.Data.Comment,
-		CreatedAt:          taskRes.Data.CreatedAt,
-		UpdatedAt:          taskRes.Data.UpdatedAt,
+		TaskID:             taskRes.Data.GetTaskID(),
+		Type:               taskRes.Data.GetType(),
+		Status:             taskRes.Data.GetStatus().String(),
+		Step:               taskRes.Data.GetStep().String(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
+		CreatedByName:      taskRes.Data.GetCreatedByName(),
+		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
+		Reasons:            taskRes.Data.GetReasons(),
+		Comment:            taskRes.Data.GetComment(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
 	}
 
 	return result, nil
