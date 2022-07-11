@@ -54,6 +54,16 @@ func (this *TransactionTask) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Company", err)
 		}
 	}
+	for _, item := range this.Data {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+			}
+		}
+	}
+	return nil
+}
+func (this *TransactionTaskData) Validate() error {
 	if this.ThirdParty != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ThirdParty); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("ThirdParty", err)

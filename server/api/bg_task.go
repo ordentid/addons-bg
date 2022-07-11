@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"strconv"
@@ -127,12 +128,6 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	}
 
 	for _, v := range dataList.Data {
-		transaction := []*pb.Transaction{}
-		json.Unmarshal([]byte(v.Data), &transaction)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
 		task := &pb.Task{
 			LastApprovedByID:   v.GetLastApprovedByID(),
 			LastApprovedByName: v.GetLastApprovedByName(),
@@ -148,44 +143,57 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 			UpdatedAt:          v.GetUpdatedAt(),
 		}
 
+		taskData := []*pb.TransactionTaskData{}
+		json.Unmarshal([]byte(v.Data), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
 		var company *pb.Company
-		var thirdParty pb.ThirdParty
+		var transactionTaskData []*pb.TransactionTaskData
 
-		if len(transaction) > 0 {
-			companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		for i, v := range taskData {
+			if i == 0 && len(v.Transaction) > 0 {
+				companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.Transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				if len(companyRes.GetData()) > 0 {
+					company = &pb.Company{
+						CompanyID:          companyRes.Data[0].GetCompanyID(),
+						HoldingID:          companyRes.Data[0].GetHoldingID(),
+						GroupName:          companyRes.Data[0].GetGroupName(),
+						CompanyName:        companyRes.Data[0].GetCompanyName(),
+						HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+						CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+						UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+					}
+				} else {
+					return nil, status.Errorf(codes.NotFound, "Company not found.")
+				}
+			}
+
+			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.ThirdParty.GetThirdPartyID()})
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
-			if !(len(companyRes.GetData()) > 0) {
-				return nil, status.Errorf(codes.NotFound, "Company not found.")
-			}
 
-			company = &pb.Company{
-				CompanyID:          companyRes.Data[0].GetCompanyID(),
-				HoldingID:          companyRes.Data[0].GetHoldingID(),
-				GroupName:          companyRes.Data[0].GetGroupName(),
-				CompanyName:        companyRes.Data[0].GetCompanyName(),
-				HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
-				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
-				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
-			}
-
-			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: transaction[0].GetThirdPartyID()})
+			thirdParty, err := thirdPartyORM.ToPB(ctx)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			thirdParty, err = thirdPartyORM.ToPB(ctx)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
+			transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
+				ThirdParty:  &thirdParty,
+				Transaction: v.Transaction,
+			})
 		}
 
 		result.Data = append(result.Data, &pb.TransactionTask{
-			Task:        task,
-			Company:     company,
-			ThirdParty:  &thirdParty,
-			Transaction: transaction,
+			Task:    task,
+			Company: company,
+			Data:    transactionTaskData,
 		})
 	}
 
@@ -243,12 +251,6 @@ func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransa
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	transaction := []*pb.Transaction{}
-	json.Unmarshal([]byte(taskRes.Data.Data), &transaction)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
 	task := &pb.Task{
 		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
 		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
@@ -264,44 +266,57 @@ func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransa
 		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
 	}
 
+	taskData := []*pb.TransactionTaskData{}
+	json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
 	var company *pb.Company
-	var thirdParty pb.ThirdParty
+	var transactionTaskData []*pb.TransactionTaskData
 
-	if len(transaction) > 0 {
-		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	for i, v := range taskData {
+		if i == 0 && len(v.Transaction) > 0 {
+			companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.Transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			if len(companyRes.GetData()) > 0 {
+				company = &pb.Company{
+					CompanyID:          companyRes.Data[0].GetCompanyID(),
+					HoldingID:          companyRes.Data[0].GetHoldingID(),
+					GroupName:          companyRes.Data[0].GetGroupName(),
+					CompanyName:        companyRes.Data[0].GetCompanyName(),
+					HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+					CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+					UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+				}
+			} else {
+				return nil, status.Errorf(codes.NotFound, "Company not found.")
+			}
+		}
+
+		thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.ThirdParty.GetThirdPartyID()})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
-		if !(len(companyRes.GetData()) > 0) {
-			return nil, status.Errorf(codes.NotFound, "Company not found.")
-		}
 
-		company = &pb.Company{
-			CompanyID:          companyRes.Data[0].GetCompanyID(),
-			HoldingID:          companyRes.Data[0].GetHoldingID(),
-			GroupName:          companyRes.Data[0].GetGroupName(),
-			CompanyName:        companyRes.Data[0].GetCompanyName(),
-			HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
-			CreatedAt:          companyRes.Data[0].GetCreatedAt(),
-			UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
-		}
-
-		thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: transaction[0].GetThirdPartyID()})
+		thirdParty, err := thirdPartyORM.ToPB(ctx)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		thirdParty, err = thirdPartyORM.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
+			ThirdParty:  &thirdParty,
+			Transaction: v.Transaction,
+		})
 	}
 
 	result.Data = &pb.TransactionTask{
-		Task:        task,
-		Company:     company,
-		ThirdParty:  &thirdParty,
-		Transaction: transaction,
+		Task:    task,
+		Company: company,
+		Data:    transactionTaskData,
 	}
 
 	return result, nil
@@ -361,6 +376,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
+	taskData := []*pb.TransactionTaskData{}
 	for _, v := range req.ThirdParty {
 		httpReqParamsOpt := ApiListTransactionRequest{
 			ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
@@ -432,48 +448,55 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 				}
 				transactionDataList = append(transactionDataList, transactionData)
 			}
-
-			data, err := json.Marshal(transactionDataList)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			taskReq := &task_pb.SaveTaskRequest{
-				TaskID: req.TaskID,
-				Task: &task_pb.Task{
-					Type:        "BG Mapping",
-					Data:        string(data),
-					CreatedByID: me.UserID,
+			taskData = append(taskData, &pb.TransactionTaskData{
+				ThirdParty: &pb.ThirdParty{
+					Id:   v.GetThirdPartyID(),
+					Name: fmt.Sprintf("THIRD PARTY %s", v.GetThirdPartyID()),
 				},
-			}
-
-			if req.IsDraft {
-				taskReq.IsDraft = true
-			}
-
-			taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			result.Data = &pb.Task{
-				TaskID:             taskRes.Data.TaskID,
-				Type:               taskRes.Data.Type,
-				Status:             taskRes.Data.Status.String(),
-				Step:               taskRes.Data.Step.String(),
-				FeatureID:          taskRes.Data.FeatureID,
-				LastApprovedByID:   taskRes.Data.LastApprovedByID,
-				LastRejectedByID:   taskRes.Data.LastRejectedByID,
-				LastApprovedByName: taskRes.Data.LastApprovedByName,
-				LastRejectedByName: taskRes.Data.LastRejectedByName,
-				CreatedByName:      taskRes.Data.CreatedByName,
-				UpdatedByName:      taskRes.Data.UpdatedByName,
-				Reasons:            taskRes.Data.Reasons,
-				Comment:            taskRes.Data.Comment,
-				CreatedAt:          taskRes.Data.CreatedAt,
-				UpdatedAt:          taskRes.Data.UpdatedAt,
-			}
+				Transaction: transactionDataList,
+			})
 		}
+	}
+
+	data, err := json.Marshal(taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	taskReq := &task_pb.SaveTaskRequest{
+		TaskID: req.TaskID,
+		Task: &task_pb.Task{
+			Type:        "BG Mapping",
+			Data:        string(data),
+			CreatedByID: me.UserID,
+		},
+	}
+
+	if req.IsDraft {
+		taskReq.IsDraft = true
+	}
+
+	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	result.Data = &pb.Task{
+		TaskID:             taskRes.Data.TaskID,
+		Type:               taskRes.Data.Type,
+		Status:             taskRes.Data.Status.String(),
+		Step:               taskRes.Data.Step.String(),
+		FeatureID:          taskRes.Data.FeatureID,
+		LastApprovedByID:   taskRes.Data.LastApprovedByID,
+		LastRejectedByID:   taskRes.Data.LastRejectedByID,
+		LastApprovedByName: taskRes.Data.LastApprovedByName,
+		LastRejectedByName: taskRes.Data.LastRejectedByName,
+		CreatedByName:      taskRes.Data.CreatedByName,
+		UpdatedByName:      taskRes.Data.UpdatedByName,
+		Reasons:            taskRes.Data.Reasons,
+		Comment:            taskRes.Data.Comment,
+		CreatedAt:          taskRes.Data.CreatedAt,
+		UpdatedAt:          taskRes.Data.UpdatedAt,
 	}
 
 	return result, nil

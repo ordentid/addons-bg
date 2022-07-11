@@ -62,8 +62,12 @@ message Company {
 message TransactionTask {
     Task task = 1;
     Company company = 2;
-    ThirdParty thirdParty = 3;
-    repeated Transaction transaction = 4;
+    repeated TransactionTaskData data = 3;
+}
+
+message TransactionTaskData {
+    ThirdParty thirdParty = 1;
+    repeated Transaction transaction = 2;
 }
 
 message ApiPaginationResponse {

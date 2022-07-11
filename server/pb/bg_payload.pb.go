@@ -400,10 +400,9 @@ type TransactionTask struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	Task        *Task          `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
-	Company     *Company       `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
-	ThirdParty  *ThirdParty    `protobuf:"bytes,3,opt,name=thirdParty,proto3" json:"thirdParty,omitempty"`
-	Transaction []*Transaction `protobuf:"bytes,4,rep,name=transaction,proto3" json:"transaction,omitempty"`
+	Task    *Task                  `protobuf:"bytes,1,opt,name=task,proto3" json:"task,omitempty"`
+	Company *Company               `protobuf:"bytes,2,opt,name=company,proto3" json:"company,omitempty"`
+	Data    []*TransactionTaskData `protobuf:"bytes,3,rep,name=data,proto3" json:"data,omitempty"`
 }
 
 func (x *TransactionTask) Reset() {
@@ -452,14 +451,62 @@ func (x *TransactionTask) GetCompany() *Company {
 	return nil
 }
 
-func (x *TransactionTask) GetThirdParty() *ThirdParty {
+func (x *TransactionTask) GetData() []*TransactionTaskData {
+	if x != nil {
+		return x.Data
+	}
+	return nil
+}
+
+type TransactionTaskData struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+
+	ThirdParty  *ThirdParty    `protobuf:"bytes,1,opt,name=thirdParty,proto3" json:"thirdParty,omitempty"`
+	Transaction []*Transaction `protobuf:"bytes,2,rep,name=transaction,proto3" json:"transaction,omitempty"`
+}
+
+func (x *TransactionTaskData) Reset() {
+	*x = TransactionTaskData{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_bg_payload_proto_msgTypes[3]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *TransactionTaskData) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*TransactionTaskData) ProtoMessage() {}
+
+func (x *TransactionTaskData) ProtoReflect() protoreflect.Message {
+	mi := &file_bg_payload_proto_msgTypes[3]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use TransactionTaskData.ProtoReflect.Descriptor instead.
+func (*TransactionTaskData) Descriptor() ([]byte, []int) {
+	return file_bg_payload_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *TransactionTaskData) GetThirdParty() *ThirdParty {
 	if x != nil {
 		return x.ThirdParty
 	}
 	return nil
 }
 
-func (x *TransactionTask) GetTransaction() []*Transaction {
+func (x *TransactionTaskData) GetTransaction() []*Transaction {
 	if x != nil {
 		return x.Transaction
 	}
@@ -480,7 +527,7 @@ type ApiPaginationResponse struct {
 func (x *ApiPaginationResponse) Reset() {
 	*x = ApiPaginationResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[3]
+		mi := &file_bg_payload_proto_msgTypes[4]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -493,7 +540,7 @@ func (x *ApiPaginationResponse) String() string {
 func (*ApiPaginationResponse) ProtoMessage() {}
 
 func (x *ApiPaginationResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[3]
+	mi := &file_bg_payload_proto_msgTypes[4]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -506,7 +553,7 @@ func (x *ApiPaginationResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use ApiPaginationResponse.ProtoReflect.Descriptor instead.
 func (*ApiPaginationResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{3}
+	return file_bg_payload_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *ApiPaginationResponse) GetPage() uint64 {
@@ -546,7 +593,7 @@ type HealthCheckRequest struct {
 func (x *HealthCheckRequest) Reset() {
 	*x = HealthCheckRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[4]
+		mi := &file_bg_payload_proto_msgTypes[5]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -559,7 +606,7 @@ func (x *HealthCheckRequest) String() string {
 func (*HealthCheckRequest) ProtoMessage() {}
 
 func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[4]
+	mi := &file_bg_payload_proto_msgTypes[5]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -572,7 +619,7 @@ func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
 func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{4}
+	return file_bg_payload_proto_rawDescGZIP(), []int{5}
 }
 
 type HealthCheckResponse struct {
@@ -586,7 +633,7 @@ type HealthCheckResponse struct {
 func (x *HealthCheckResponse) Reset() {
 	*x = HealthCheckResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[5]
+		mi := &file_bg_payload_proto_msgTypes[6]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -599,7 +646,7 @@ func (x *HealthCheckResponse) String() string {
 func (*HealthCheckResponse) ProtoMessage() {}
 
 func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[5]
+	mi := &file_bg_payload_proto_msgTypes[6]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -612,7 +659,7 @@ func (x *HealthCheckResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use HealthCheckResponse.ProtoReflect.Descriptor instead.
 func (*HealthCheckResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{5}
+	return file_bg_payload_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *HealthCheckResponse) GetMessage() string {
@@ -634,7 +681,7 @@ type GenerateThirdPartyRequest struct {
 func (x *GenerateThirdPartyRequest) Reset() {
 	*x = GenerateThirdPartyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[6]
+		mi := &file_bg_payload_proto_msgTypes[7]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -647,7 +694,7 @@ func (x *GenerateThirdPartyRequest) String() string {
 func (*GenerateThirdPartyRequest) ProtoMessage() {}
 
 func (x *GenerateThirdPartyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[6]
+	mi := &file_bg_payload_proto_msgTypes[7]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -660,7 +707,7 @@ func (x *GenerateThirdPartyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateThirdPartyRequest.ProtoReflect.Descriptor instead.
 func (*GenerateThirdPartyRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{6}
+	return file_bg_payload_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GenerateThirdPartyRequest) GetPage() uint64 {
@@ -691,7 +738,7 @@ type GenerateThirdPartyResponse struct {
 func (x *GenerateThirdPartyResponse) Reset() {
 	*x = GenerateThirdPartyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[7]
+		mi := &file_bg_payload_proto_msgTypes[8]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -704,7 +751,7 @@ func (x *GenerateThirdPartyResponse) String() string {
 func (*GenerateThirdPartyResponse) ProtoMessage() {}
 
 func (x *GenerateThirdPartyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[7]
+	mi := &file_bg_payload_proto_msgTypes[8]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -717,7 +764,7 @@ func (x *GenerateThirdPartyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GenerateThirdPartyResponse.ProtoReflect.Descriptor instead.
 func (*GenerateThirdPartyResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{7}
+	return file_bg_payload_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GenerateThirdPartyResponse) GetError() bool {
@@ -757,7 +804,7 @@ type GetThirdPartyRequest struct {
 func (x *GetThirdPartyRequest) Reset() {
 	*x = GetThirdPartyRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[8]
+		mi := &file_bg_payload_proto_msgTypes[9]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -770,7 +817,7 @@ func (x *GetThirdPartyRequest) String() string {
 func (*GetThirdPartyRequest) ProtoMessage() {}
 
 func (x *GetThirdPartyRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[8]
+	mi := &file_bg_payload_proto_msgTypes[9]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -783,7 +830,7 @@ func (x *GetThirdPartyRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetThirdPartyRequest.ProtoReflect.Descriptor instead.
 func (*GetThirdPartyRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{8}
+	return file_bg_payload_proto_rawDescGZIP(), []int{9}
 }
 
 type GetThirdPartyResponse struct {
@@ -800,7 +847,7 @@ type GetThirdPartyResponse struct {
 func (x *GetThirdPartyResponse) Reset() {
 	*x = GetThirdPartyResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[9]
+		mi := &file_bg_payload_proto_msgTypes[10]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -813,7 +860,7 @@ func (x *GetThirdPartyResponse) String() string {
 func (*GetThirdPartyResponse) ProtoMessage() {}
 
 func (x *GetThirdPartyResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[9]
+	mi := &file_bg_payload_proto_msgTypes[10]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -826,7 +873,7 @@ func (x *GetThirdPartyResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetThirdPartyResponse.ProtoReflect.Descriptor instead.
 func (*GetThirdPartyResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{9}
+	return file_bg_payload_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetThirdPartyResponse) GetError() bool {
@@ -875,7 +922,7 @@ type GetTransactionTaskRequest struct {
 func (x *GetTransactionTaskRequest) Reset() {
 	*x = GetTransactionTaskRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[10]
+		mi := &file_bg_payload_proto_msgTypes[11]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -888,7 +935,7 @@ func (x *GetTransactionTaskRequest) String() string {
 func (*GetTransactionTaskRequest) ProtoMessage() {}
 
 func (x *GetTransactionTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[10]
+	mi := &file_bg_payload_proto_msgTypes[11]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -901,7 +948,7 @@ func (x *GetTransactionTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{10}
+	return file_bg_payload_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetTransactionTaskRequest) GetStatus() TaskStatus {
@@ -975,7 +1022,7 @@ type GetTransactionTaskResponse struct {
 func (x *GetTransactionTaskResponse) Reset() {
 	*x = GetTransactionTaskResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[11]
+		mi := &file_bg_payload_proto_msgTypes[12]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -988,7 +1035,7 @@ func (x *GetTransactionTaskResponse) String() string {
 func (*GetTransactionTaskResponse) ProtoMessage() {}
 
 func (x *GetTransactionTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[11]
+	mi := &file_bg_payload_proto_msgTypes[12]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1001,7 +1048,7 @@ func (x *GetTransactionTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{11}
+	return file_bg_payload_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetTransactionTaskResponse) GetError() bool {
@@ -1050,7 +1097,7 @@ type GetTransactionTaskDetailRequest struct {
 func (x *GetTransactionTaskDetailRequest) Reset() {
 	*x = GetTransactionTaskDetailRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[12]
+		mi := &file_bg_payload_proto_msgTypes[13]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1063,7 +1110,7 @@ func (x *GetTransactionTaskDetailRequest) String() string {
 func (*GetTransactionTaskDetailRequest) ProtoMessage() {}
 
 func (x *GetTransactionTaskDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[12]
+	mi := &file_bg_payload_proto_msgTypes[13]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1076,7 +1123,7 @@ func (x *GetTransactionTaskDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskDetailRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{12}
+	return file_bg_payload_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetTransactionTaskDetailRequest) GetTaskID() uint64 {
@@ -1100,7 +1147,7 @@ type GetTransactionTaskDetailResponse struct {
 func (x *GetTransactionTaskDetailResponse) Reset() {
 	*x = GetTransactionTaskDetailResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[13]
+		mi := &file_bg_payload_proto_msgTypes[14]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1113,7 +1160,7 @@ func (x *GetTransactionTaskDetailResponse) String() string {
 func (*GetTransactionTaskDetailResponse) ProtoMessage() {}
 
 func (x *GetTransactionTaskDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[13]
+	mi := &file_bg_payload_proto_msgTypes[14]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1126,7 +1173,7 @@ func (x *GetTransactionTaskDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionTaskDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionTaskDetailResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{13}
+	return file_bg_payload_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetTransactionTaskDetailResponse) GetError() bool {
@@ -1169,7 +1216,7 @@ type CreateTransactionTaskThirdParty struct {
 func (x *CreateTransactionTaskThirdParty) Reset() {
 	*x = CreateTransactionTaskThirdParty{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[14]
+		mi := &file_bg_payload_proto_msgTypes[15]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1182,7 +1229,7 @@ func (x *CreateTransactionTaskThirdParty) String() string {
 func (*CreateTransactionTaskThirdParty) ProtoMessage() {}
 
 func (x *CreateTransactionTaskThirdParty) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[14]
+	mi := &file_bg_payload_proto_msgTypes[15]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1195,7 +1242,7 @@ func (x *CreateTransactionTaskThirdParty) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskThirdParty.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskThirdParty) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{14}
+	return file_bg_payload_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *CreateTransactionTaskThirdParty) GetThirdPartyID() uint64 {
@@ -1226,7 +1273,7 @@ type CreateTransactionTaskRequest struct {
 func (x *CreateTransactionTaskRequest) Reset() {
 	*x = CreateTransactionTaskRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[15]
+		mi := &file_bg_payload_proto_msgTypes[16]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1239,7 +1286,7 @@ func (x *CreateTransactionTaskRequest) String() string {
 func (*CreateTransactionTaskRequest) ProtoMessage() {}
 
 func (x *CreateTransactionTaskRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[15]
+	mi := &file_bg_payload_proto_msgTypes[16]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1252,7 +1299,7 @@ func (x *CreateTransactionTaskRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskRequest.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{15}
+	return file_bg_payload_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateTransactionTaskRequest) GetTaskID() uint64 {
@@ -1297,7 +1344,7 @@ type CreateTransactionTaskResponse struct {
 func (x *CreateTransactionTaskResponse) Reset() {
 	*x = CreateTransactionTaskResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[16]
+		mi := &file_bg_payload_proto_msgTypes[17]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1310,7 +1357,7 @@ func (x *CreateTransactionTaskResponse) String() string {
 func (*CreateTransactionTaskResponse) ProtoMessage() {}
 
 func (x *CreateTransactionTaskResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[16]
+	mi := &file_bg_payload_proto_msgTypes[17]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1323,7 +1370,7 @@ func (x *CreateTransactionTaskResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionTaskResponse.ProtoReflect.Descriptor instead.
 func (*CreateTransactionTaskResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{16}
+	return file_bg_payload_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateTransactionTaskResponse) GetError() bool {
@@ -1371,7 +1418,7 @@ type GetTransactionRequest struct {
 func (x *GetTransactionRequest) Reset() {
 	*x = GetTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[17]
+		mi := &file_bg_payload_proto_msgTypes[18]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1384,7 +1431,7 @@ func (x *GetTransactionRequest) String() string {
 func (*GetTransactionRequest) ProtoMessage() {}
 
 func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[17]
+	mi := &file_bg_payload_proto_msgTypes[18]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1397,7 +1444,7 @@ func (x *GetTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{17}
+	return file_bg_payload_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *GetTransactionRequest) GetTransaction() *Transaction {
@@ -1464,7 +1511,7 @@ type GetTransactionResponse struct {
 func (x *GetTransactionResponse) Reset() {
 	*x = GetTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[18]
+		mi := &file_bg_payload_proto_msgTypes[19]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1477,7 +1524,7 @@ func (x *GetTransactionResponse) String() string {
 func (*GetTransactionResponse) ProtoMessage() {}
 
 func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[18]
+	mi := &file_bg_payload_proto_msgTypes[19]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1490,7 +1537,7 @@ func (x *GetTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{18}
+	return file_bg_payload_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *GetTransactionResponse) GetError() bool {
@@ -1539,7 +1586,7 @@ type GetTransactionDetailRequest struct {
 func (x *GetTransactionDetailRequest) Reset() {
 	*x = GetTransactionDetailRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[19]
+		mi := &file_bg_payload_proto_msgTypes[20]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1552,7 +1599,7 @@ func (x *GetTransactionDetailRequest) String() string {
 func (*GetTransactionDetailRequest) ProtoMessage() {}
 
 func (x *GetTransactionDetailRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[19]
+	mi := &file_bg_payload_proto_msgTypes[20]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1565,7 +1612,7 @@ func (x *GetTransactionDetailRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionDetailRequest.ProtoReflect.Descriptor instead.
 func (*GetTransactionDetailRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{19}
+	return file_bg_payload_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *GetTransactionDetailRequest) GetTransactionID() uint64 {
@@ -1589,7 +1636,7 @@ type GetTransactionDetailResponse struct {
 func (x *GetTransactionDetailResponse) Reset() {
 	*x = GetTransactionDetailResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[20]
+		mi := &file_bg_payload_proto_msgTypes[21]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1602,7 +1649,7 @@ func (x *GetTransactionDetailResponse) String() string {
 func (*GetTransactionDetailResponse) ProtoMessage() {}
 
 func (x *GetTransactionDetailResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[20]
+	mi := &file_bg_payload_proto_msgTypes[21]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1615,7 +1662,7 @@ func (x *GetTransactionDetailResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetTransactionDetailResponse.ProtoReflect.Descriptor instead.
 func (*GetTransactionDetailResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{20}
+	return file_bg_payload_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *GetTransactionDetailResponse) GetError() bool {
@@ -1657,7 +1704,7 @@ type CreateTransactionRequest struct {
 func (x *CreateTransactionRequest) Reset() {
 	*x = CreateTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[21]
+		mi := &file_bg_payload_proto_msgTypes[22]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1670,7 +1717,7 @@ func (x *CreateTransactionRequest) String() string {
 func (*CreateTransactionRequest) ProtoMessage() {}
 
 func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[21]
+	mi := &file_bg_payload_proto_msgTypes[22]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1683,7 +1730,7 @@ func (x *CreateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*CreateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{21}
+	return file_bg_payload_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *CreateTransactionRequest) GetData() *Transaction {
@@ -1707,7 +1754,7 @@ type CreateTransactionResponse struct {
 func (x *CreateTransactionResponse) Reset() {
 	*x = CreateTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[22]
+		mi := &file_bg_payload_proto_msgTypes[23]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1720,7 +1767,7 @@ func (x *CreateTransactionResponse) String() string {
 func (*CreateTransactionResponse) ProtoMessage() {}
 
 func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[22]
+	mi := &file_bg_payload_proto_msgTypes[23]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1733,7 +1780,7 @@ func (x *CreateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*CreateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{22}
+	return file_bg_payload_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *CreateTransactionResponse) GetError() bool {
@@ -1776,7 +1823,7 @@ type UpdateTransactionRequest struct {
 func (x *UpdateTransactionRequest) Reset() {
 	*x = UpdateTransactionRequest{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[23]
+		mi := &file_bg_payload_proto_msgTypes[24]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1789,7 +1836,7 @@ func (x *UpdateTransactionRequest) String() string {
 func (*UpdateTransactionRequest) ProtoMessage() {}
 
 func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[23]
+	mi := &file_bg_payload_proto_msgTypes[24]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1802,7 +1849,7 @@ func (x *UpdateTransactionRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionRequest.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionRequest) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{23}
+	return file_bg_payload_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *UpdateTransactionRequest) GetTransactionID() uint64 {
@@ -1833,7 +1880,7 @@ type UpdateTransactionResponse struct {
 func (x *UpdateTransactionResponse) Reset() {
 	*x = UpdateTransactionResponse{}
 	if protoimpl.UnsafeEnabled {
-		mi := &file_bg_payload_proto_msgTypes[24]
+		mi := &file_bg_payload_proto_msgTypes[25]
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		ms.StoreMessageInfo(mi)
 	}
@@ -1846,7 +1893,7 @@ func (x *UpdateTransactionResponse) String() string {
 func (*UpdateTransactionResponse) ProtoMessage() {}
 
 func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_bg_payload_proto_msgTypes[24]
+	mi := &file_bg_payload_proto_msgTypes[25]
 	if protoimpl.UnsafeEnabled && x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1859,7 +1906,7 @@ func (x *UpdateTransactionResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateTransactionResponse.ProtoReflect.Descriptor instead.
 func (*UpdateTransactionResponse) Descriptor() ([]byte, []int) {
-	return file_bg_payload_proto_rawDescGZIP(), []int{24}
+	return file_bg_payload_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *UpdateTransactionResponse) GetError() bool {
@@ -1955,19 +2002,24 @@ var file_bg_payload_proto_rawDesc = []byte{
 	0x12, 0x38, 0x0a, 0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x18, 0x66, 0x20,
 	0x01, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x67, 0x6f, 0x6f, 0x67, 0x6c, 0x65, 0x2e, 0x70, 0x72, 0x6f,
 	0x74, 0x6f, 0x62, 0x75, 0x66, 0x2e, 0x54, 0x69, 0x6d, 0x65, 0x73, 0x74, 0x61, 0x6d, 0x70, 0x52,
-	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0xe5, 0x01, 0x0a, 0x0f, 0x54,
+	0x09, 0x75, 0x70, 0x64, 0x61, 0x74, 0x65, 0x64, 0x41, 0x74, 0x22, 0xa4, 0x01, 0x0a, 0x0f, 0x54,
 	0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x12, 0x27,
 	0x0a, 0x04, 0x74, 0x61, 0x73, 0x6b, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x13, 0x2e, 0x62,
 	0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x61, 0x73,
 	0x6b, 0x52, 0x04, 0x74, 0x61, 0x73, 0x6b, 0x12, 0x30, 0x0a, 0x07, 0x63, 0x6f, 0x6d, 0x70, 0x61,
 	0x6e, 0x79, 0x18, 0x02, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x16, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x43, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79,
-	0x52, 0x07, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x12, 0x39, 0x0a, 0x0a, 0x74, 0x68, 0x69,
-	0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x18, 0x03, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e,
+	0x52, 0x07, 0x63, 0x6f, 0x6d, 0x70, 0x61, 0x6e, 0x79, 0x12, 0x36, 0x0a, 0x04, 0x64, 0x61, 0x74,
+	0x61, 0x18, 0x03, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x22, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72,
+	0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
+	0x69, 0x6f, 0x6e, 0x54, 0x61, 0x73, 0x6b, 0x44, 0x61, 0x74, 0x61, 0x52, 0x04, 0x64, 0x61, 0x74,
+	0x61, 0x22, 0x8e, 0x01, 0x0a, 0x13, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69, 0x6f,
+	0x6e, 0x54, 0x61, 0x73, 0x6b, 0x44, 0x61, 0x74, 0x61, 0x12, 0x39, 0x0a, 0x0a, 0x74, 0x68, 0x69,
+	0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x18, 0x01, 0x20, 0x01, 0x28, 0x0b, 0x32, 0x19, 0x2e,
 	0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x68,
 	0x69, 0x72, 0x64, 0x50, 0x61, 0x72, 0x74, 0x79, 0x52, 0x0a, 0x74, 0x68, 0x69, 0x72, 0x64, 0x50,
 	0x61, 0x72, 0x74, 0x79, 0x12, 0x3c, 0x0a, 0x0b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74,
-	0x69, 0x6f, 0x6e, 0x18, 0x04, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x62, 0x67, 0x2e, 0x73,
+	0x69, 0x6f, 0x6e, 0x18, 0x02, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x1a, 0x2e, 0x62, 0x67, 0x2e, 0x73,
 	0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x54, 0x72, 0x61, 0x6e, 0x73, 0x61,
 	0x63, 0x74, 0x69, 0x6f, 0x6e, 0x52, 0x0b, 0x74, 0x72, 0x61, 0x6e, 0x73, 0x61, 0x63, 0x74, 0x69,
 	0x6f, 0x6e, 0x22, 0x81, 0x01, 0x0a, 0x15, 0x41, 0x70, 0x69, 0x50, 0x61, 0x67, 0x69, 0x6e, 0x61,
@@ -2315,74 +2367,76 @@ func file_bg_payload_proto_rawDescGZIP() []byte {
 }
 
 var file_bg_payload_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_bg_payload_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_bg_payload_proto_msgTypes = make([]protoimpl.MessageInfo, 26)
 var file_bg_payload_proto_goTypes = []interface{}{
 	(TaskStatus)(0),                          // 0: bg.service.v1.TaskStatus
 	(TaskStep)(0),                            // 1: bg.service.v1.TaskStep
 	(*Task)(nil),                             // 2: bg.service.v1.Task
 	(*Company)(nil),                          // 3: bg.service.v1.Company
 	(*TransactionTask)(nil),                  // 4: bg.service.v1.TransactionTask
-	(*ApiPaginationResponse)(nil),            // 5: bg.service.v1.ApiPaginationResponse
-	(*HealthCheckRequest)(nil),               // 6: bg.service.v1.HealthCheckRequest
-	(*HealthCheckResponse)(nil),              // 7: bg.service.v1.HealthCheckResponse
-	(*GenerateThirdPartyRequest)(nil),        // 8: bg.service.v1.GenerateThirdPartyRequest
-	(*GenerateThirdPartyResponse)(nil),       // 9: bg.service.v1.GenerateThirdPartyResponse
-	(*GetThirdPartyRequest)(nil),             // 10: bg.service.v1.GetThirdPartyRequest
-	(*GetThirdPartyResponse)(nil),            // 11: bg.service.v1.GetThirdPartyResponse
-	(*GetTransactionTaskRequest)(nil),        // 12: bg.service.v1.GetTransactionTaskRequest
-	(*GetTransactionTaskResponse)(nil),       // 13: bg.service.v1.GetTransactionTaskResponse
-	(*GetTransactionTaskDetailRequest)(nil),  // 14: bg.service.v1.GetTransactionTaskDetailRequest
-	(*GetTransactionTaskDetailResponse)(nil), // 15: bg.service.v1.GetTransactionTaskDetailResponse
-	(*CreateTransactionTaskThirdParty)(nil),  // 16: bg.service.v1.CreateTransactionTaskThirdParty
-	(*CreateTransactionTaskRequest)(nil),     // 17: bg.service.v1.CreateTransactionTaskRequest
-	(*CreateTransactionTaskResponse)(nil),    // 18: bg.service.v1.CreateTransactionTaskResponse
-	(*GetTransactionRequest)(nil),            // 19: bg.service.v1.GetTransactionRequest
-	(*GetTransactionResponse)(nil),           // 20: bg.service.v1.GetTransactionResponse
-	(*GetTransactionDetailRequest)(nil),      // 21: bg.service.v1.GetTransactionDetailRequest
-	(*GetTransactionDetailResponse)(nil),     // 22: bg.service.v1.GetTransactionDetailResponse
-	(*CreateTransactionRequest)(nil),         // 23: bg.service.v1.CreateTransactionRequest
-	(*CreateTransactionResponse)(nil),        // 24: bg.service.v1.CreateTransactionResponse
-	(*UpdateTransactionRequest)(nil),         // 25: bg.service.v1.UpdateTransactionRequest
-	(*UpdateTransactionResponse)(nil),        // 26: bg.service.v1.UpdateTransactionResponse
-	(*timestamppb.Timestamp)(nil),            // 27: google.protobuf.Timestamp
-	(*ThirdParty)(nil),                       // 28: bg.service.v1.ThirdParty
-	(*Transaction)(nil),                      // 29: bg.service.v1.Transaction
-	(Direction)(0),                           // 30: bg.service.v1.Direction
-	(*PaginationResponse)(nil),               // 31: bg.service.v1.PaginationResponse
+	(*TransactionTaskData)(nil),              // 5: bg.service.v1.TransactionTaskData
+	(*ApiPaginationResponse)(nil),            // 6: bg.service.v1.ApiPaginationResponse
+	(*HealthCheckRequest)(nil),               // 7: bg.service.v1.HealthCheckRequest
+	(*HealthCheckResponse)(nil),              // 8: bg.service.v1.HealthCheckResponse
+	(*GenerateThirdPartyRequest)(nil),        // 9: bg.service.v1.GenerateThirdPartyRequest
+	(*GenerateThirdPartyResponse)(nil),       // 10: bg.service.v1.GenerateThirdPartyResponse
+	(*GetThirdPartyRequest)(nil),             // 11: bg.service.v1.GetThirdPartyRequest
+	(*GetThirdPartyResponse)(nil),            // 12: bg.service.v1.GetThirdPartyResponse
+	(*GetTransactionTaskRequest)(nil),        // 13: bg.service.v1.GetTransactionTaskRequest
+	(*GetTransactionTaskResponse)(nil),       // 14: bg.service.v1.GetTransactionTaskResponse
+	(*GetTransactionTaskDetailRequest)(nil),  // 15: bg.service.v1.GetTransactionTaskDetailRequest
+	(*GetTransactionTaskDetailResponse)(nil), // 16: bg.service.v1.GetTransactionTaskDetailResponse
+	(*CreateTransactionTaskThirdParty)(nil),  // 17: bg.service.v1.CreateTransactionTaskThirdParty
+	(*CreateTransactionTaskRequest)(nil),     // 18: bg.service.v1.CreateTransactionTaskRequest
+	(*CreateTransactionTaskResponse)(nil),    // 19: bg.service.v1.CreateTransactionTaskResponse
+	(*GetTransactionRequest)(nil),            // 20: bg.service.v1.GetTransactionRequest
+	(*GetTransactionResponse)(nil),           // 21: bg.service.v1.GetTransactionResponse
+	(*GetTransactionDetailRequest)(nil),      // 22: bg.service.v1.GetTransactionDetailRequest
+	(*GetTransactionDetailResponse)(nil),     // 23: bg.service.v1.GetTransactionDetailResponse
+	(*CreateTransactionRequest)(nil),         // 24: bg.service.v1.CreateTransactionRequest
+	(*CreateTransactionResponse)(nil),        // 25: bg.service.v1.CreateTransactionResponse
+	(*UpdateTransactionRequest)(nil),         // 26: bg.service.v1.UpdateTransactionRequest
+	(*UpdateTransactionResponse)(nil),        // 27: bg.service.v1.UpdateTransactionResponse
+	(*timestamppb.Timestamp)(nil),            // 28: google.protobuf.Timestamp
+	(*ThirdParty)(nil),                       // 29: bg.service.v1.ThirdParty
+	(*Transaction)(nil),                      // 30: bg.service.v1.Transaction
+	(Direction)(0),                           // 31: bg.service.v1.Direction
+	(*PaginationResponse)(nil),               // 32: bg.service.v1.PaginationResponse
 }
 var file_bg_payload_proto_depIdxs = []int32{
-	27, // 0: bg.service.v1.Task.createdAt:type_name -> google.protobuf.Timestamp
-	27, // 1: bg.service.v1.Task.updatedAt:type_name -> google.protobuf.Timestamp
-	27, // 2: bg.service.v1.Company.createdAt:type_name -> google.protobuf.Timestamp
-	27, // 3: bg.service.v1.Company.updatedAt:type_name -> google.protobuf.Timestamp
+	28, // 0: bg.service.v1.Task.createdAt:type_name -> google.protobuf.Timestamp
+	28, // 1: bg.service.v1.Task.updatedAt:type_name -> google.protobuf.Timestamp
+	28, // 2: bg.service.v1.Company.createdAt:type_name -> google.protobuf.Timestamp
+	28, // 3: bg.service.v1.Company.updatedAt:type_name -> google.protobuf.Timestamp
 	2,  // 4: bg.service.v1.TransactionTask.task:type_name -> bg.service.v1.Task
 	3,  // 5: bg.service.v1.TransactionTask.company:type_name -> bg.service.v1.Company
-	28, // 6: bg.service.v1.TransactionTask.thirdParty:type_name -> bg.service.v1.ThirdParty
-	29, // 7: bg.service.v1.TransactionTask.transaction:type_name -> bg.service.v1.Transaction
-	5,  // 8: bg.service.v1.GenerateThirdPartyResponse.pagination:type_name -> bg.service.v1.ApiPaginationResponse
-	28, // 9: bg.service.v1.GetThirdPartyResponse.data:type_name -> bg.service.v1.ThirdParty
-	0,  // 10: bg.service.v1.GetTransactionTaskRequest.status:type_name -> bg.service.v1.TaskStatus
-	1,  // 11: bg.service.v1.GetTransactionTaskRequest.step:type_name -> bg.service.v1.TaskStep
-	30, // 12: bg.service.v1.GetTransactionTaskRequest.dir:type_name -> bg.service.v1.Direction
-	4,  // 13: bg.service.v1.GetTransactionTaskResponse.data:type_name -> bg.service.v1.TransactionTask
-	31, // 14: bg.service.v1.GetTransactionTaskResponse.pagination:type_name -> bg.service.v1.PaginationResponse
-	4,  // 15: bg.service.v1.GetTransactionTaskDetailResponse.data:type_name -> bg.service.v1.TransactionTask
-	16, // 16: bg.service.v1.CreateTransactionTaskRequest.thirdParty:type_name -> bg.service.v1.CreateTransactionTaskThirdParty
-	2,  // 17: bg.service.v1.CreateTransactionTaskResponse.data:type_name -> bg.service.v1.Task
-	29, // 18: bg.service.v1.GetTransactionRequest.transaction:type_name -> bg.service.v1.Transaction
-	30, // 19: bg.service.v1.GetTransactionRequest.dir:type_name -> bg.service.v1.Direction
-	29, // 20: bg.service.v1.GetTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	31, // 21: bg.service.v1.GetTransactionResponse.pagination:type_name -> bg.service.v1.PaginationResponse
-	29, // 22: bg.service.v1.GetTransactionDetailResponse.data:type_name -> bg.service.v1.Transaction
-	29, // 23: bg.service.v1.CreateTransactionRequest.data:type_name -> bg.service.v1.Transaction
-	29, // 24: bg.service.v1.CreateTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	29, // 25: bg.service.v1.UpdateTransactionRequest.data:type_name -> bg.service.v1.Transaction
-	29, // 26: bg.service.v1.UpdateTransactionResponse.data:type_name -> bg.service.v1.Transaction
-	27, // [27:27] is the sub-list for method output_type
-	27, // [27:27] is the sub-list for method input_type
-	27, // [27:27] is the sub-list for extension type_name
-	27, // [27:27] is the sub-list for extension extendee
-	0,  // [0:27] is the sub-list for field type_name
+	5,  // 6: bg.service.v1.TransactionTask.data:type_name -> bg.service.v1.TransactionTaskData
+	29, // 7: bg.service.v1.TransactionTaskData.thirdParty:type_name -> bg.service.v1.ThirdParty
+	30, // 8: bg.service.v1.TransactionTaskData.transaction:type_name -> bg.service.v1.Transaction
+	6,  // 9: bg.service.v1.GenerateThirdPartyResponse.pagination:type_name -> bg.service.v1.ApiPaginationResponse
+	29, // 10: bg.service.v1.GetThirdPartyResponse.data:type_name -> bg.service.v1.ThirdParty
+	0,  // 11: bg.service.v1.GetTransactionTaskRequest.status:type_name -> bg.service.v1.TaskStatus
+	1,  // 12: bg.service.v1.GetTransactionTaskRequest.step:type_name -> bg.service.v1.TaskStep
+	31, // 13: bg.service.v1.GetTransactionTaskRequest.dir:type_name -> bg.service.v1.Direction
+	4,  // 14: bg.service.v1.GetTransactionTaskResponse.data:type_name -> bg.service.v1.TransactionTask
+	32, // 15: bg.service.v1.GetTransactionTaskResponse.pagination:type_name -> bg.service.v1.PaginationResponse
+	4,  // 16: bg.service.v1.GetTransactionTaskDetailResponse.data:type_name -> bg.service.v1.TransactionTask
+	17, // 17: bg.service.v1.CreateTransactionTaskRequest.thirdParty:type_name -> bg.service.v1.CreateTransactionTaskThirdParty
+	2,  // 18: bg.service.v1.CreateTransactionTaskResponse.data:type_name -> bg.service.v1.Task
+	30, // 19: bg.service.v1.GetTransactionRequest.transaction:type_name -> bg.service.v1.Transaction
+	31, // 20: bg.service.v1.GetTransactionRequest.dir:type_name -> bg.service.v1.Direction
+	30, // 21: bg.service.v1.GetTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	32, // 22: bg.service.v1.GetTransactionResponse.pagination:type_name -> bg.service.v1.PaginationResponse
+	30, // 23: bg.service.v1.GetTransactionDetailResponse.data:type_name -> bg.service.v1.Transaction
+	30, // 24: bg.service.v1.CreateTransactionRequest.data:type_name -> bg.service.v1.Transaction
+	30, // 25: bg.service.v1.CreateTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	30, // 26: bg.service.v1.UpdateTransactionRequest.data:type_name -> bg.service.v1.Transaction
+	30, // 27: bg.service.v1.UpdateTransactionResponse.data:type_name -> bg.service.v1.Transaction
+	28, // [28:28] is the sub-list for method output_type
+	28, // [28:28] is the sub-list for method input_type
+	28, // [28:28] is the sub-list for extension type_name
+	28, // [28:28] is the sub-list for extension extendee
+	0,  // [0:28] is the sub-list for field type_name
 }
 
 func init() { file_bg_payload_proto_init() }
@@ -2430,7 +2484,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[3].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*ApiPaginationResponse); i {
+			switch v := v.(*TransactionTaskData); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2442,7 +2496,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[4].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HealthCheckRequest); i {
+			switch v := v.(*ApiPaginationResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2454,7 +2508,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[5].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*HealthCheckResponse); i {
+			switch v := v.(*HealthCheckRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2466,7 +2520,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GenerateThirdPartyRequest); i {
+			switch v := v.(*HealthCheckResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2478,7 +2532,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[7].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GenerateThirdPartyResponse); i {
+			switch v := v.(*GenerateThirdPartyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2490,7 +2544,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[8].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetThirdPartyRequest); i {
+			switch v := v.(*GenerateThirdPartyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2502,7 +2556,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[9].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetThirdPartyResponse); i {
+			switch v := v.(*GetThirdPartyRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2514,7 +2568,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[10].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskRequest); i {
+			switch v := v.(*GetThirdPartyResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2526,7 +2580,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[11].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskResponse); i {
+			switch v := v.(*GetTransactionTaskRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2538,7 +2592,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[12].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskDetailRequest); i {
+			switch v := v.(*GetTransactionTaskResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2550,7 +2604,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[13].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionTaskDetailResponse); i {
+			switch v := v.(*GetTransactionTaskDetailRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2562,7 +2616,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[14].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskThirdParty); i {
+			switch v := v.(*GetTransactionTaskDetailResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2574,7 +2628,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[15].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskRequest); i {
+			switch v := v.(*CreateTransactionTaskThirdParty); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2586,7 +2640,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[16].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionTaskResponse); i {
+			switch v := v.(*CreateTransactionTaskRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2598,7 +2652,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[17].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionRequest); i {
+			switch v := v.(*CreateTransactionTaskResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2610,7 +2664,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[18].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionResponse); i {
+			switch v := v.(*GetTransactionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2622,7 +2676,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[19].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionDetailRequest); i {
+			switch v := v.(*GetTransactionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2634,7 +2688,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[20].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*GetTransactionDetailResponse); i {
+			switch v := v.(*GetTransactionDetailRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2646,7 +2700,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[21].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionRequest); i {
+			switch v := v.(*GetTransactionDetailResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2658,7 +2712,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[22].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*CreateTransactionResponse); i {
+			switch v := v.(*CreateTransactionRequest); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2670,7 +2724,7 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[23].Exporter = func(v interface{}, i int) interface{} {
-			switch v := v.(*UpdateTransactionRequest); i {
+			switch v := v.(*CreateTransactionResponse); i {
 			case 0:
 				return &v.state
 			case 1:
@@ -2682,6 +2736,18 @@ func file_bg_payload_proto_init() {
 			}
 		}
 		file_bg_payload_proto_msgTypes[24].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*UpdateTransactionRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
+		file_bg_payload_proto_msgTypes[25].Exporter = func(v interface{}, i int) interface{} {
 			switch v := v.(*UpdateTransactionResponse); i {
 			case 0:
 				return &v.state
@@ -2700,7 +2766,7 @@ func file_bg_payload_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_bg_payload_proto_rawDesc,
 			NumEnums:      2,
-			NumMessages:   25,
+			NumMessages:   26,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -1256,6 +1256,17 @@
         "company": {
           "$ref": "#/definitions/v1Company"
         },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TransactionTaskData"
+          }
+        }
+      }
+    },
+    "v1TransactionTaskData": {
+      "type": "object",
+      "properties": {
         "thirdParty": {
           "$ref": "#/definitions/v1ThirdParty"
         },
