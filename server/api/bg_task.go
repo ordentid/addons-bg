@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
@@ -59,6 +60,44 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 
 	companyClient := company_pb.NewApiServiceClient(companyConn)
 
+	statuses := []string{}
+	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
+	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
+	if len(me.Authorities) > 0 {
+		switch strings.ToLower(me.Authorities[0]) {
+		case "maker":
+			statuses = []string{"2", "3", "1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>7"
+
+		case "signer":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		default:
+			return nil, status.Errorf(codes.PermissionDenied, "Authority Denied")
+		}
+	}
+
+	customOrder := ""
+	if req.Sort == "status" {
+		direction := ">"
+		if req.Dir.String() == "DESC" {
+			direction = "<"
+		}
+		customOrder = "status|" + direction + "|" + strings.Join(statuses, ",")
+		req.Sort = ""
+		req.Dir = 0
+	} else if req.Sort == "" {
+		customOrder = "status|>|" + strings.Join(statuses, ",")
+		req.Dir = 0
+	}
+
 	filter := &task_pb.Task{
 		Type: "BG Mapping",
 	}
@@ -71,13 +110,15 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	}
 
 	dataReq := &task_pb.ListTaskRequest{
-		Task:   filter,
-		Limit:  req.GetLimit(),
-		Page:   req.GetPage(),
-		Sort:   req.Sort,
-		Dir:    task_pb.ListTaskRequestDirection(req.GetDir()),
-		Filter: req.Filter,
-		In:     me.TaskCompanyFilter,
+		Task:        filter,
+		Limit:       req.GetLimit(),
+		Page:        req.GetPage(),
+		Sort:        req.GetSort(),
+		Dir:         task_pb.ListTaskRequestDirection(req.GetDir()),
+		Filter:      req.GetFilter(),
+		Query:       req.GetQuery(),
+		CustomOrder: customOrder,
+		In:          me.TaskFilter,
 	}
 
 	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))

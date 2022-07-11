@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -182,35 +183,35 @@ func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPa
 				} else {
 					logrus.Println("THIRD PARTY " + d)
 
-					// httpReqBodyData := &ApiInquiryThirdPartyByIDRequest{
-					// 	ThirdPartyID: id,
-					// }
+					httpReqBodyData := &ApiInquiryThirdPartyByIDRequest{
+						ThirdPartyID: id,
+					}
 
-					// httpReqBodyByte, err := json.Marshal(httpReqBodyData)
-					// if err != nil {
-					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					// }
+					httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
 
-					// httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", strings.NewReader(string(httpReqBodyByte)))
-					// if err != nil {
-					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					// }
+					httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", strings.NewReader(string(httpReqBodyByte)))
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
 
-					// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+					httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-					// httpRes, err := client.Do(httpReq)
-					// if err != nil {
-					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					// }
-					// defer httpRes.Body.Close()
+					httpRes, err := client.Do(httpReq)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+					defer httpRes.Body.Close()
 
-					// var httpResData ApiInquiryThirdPartyByIDResponse
-					// err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-					// if err != nil {
-					// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					// }
+					var httpResData ApiInquiryThirdPartyByIDResponse
+					err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
 
-					_, err := s.provider.UpdateOrCreateThirdParty(ctx, &pb.ThirdPartyORM{ThirdPartyID: id, Name: "THIRD PARTY " + d})
+					_, err = s.provider.UpdateOrCreateThirdParty(ctx, &pb.ThirdPartyORM{ThirdPartyID: id, Name: httpResData.ResponseData.FullName})
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
