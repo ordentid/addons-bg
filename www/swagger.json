@@ -779,7 +779,10 @@
       "type": "object",
       "properties": {
         "data": {
-          "$ref": "#/definitions/v1Transaction"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transaction"
+          }
         }
       }
     },
@@ -797,7 +800,10 @@
           "type": "string"
         },
         "data": {
-          "$ref": "#/definitions/v1Transaction"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Transaction"
+          }
         }
       }
     },

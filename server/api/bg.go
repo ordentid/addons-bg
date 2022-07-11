@@ -314,44 +314,46 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		return nil, err
 	}
 
-	data := &pb.TransactionORM{
-		Amount:             req.Data.Amount,
-		ApplicantName:      req.Data.ApplicantName,
-		BeneficiaryName:    req.Data.BeneficiaryName,
-		ChannelID:          req.Data.ChannelID,
-		ChannelName:        req.Data.ChannelName,
-		ClaimPeriod:        req.Data.ClaimPeriod,
-		ClosingDate:        req.Data.ClosingDate,
-		CompanyID:          req.Data.CompanyID,
-		CreatedByID:        me.UserID,
-		Currency:           req.Data.Currency,
-		DocumentPath:       req.Data.DocumentPath,
-		EffectiveDate:      req.Data.EffectiveDate,
-		ExpiryDate:         req.Data.ExpiryDate,
-		IsAllowBeneficiary: req.Data.IsAllowBeneficiary,
-		IssueDate:          req.Data.IssueDate,
-		ReferenceNo:        req.Data.ReferenceNo,
-		RegistrationNo:     req.Data.RegistrationNo,
-		Remark:             req.Data.Remark,
-		Status:             "Pending",
-		ThirdPartyID:       req.Data.ThirdPartyID,
-		TransactionID:      req.Data.TransactionID,
-		TransactionStatus:  req.Data.Status,
-		TransactionTypeID:  req.Data.TransactionTypeID,
-		UpdatedByID:        me.UserID,
-	}
+	for _, v := range req.Data {
+		data := &pb.TransactionORM{
+			Amount:             v.Amount,
+			ApplicantName:      v.ApplicantName,
+			BeneficiaryName:    v.BeneficiaryName,
+			ChannelID:          v.ChannelID,
+			ChannelName:        v.ChannelName,
+			ClaimPeriod:        v.ClaimPeriod,
+			ClosingDate:        v.ClosingDate,
+			CompanyID:          v.CompanyID,
+			CreatedByID:        me.UserID,
+			Currency:           v.Currency,
+			DocumentPath:       v.DocumentPath,
+			EffectiveDate:      v.EffectiveDate,
+			ExpiryDate:         v.ExpiryDate,
+			IsAllowBeneficiary: v.IsAllowBeneficiary,
+			IssueDate:          v.IssueDate,
+			ReferenceNo:        v.ReferenceNo,
+			RegistrationNo:     v.RegistrationNo,
+			Remark:             v.Remark,
+			Status:             "Pending",
+			ThirdPartyID:       v.ThirdPartyID,
+			TransactionID:      v.TransactionID,
+			TransactionStatus:  v.Status,
+			TransactionTypeID:  v.TransactionTypeID,
+			UpdatedByID:        me.UserID,
+		}
 
-	transactionORM, err := s.provider.UpdateOrCreateTransaction(ctx, data)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+		transactionORM, err := s.provider.UpdateOrCreateTransaction(ctx, data)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
 
-	transaction, err := transactionORM.ToPB(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+		transaction, err := transactionORM.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
 
-	result.Data = &transaction
+		result.Data = append(result.Data, &transaction)
+	}
 
 	return result, nil
 }

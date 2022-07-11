@@ -198,13 +198,13 @@ message GetTransactionDetailResponse {
 }
 
 message CreateTransactionRequest {
-    Transaction data = 1;
+    repeated Transaction data = 1;
 }
 message CreateTransactionResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    Transaction data = 4;
+    repeated Transaction data = 4;
 }
 
 message UpdateTransactionRequest {
