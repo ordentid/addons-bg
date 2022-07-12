@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 
@@ -319,13 +320,15 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 		return nil, err
 	}
 
-	// proxyURL, err := url.Parse("http://localhost:5002")
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// }
-
-	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	client := &http.Client{}
+	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+		proxyURL, err := url.Parse("http://localhost:5002")
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
