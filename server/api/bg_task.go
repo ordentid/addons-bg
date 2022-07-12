@@ -456,6 +456,7 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 			Type:        "BG Mapping",
 			Data:        string(data),
 			CreatedByID: me.UserID,
+			CompanyID:   req.GetCompanyID(),
 		},
 	}
 
