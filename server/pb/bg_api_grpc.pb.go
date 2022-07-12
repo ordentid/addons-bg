@@ -26,6 +26,7 @@ type ApiServiceClient interface {
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
+	GetTransactionTaskFile(ctx context.Context, in *GetTransactionTaskFileRequest, opts ...grpc.CallOption) (*GetTransactionTaskFileResponse, error)
 	GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error)
 	GetTransactionTaskDetail(ctx context.Context, in *GetTransactionTaskDetailRequest, opts ...grpc.CallOption) (*GetTransactionTaskDetailResponse, error)
 	CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error)
@@ -73,6 +74,15 @@ func (c *apiServiceClient) GetThirdParty(ctx context.Context, in *GetThirdPartyR
 func (c *apiServiceClient) GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error) {
 	out := new(GenerateThirdPartyResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GenerateThirdParty", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetTransactionTaskFile(ctx context.Context, in *GetTransactionTaskFileRequest, opts ...grpc.CallOption) (*GetTransactionTaskFileResponse, error) {
+	out := new(GetTransactionTaskFileResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTransactionTaskFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -150,6 +160,7 @@ type ApiServiceServer interface {
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
+	GetTransactionTaskFile(context.Context, *GetTransactionTaskFileRequest) (*GetTransactionTaskFileResponse, error)
 	GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error)
 	GetTransactionTaskDetail(context.Context, *GetTransactionTaskDetailRequest) (*GetTransactionTaskDetailResponse, error)
 	CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error)
@@ -175,6 +186,9 @@ func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPar
 }
 func (UnimplementedApiServiceServer) GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateThirdParty not implemented")
+}
+func (UnimplementedApiServiceServer) GetTransactionTaskFile(context.Context, *GetTransactionTaskFileRequest) (*GetTransactionTaskFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTaskFile not implemented")
 }
 func (UnimplementedApiServiceServer) GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTask not implemented")
@@ -278,6 +292,24 @@ func _ApiService_GenerateThirdParty_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).GenerateThirdParty(ctx, req.(*GenerateThirdPartyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetTransactionTaskFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTransactionTaskFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetTransactionTaskFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetTransactionTaskFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetTransactionTaskFile(ctx, req.(*GetTransactionTaskFileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -430,6 +462,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateThirdParty",
 			Handler:    _ApiService_GenerateThirdParty_Handler,
+		},
+		{
+			MethodName: "GetTransactionTaskFile",
+			Handler:    _ApiService_GetTransactionTaskFile_Handler,
 		},
 		{
 			MethodName: "GetTransactionTask",

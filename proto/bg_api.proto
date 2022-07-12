@@ -76,6 +76,17 @@ service ApiService {
         };
     };
 
+    rpc GetTransactionTaskFile(GetTransactionTaskFileRequest) returns (GetTransactionTaskFileResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/transaction/task/template/{fileFormat}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction Task"]
+            summary: "Transaction Task List Template File"
+            description: "This API for transaction task list template file"
+        };
+    };
+
     rpc GetTransactionTask(GetTransactionTaskRequest) returns (GetTransactionTaskResponse) {
         option (google.api.http) = {
             get: "/api/bg/transaction/task"

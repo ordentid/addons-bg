@@ -629,6 +629,124 @@
         ]
       }
     },
+    "/api/bg/transaction/task/template/{fileFormat}": {
+      "get": {
+        "summary": "Transaction Task List Template File",
+        "description": "This API for transaction task list template file",
+        "operationId": "ApiService_GetTransactionTaskFile",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTransactionTaskFileResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "fileFormat",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "null",
+              "csv",
+              "xls",
+              "xlsx"
+            ]
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStatus",
+              "Pending",
+              "Draft",
+              "Returned",
+              "Approved",
+              "Rejected",
+              "DeleteRequest",
+              "Deleted"
+            ],
+            "default": "AllStatus"
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStep",
+              "Maker",
+              "Checker",
+              "Signer",
+              "Releaser"
+            ],
+            "default": "AllStep"
+          },
+          {
+            "name": "limit",
+            "description": "Limit data per page. Default value '-1' for disable limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page",
+            "description": "Page number to get data. Default value '-1' for disable page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sort",
+            "description": "Order data by column name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "dir",
+            "description": "Sort DirectionEnum should be ASC or DESC",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DESC",
+              "ASC"
+            ],
+            "default": "DESC"
+          },
+          {
+            "name": "filter",
+            "description": "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement =\u003e Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key:\u003e=value' =\u003e 'key \u003e= value' \n - 'key:\u003c=value' =\u003e 'key \u003c= value' \n - 'key1:\u003e=value1,key2:\u003c=value2' =\u003e 'key1 \u003e= value1 AND key2 \u003c= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "Transaction Task"
+        ]
+      }
+    },
     "/api/bg/transaction/task/{taskID}": {
       "get": {
         "summary": "Transaction Task Detail",
@@ -891,6 +1009,16 @@
       ],
       "default": "DESC"
     },
+    "v1FormatTemplate": {
+      "type": "string",
+      "enum": [
+        "null",
+        "csv",
+        "xls",
+        "xlsx"
+      ],
+      "default": "null"
+    },
     "v1GenerateThirdPartyRequest": {
       "type": "object",
       "properties": {
@@ -1033,6 +1161,30 @@
         },
         "data": {
           "$ref": "#/definitions/v1TransactionTask"
+        }
+      }
+    },
+    "v1GetTransactionTaskFileResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TransactionTask"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/v1PaginationResponse"
         }
       }
     },

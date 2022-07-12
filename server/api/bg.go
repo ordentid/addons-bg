@@ -285,7 +285,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	// }
 
 	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	client := &http.Client{}
+	// client := &http.Client{}
 
 	result.Pagination = setPagination(req.Page, req.Limit)
 	sort := &pb.Sort{
@@ -311,40 +311,40 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		httpReqBodyData := ApiDownloadRequest{
-			ReferenceNo: transaction.ReferenceNo,
-		}
+		// httpReqBodyData := ApiDownloadRequest{
+		// 	ReferenceNo: transaction.ReferenceNo,
+		// }
 
-		httpReqBodyByte, err := json.Marshal(httpReqBodyData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+		// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
+		// httpRes, err := client.Do(httpReq)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
+		// defer httpRes.Body.Close()
 
-		var httpResData ApiDownloadResponse
-		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// var httpResData ApiDownloadResponse
+		// err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		transaction.DocumentPath = ""
-		if httpResData.ResponseCode == 00 {
-			if len(httpResData.ResponseData) > 0 {
-				transaction.DocumentPath = httpResData.ResponseData[0].Url
-			}
-		}
+		// transaction.DocumentPath = ""
+		// if httpResData.ResponseCode == 00 {
+		// 	if len(httpResData.ResponseData) > 0 {
+		// 		transaction.DocumentPath = httpResData.ResponseData[0].Url
+		// 	}
+		// }
 
 		list = append(list, &transaction)
 	}
@@ -378,42 +378,42 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 		// }
 
 		// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-		client := &http.Client{}
+		// client := &http.Client{}
 
-		httpReqBodyData := ApiDownloadRequest{
-			ReferenceNo: data.ReferenceNo,
-		}
+		// httpReqBodyData := ApiDownloadRequest{
+		// 	ReferenceNo: data.ReferenceNo,
+		// }
 
-		httpReqBodyByte, err := json.Marshal(httpReqBodyData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+		// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
+		// httpRes, err := client.Do(httpReq)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
+		// defer httpRes.Body.Close()
 
-		var httpResData ApiDownloadResponse
-		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// var httpResData ApiDownloadResponse
+		// err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		data.DocumentPath = ""
-		if httpResData.ResponseCode == 00 {
-			if len(httpResData.ResponseData) > 0 {
-				data.DocumentPath = httpResData.ResponseData[0].Url
-			}
-		}
+		// data.DocumentPath = ""
+		// if httpResData.ResponseCode == 00 {
+		// 	if len(httpResData.ResponseData) > 0 {
+		// 		data.DocumentPath = httpResData.ResponseData[0].Url
+		// 	}
+		// }
 
 		result.Data = &data
 	}
