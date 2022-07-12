@@ -93,6 +93,18 @@ message GenerateThirdPartyResponse {
     ApiPaginationResponse pagination = 4;
 }
 
+message GetApplicantNameData {
+    string name = 1;
+    uint64 total = 2;
+}
+message GetApplicantNameRequest {}
+message GetApplicantNameResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated GetApplicantNameData data = 4;
+}
+
 message GetThirdPartyRequest {}
 message GetThirdPartyResponse {
     bool error = 1;

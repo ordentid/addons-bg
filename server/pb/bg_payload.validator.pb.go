@@ -98,6 +98,22 @@ func (this *GenerateThirdPartyResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetApplicantNameData) Validate() error {
+	return nil
+}
+func (this *GetApplicantNameRequest) Validate() error {
+	return nil
+}
+func (this *GetApplicantNameResponse) Validate() error {
+	for _, item := range this.Data {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *GetThirdPartyRequest) Validate() error {
 	return nil
 }

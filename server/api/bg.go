@@ -102,6 +102,24 @@ type UrlObject struct {
 	Url string `json:"url"`
 }
 
+func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameRequest) (*pb.GetApplicantNameResponse, error) {
+	result := &pb.GetApplicantNameResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.GetApplicantNameData{},
+	}
+
+	applicantNameList, err := s.provider.GetApplicantName(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	result.Data = applicantNameList
+
+	return result, nil
+}
+
 func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest) (*pb.GetThirdPartyResponse, error) {
 	result := &pb.GetThirdPartyResponse{
 		Error:   false,

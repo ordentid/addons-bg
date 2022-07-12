@@ -22,6 +22,30 @@
     "application/json"
   ],
   "paths": {
+    "/api/bg/applicant-name": {
+      "get": {
+        "summary": "Applicant Name",
+        "description": "This API for applicant name list",
+        "operationId": "ApiService_GetApplicantName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetApplicantNameResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Applicant Name"
+        ]
+      }
+    },
     "/api/bg/health": {
       "get": {
         "summary": "Health Check",
@@ -895,6 +919,39 @@
         },
         "pagination": {
           "$ref": "#/definitions/v1ApiPaginationResponse"
+        }
+      }
+    },
+    "v1GetApplicantNameData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1GetApplicantNameResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1GetApplicantNameData"
+          }
         }
       }
     },

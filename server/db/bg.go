@@ -12,6 +12,23 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.GetApplicantNameData, error) {
+	data := []*pb.GetApplicantNameData{}
+	query := p.db_main
+
+	query = query.Model(&pb.TransactionORM{})
+	query = query.Select(`"applicant_name" as name, count("id") as total`)
+	query = query.Group(`"applicant_name"`)
+
+	if err := query.Find(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	return data, nil
+}
+
 func (p *GormProvider) GetThirdParty(ctx context.Context) ([]*pb.ThirdPartyORM, error) {
 	data := []*pb.ThirdPartyORM{}
 	query := p.db_main

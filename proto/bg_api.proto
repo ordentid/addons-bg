@@ -42,6 +42,17 @@ service ApiService {
         };
     };
 
+    rpc GetApplicantName(GetApplicantNameRequest) returns (GetApplicantNameResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/applicant-name"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Applicant Name"]
+            summary: "Applicant Name"
+            description: "This API for applicant name list"
+        };
+    };
+
     rpc GetThirdParty(GetThirdPartyRequest) returns (GetThirdPartyResponse) {
         option (google.api.http) = {
             get: "/api/bg/third-party"
