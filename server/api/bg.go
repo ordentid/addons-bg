@@ -88,6 +88,20 @@ type ApiInquiryThirdParty struct {
 	Status       string `json:"status"`
 }
 
+type ApiDownloadRequest struct {
+	ReferenceNo string `json:"referenceNo"`
+}
+
+type ApiDownloadResponse struct {
+	ResponseCode    uint64      `json:"responseCode,string"`
+	ResponseMessage uint64      `json:"responseMessage,string"`
+	ResponseData    []UrlObject `json:"responseData"`
+}
+
+type UrlObject struct {
+	Url string `json:"url"`
+}
+
 func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest) (*pb.GetThirdPartyResponse, error) {
 	result := &pb.GetThirdPartyResponse{
 		Error:   false,
@@ -247,6 +261,14 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		}
 	}
 
+	// proxyURL, err := url.Parse("http://localhost:5002")
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
+
+	// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	client := &http.Client{}
+
 	result.Pagination = setPagination(req.Page, req.Limit)
 	sort := &pb.Sort{
 		Column:    req.GetSort(),
@@ -270,6 +292,42 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
+
+		httpReqBodyData := ApiDownloadRequest{
+			ReferenceNo: transaction.ReferenceNo,
+		}
+
+		httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+		httpRes, err := client.Do(httpReq)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		defer httpRes.Body.Close()
+
+		var httpResData ApiDownloadResponse
+		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		transaction.DocumentPath = ""
+		if httpResData.ResponseCode == 00 {
+			if len(httpResData.ResponseData) > 0 {
+				transaction.DocumentPath = httpResData.ResponseData[0].Url
+			}
+		}
+
 		list = append(list, &transaction)
 	}
 
@@ -294,6 +352,49 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 		data, err := orm.ToPB(ctx)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		// proxyURL, err := url.Parse("http://localhost:5002")
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
+
+		// client := &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+		client := &http.Client{}
+
+		httpReqBodyData := ApiDownloadRequest{
+			ReferenceNo: data.ReferenceNo,
+		}
+
+		httpReqBodyByte, err := json.Marshal(httpReqBodyData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", strings.NewReader(string(httpReqBodyByte)))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+		httpRes, err := client.Do(httpReq)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		defer httpRes.Body.Close()
+
+		var httpResData ApiDownloadResponse
+		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		data.DocumentPath = ""
+		if httpResData.ResponseCode == 00 {
+			if len(httpResData.ResponseData) > 0 {
+				data.DocumentPath = httpResData.ResponseData[0].Url
+			}
 		}
 
 		result.Data = &data
