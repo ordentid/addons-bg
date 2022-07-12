@@ -137,9 +137,12 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 			Status:             v.GetStatus().Enum().String(),
 			Type:               v.GetType(),
 			Step:               v.GetStep().String(),
+			Comment:            v.GetComment(),
+			Reasons:            v.GetReasons(),
 			CreatedAt:          v.GetCreatedAt(),
 			CreatedByName:      v.GetCreatedByName(),
 			UpdatedAt:          v.GetUpdatedAt(),
+			UpdatedByName:      v.GetUpdatedByName(),
 		}
 
 		taskData := []*pb.TransactionTaskData{}
@@ -250,9 +253,12 @@ func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransa
 		Status:             taskRes.Data.GetStatus().Enum().String(),
 		Type:               taskRes.Data.GetType(),
 		Step:               taskRes.Data.GetStep().String(),
+		Comment:            taskRes.Data.GetComment(),
+		Reasons:            taskRes.Data.GetReasons(),
 		CreatedAt:          taskRes.Data.GetCreatedAt(),
 		CreatedByName:      taskRes.Data.GetCreatedByName(),
 		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
+		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
 	}
 
 	taskData := []*pb.TransactionTaskData{}
