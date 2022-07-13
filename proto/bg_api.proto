@@ -76,54 +76,94 @@ service ApiService {
         };
     };
 
-    rpc GetTransactionTaskFile(GetTransactionTaskFileRequest) returns (GetTransactionTaskFileResponse) {
+    rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (GetTaskMappingFileResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/task/template/{fileFormat}"
+            get: "/api/bg/mapping/task/template/{fileFormat}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Transaction Task"]
-            summary: "Transaction Task List Template File"
-            description: "This API for transaction task list template file"
+            tags: ["BG Mapping"]
+            summary: "BG Mapping Export"
+            description: "This API for BG Mapping export"
         };
     };
 
-    rpc GetTransactionTask(GetTransactionTaskRequest) returns (GetTransactionTaskResponse) {
+    rpc GetTaskMapping(GetTaskMappingRequest) returns (GetTaskMappingResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/task"
+            get: "/api/bg/mapping/task"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Transaction Task"]
-            summary: "Transaction Task List"
-            description: "This API for transaction task list"
+            tags: ["BG Mapping"]
+            summary: "BG Mapping List"
+            description: "This API for BG Mapping list"
         };
     };
 
-    rpc GetTransactionTaskDetail(GetTransactionTaskDetailRequest) returns (GetTransactionTaskDetailResponse) {
+    rpc GetTaskMappingDetail(GetTaskMappingDetailRequest) returns (GetTaskMappingDetailResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/task/{taskID}"
+            get: "/api/bg/mapping/task/{taskID}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Transaction Task"]
-            summary: "Transaction Task Detail"
-            description: "This API for transaction task detail"
+            tags: ["BG Mapping"]
+            summary: "BG Mapping Detail"
+            description: "This API for BG Mapping detail"
         };
     };
     
-    rpc CreateTransactionTask(CreateTransactionTaskRequest) returns (CreateTransactionTaskResponse) {
+    rpc CreateTaskMapping(CreateTaskMappingRequest) returns (CreateTaskMappingResponse) {
         option (google.api.http) = {
-            post: "/api/bg/transaction/task"
+            post: "/api/bg/mapping/task"
             body: "*"
             additional_bindings: [
 				{
-					put: "/api/bg/transaction/task/{taskID}"
+					put: "/api/bg/mapping/task/{taskID}"
 					body: "*"
 				}
 			]
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Transaction Task"]
-            summary: "Update Or Create Transaction Task"
-            description: "This API for update or create transaction task"
+            tags: ["BG Mapping"]
+            summary: "Update Or Create Mapping"
+            description: "This API for update or create BG Mapping"
+        };
+    };
+
+    rpc GetMappingDigital(GetMappingDigitalRequest) returns (GetMappingDigitalResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/mapping-digital/task"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Mapping Digital"]
+            summary: "BG Mapping Digital List"
+            description: "This API for BG Mapping Digital list"
+        };
+    };
+
+    rpc GetMappingDigitalDetail(GetMappingDigitalDetailRequest) returns (GetMappingDigitalDetailResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/mapping-digital/task/{taskID}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Mapping Digital"]
+            summary: "BG Mapping Digital Detail"
+            description: "This API for BG Mapping Digital detail"
+        };
+    };
+
+    rpc CreateMappingDigital(CreateMappingDigitalRequest) returns (CreateMappingDigitalResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/mapping-digital/task"
+            body: "*"
+            additional_bindings: [
+				{
+					put: "/api/bg/mapping-digital/task/{taskID}"
+					body: "*"
+				}
+			]
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Mapping Digital"]
+            summary: "Update Or Create BG Mapping Digital"
+            description: "This API for update or create BG Mapping Digital"
         };
     };
 

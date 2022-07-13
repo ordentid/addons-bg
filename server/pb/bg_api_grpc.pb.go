@@ -26,10 +26,13 @@ type ApiServiceClient interface {
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
-	GetTransactionTaskFile(ctx context.Context, in *GetTransactionTaskFileRequest, opts ...grpc.CallOption) (*GetTransactionTaskFileResponse, error)
-	GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error)
-	GetTransactionTaskDetail(ctx context.Context, in *GetTransactionTaskDetailRequest, opts ...grpc.CallOption) (*GetTransactionTaskDetailResponse, error)
-	CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error)
+	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*GetTaskMappingFileResponse, error)
+	GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error)
+	GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error)
+	CreateTaskMapping(ctx context.Context, in *CreateTaskMappingRequest, opts ...grpc.CallOption) (*CreateTaskMappingResponse, error)
+	GetMappingDigital(ctx context.Context, in *GetMappingDigitalRequest, opts ...grpc.CallOption) (*GetMappingDigitalResponse, error)
+	GetMappingDigitalDetail(ctx context.Context, in *GetMappingDigitalDetailRequest, opts ...grpc.CallOption) (*GetMappingDigitalDetailResponse, error)
+	CreateMappingDigital(ctx context.Context, in *CreateMappingDigitalRequest, opts ...grpc.CallOption) (*CreateMappingDigitalResponse, error)
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
 	GetTransactionDetail(ctx context.Context, in *GetTransactionDetailRequest, opts ...grpc.CallOption) (*GetTransactionDetailResponse, error)
 	CreateTransaction(ctx context.Context, in *CreateTransactionRequest, opts ...grpc.CallOption) (*CreateTransactionResponse, error)
@@ -80,36 +83,63 @@ func (c *apiServiceClient) GenerateThirdParty(ctx context.Context, in *GenerateT
 	return out, nil
 }
 
-func (c *apiServiceClient) GetTransactionTaskFile(ctx context.Context, in *GetTransactionTaskFileRequest, opts ...grpc.CallOption) (*GetTransactionTaskFileResponse, error) {
-	out := new(GetTransactionTaskFileResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTransactionTaskFile", in, out, opts...)
+func (c *apiServiceClient) GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*GetTaskMappingFileResponse, error) {
+	out := new(GetTaskMappingFileResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMappingFile", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *apiServiceClient) GetTransactionTask(ctx context.Context, in *GetTransactionTaskRequest, opts ...grpc.CallOption) (*GetTransactionTaskResponse, error) {
-	out := new(GetTransactionTaskResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTransactionTask", in, out, opts...)
+func (c *apiServiceClient) GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error) {
+	out := new(GetTaskMappingResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMapping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *apiServiceClient) GetTransactionTaskDetail(ctx context.Context, in *GetTransactionTaskDetailRequest, opts ...grpc.CallOption) (*GetTransactionTaskDetailResponse, error) {
-	out := new(GetTransactionTaskDetailResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTransactionTaskDetail", in, out, opts...)
+func (c *apiServiceClient) GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error) {
+	out := new(GetTaskMappingDetailResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMappingDetail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *apiServiceClient) CreateTransactionTask(ctx context.Context, in *CreateTransactionTaskRequest, opts ...grpc.CallOption) (*CreateTransactionTaskResponse, error) {
-	out := new(CreateTransactionTaskResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/CreateTransactionTask", in, out, opts...)
+func (c *apiServiceClient) CreateTaskMapping(ctx context.Context, in *CreateTaskMappingRequest, opts ...grpc.CallOption) (*CreateTaskMappingResponse, error) {
+	out := new(CreateTaskMappingResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/CreateTaskMapping", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetMappingDigital(ctx context.Context, in *GetMappingDigitalRequest, opts ...grpc.CallOption) (*GetMappingDigitalResponse, error) {
+	out := new(GetMappingDigitalResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetMappingDigital", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetMappingDigitalDetail(ctx context.Context, in *GetMappingDigitalDetailRequest, opts ...grpc.CallOption) (*GetMappingDigitalDetailResponse, error) {
+	out := new(GetMappingDigitalDetailResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetMappingDigitalDetail", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) CreateMappingDigital(ctx context.Context, in *CreateMappingDigitalRequest, opts ...grpc.CallOption) (*CreateMappingDigitalResponse, error) {
+	out := new(CreateMappingDigitalResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/CreateMappingDigital", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -160,10 +190,13 @@ type ApiServiceServer interface {
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
-	GetTransactionTaskFile(context.Context, *GetTransactionTaskFileRequest) (*GetTransactionTaskFileResponse, error)
-	GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error)
-	GetTransactionTaskDetail(context.Context, *GetTransactionTaskDetailRequest) (*GetTransactionTaskDetailResponse, error)
-	CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error)
+	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*GetTaskMappingFileResponse, error)
+	GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error)
+	GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error)
+	CreateTaskMapping(context.Context, *CreateTaskMappingRequest) (*CreateTaskMappingResponse, error)
+	GetMappingDigital(context.Context, *GetMappingDigitalRequest) (*GetMappingDigitalResponse, error)
+	GetMappingDigitalDetail(context.Context, *GetMappingDigitalDetailRequest) (*GetMappingDigitalDetailResponse, error)
+	CreateMappingDigital(context.Context, *CreateMappingDigitalRequest) (*CreateMappingDigitalResponse, error)
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
 	GetTransactionDetail(context.Context, *GetTransactionDetailRequest) (*GetTransactionDetailResponse, error)
 	CreateTransaction(context.Context, *CreateTransactionRequest) (*CreateTransactionResponse, error)
@@ -187,17 +220,26 @@ func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPar
 func (UnimplementedApiServiceServer) GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateThirdParty not implemented")
 }
-func (UnimplementedApiServiceServer) GetTransactionTaskFile(context.Context, *GetTransactionTaskFileRequest) (*GetTransactionTaskFileResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTaskFile not implemented")
+func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*GetTaskMappingFileResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFile not implemented")
 }
-func (UnimplementedApiServiceServer) GetTransactionTask(context.Context, *GetTransactionTaskRequest) (*GetTransactionTaskResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTask not implemented")
+func (UnimplementedApiServiceServer) GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMapping not implemented")
 }
-func (UnimplementedApiServiceServer) GetTransactionTaskDetail(context.Context, *GetTransactionTaskDetailRequest) (*GetTransactionTaskDetailResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetTransactionTaskDetail not implemented")
+func (UnimplementedApiServiceServer) GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingDetail not implemented")
 }
-func (UnimplementedApiServiceServer) CreateTransactionTask(context.Context, *CreateTransactionTaskRequest) (*CreateTransactionTaskResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method CreateTransactionTask not implemented")
+func (UnimplementedApiServiceServer) CreateTaskMapping(context.Context, *CreateTaskMappingRequest) (*CreateTaskMappingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskMapping not implemented")
+}
+func (UnimplementedApiServiceServer) GetMappingDigital(context.Context, *GetMappingDigitalRequest) (*GetMappingDigitalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMappingDigital not implemented")
+}
+func (UnimplementedApiServiceServer) GetMappingDigitalDetail(context.Context, *GetMappingDigitalDetailRequest) (*GetMappingDigitalDetailResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMappingDigitalDetail not implemented")
+}
+func (UnimplementedApiServiceServer) CreateMappingDigital(context.Context, *CreateMappingDigitalRequest) (*CreateMappingDigitalResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method CreateMappingDigital not implemented")
 }
 func (UnimplementedApiServiceServer) GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTransaction not implemented")
@@ -296,74 +338,128 @@ func _ApiService_GenerateThirdParty_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_GetTransactionTaskFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTransactionTaskFileRequest)
+func _ApiService_GetTaskMappingFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskMappingFileRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).GetTransactionTaskFile(ctx, in)
+		return srv.(ApiServiceServer).GetTaskMappingFile(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/GetTransactionTaskFile",
+		FullMethod: "/bg.service.v1.ApiService/GetTaskMappingFile",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetTransactionTaskFile(ctx, req.(*GetTransactionTaskFileRequest))
+		return srv.(ApiServiceServer).GetTaskMappingFile(ctx, req.(*GetTaskMappingFileRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_GetTransactionTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTransactionTaskRequest)
+func _ApiService_GetTaskMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskMappingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).GetTransactionTask(ctx, in)
+		return srv.(ApiServiceServer).GetTaskMapping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/GetTransactionTask",
+		FullMethod: "/bg.service.v1.ApiService/GetTaskMapping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetTransactionTask(ctx, req.(*GetTransactionTaskRequest))
+		return srv.(ApiServiceServer).GetTaskMapping(ctx, req.(*GetTaskMappingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_GetTransactionTaskDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetTransactionTaskDetailRequest)
+func _ApiService_GetTaskMappingDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskMappingDetailRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).GetTransactionTaskDetail(ctx, in)
+		return srv.(ApiServiceServer).GetTaskMappingDetail(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/GetTransactionTaskDetail",
+		FullMethod: "/bg.service.v1.ApiService/GetTaskMappingDetail",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetTransactionTaskDetail(ctx, req.(*GetTransactionTaskDetailRequest))
+		return srv.(ApiServiceServer).GetTaskMappingDetail(ctx, req.(*GetTaskMappingDetailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_CreateTransactionTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(CreateTransactionTaskRequest)
+func _ApiService_CreateTaskMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateTaskMappingRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).CreateTransactionTask(ctx, in)
+		return srv.(ApiServiceServer).CreateTaskMapping(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/CreateTransactionTask",
+		FullMethod: "/bg.service.v1.ApiService/CreateTaskMapping",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).CreateTransactionTask(ctx, req.(*CreateTransactionTaskRequest))
+		return srv.(ApiServiceServer).CreateTaskMapping(ctx, req.(*CreateTaskMappingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetMappingDigital_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMappingDigitalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetMappingDigital(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetMappingDigital",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetMappingDigital(ctx, req.(*GetMappingDigitalRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetMappingDigitalDetail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMappingDigitalDetailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetMappingDigitalDetail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetMappingDigitalDetail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetMappingDigitalDetail(ctx, req.(*GetMappingDigitalDetailRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_CreateMappingDigital_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(CreateMappingDigitalRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).CreateMappingDigital(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/CreateMappingDigital",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).CreateMappingDigital(ctx, req.(*CreateMappingDigitalRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -464,20 +560,32 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ApiService_GenerateThirdParty_Handler,
 		},
 		{
-			MethodName: "GetTransactionTaskFile",
-			Handler:    _ApiService_GetTransactionTaskFile_Handler,
+			MethodName: "GetTaskMappingFile",
+			Handler:    _ApiService_GetTaskMappingFile_Handler,
 		},
 		{
-			MethodName: "GetTransactionTask",
-			Handler:    _ApiService_GetTransactionTask_Handler,
+			MethodName: "GetTaskMapping",
+			Handler:    _ApiService_GetTaskMapping_Handler,
 		},
 		{
-			MethodName: "GetTransactionTaskDetail",
-			Handler:    _ApiService_GetTransactionTaskDetail_Handler,
+			MethodName: "GetTaskMappingDetail",
+			Handler:    _ApiService_GetTaskMappingDetail_Handler,
 		},
 		{
-			MethodName: "CreateTransactionTask",
-			Handler:    _ApiService_CreateTransactionTask_Handler,
+			MethodName: "CreateTaskMapping",
+			Handler:    _ApiService_CreateTaskMapping_Handler,
+		},
+		{
+			MethodName: "GetMappingDigital",
+			Handler:    _ApiService_GetMappingDigital_Handler,
+		},
+		{
+			MethodName: "GetMappingDigitalDetail",
+			Handler:    _ApiService_GetMappingDigitalDetail_Handler,
+		},
+		{
+			MethodName: "CreateMappingDigital",
+			Handler:    _ApiService_CreateMappingDigital_Handler,
 		},
 		{
 			MethodName: "GetTransaction",

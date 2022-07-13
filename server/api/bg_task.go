@@ -3,16 +3,11 @@ package api
 import (
 	"context"
 	"encoding/json"
-	"io/ioutil"
-	"net/http"
-	"net/url"
-	"strconv"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -21,12 +16,12 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionTaskRequest) (*pb.GetTransactionTaskResponse, error) {
-	result := &pb.GetTransactionTaskResponse{
+func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingRequest) (*pb.GetTaskMappingResponse, error) {
+	result := &pb.GetTaskMappingResponse{
 		Error:   false,
 		Code:    200,
 		Message: "List Data",
-		Data:    []*pb.TransactionTask{},
+		Data:    []*pb.TaskMappingData{},
 	}
 
 	me, err := s.manager.GetMeFromJWT(ctx, "")
@@ -129,64 +124,56 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 
 	for _, v := range dataList.Data {
 		task := &pb.Task{
-			LastApprovedByID:   v.GetLastApprovedByID(),
-			LastApprovedByName: v.GetLastApprovedByName(),
-			LastRejectedByID:   v.GetLastRejectedByID(),
-			LastRejectedByName: v.GetLastRejectedByName(),
-			FeatureID:          v.GetFeatureID(),
 			TaskID:             v.GetTaskID(),
-			Status:             v.GetStatus().Enum().String(),
 			Type:               v.GetType(),
+			Status:             v.GetStatus().String(),
 			Step:               v.GetStep().String(),
-			Comment:            v.GetComment(),
-			Reasons:            v.GetReasons(),
-			CreatedAt:          v.GetCreatedAt(),
+			FeatureID:          v.GetFeatureID(),
+			LastApprovedByID:   v.GetLastApprovedByID(),
+			LastRejectedByID:   v.GetLastRejectedByID(),
+			LastApprovedByName: v.GetLastApprovedByName(),
+			LastRejectedByName: v.GetLastRejectedByName(),
 			CreatedByName:      v.GetCreatedByName(),
-			UpdatedAt:          v.GetUpdatedAt(),
 			UpdatedByName:      v.GetUpdatedByName(),
+			Reasons:            v.GetReasons(),
+			Comment:            v.GetComment(),
+			CompanyID:          v.GetCompanyID(),
+			HoldingID:          v.GetHoldingID(),
+			CreatedAt:          v.GetCreatedAt(),
+			UpdatedAt:          v.GetUpdatedAt(),
 		}
 
-		taskData := []*pb.TransactionTaskData{}
+		taskData := []*pb.MappingData{}
 		json.Unmarshal([]byte(v.Data), &taskData)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
 		var company *pb.Company
-		var transactionTaskData []*pb.TransactionTaskData
 
-		for i, v := range taskData {
-			if i == 0 && len(v.Transaction) > 0 {
-				companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.Transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				if len(companyRes.GetData()) > 0 {
-					company = &pb.Company{
-						CompanyID:          companyRes.Data[0].GetCompanyID(),
-						HoldingID:          companyRes.Data[0].GetHoldingID(),
-						GroupName:          companyRes.Data[0].GetGroupName(),
-						CompanyName:        companyRes.Data[0].GetCompanyName(),
-						HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
-						CreatedAt:          companyRes.Data[0].GetCreatedAt(),
-						UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
-					}
-				} else {
-					return nil, status.Errorf(codes.NotFound, "Company not found.")
-				}
-			}
-
-			transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
-				ThirdParty:  v.ThirdParty,
-				Transaction: v.Transaction,
-			})
+		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		result.Data = append(result.Data, &pb.TransactionTask{
+		if len(companyRes.GetData()) > 0 {
+			company = &pb.Company{
+				CompanyID:          companyRes.Data[0].GetCompanyID(),
+				HoldingID:          companyRes.Data[0].GetHoldingID(),
+				GroupName:          companyRes.Data[0].GetGroupName(),
+				CompanyName:        companyRes.Data[0].GetCompanyName(),
+				HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+			}
+		} else {
+			return nil, status.Errorf(codes.NotFound, "Company not found.")
+		}
+
+		result.Data = append(result.Data, &pb.TaskMappingData{
 			Task:    task,
 			Company: company,
-			Data:    transactionTaskData,
+			Data:    taskData,
 		})
 	}
 
@@ -200,8 +187,8 @@ func (s *Server) GetTransactionTask(ctx context.Context, req *pb.GetTransactionT
 	return result, nil
 }
 
-func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransactionTaskDetailRequest) (*pb.GetTransactionTaskDetailResponse, error) {
-	result := &pb.GetTransactionTaskDetailResponse{
+func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappingDetailRequest) (*pb.GetTaskMappingDetailResponse, error) {
+	result := &pb.GetTaskMappingDetailResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
@@ -245,74 +232,66 @@ func (s *Server) GetTransactionTaskDetail(ctx context.Context, req *pb.GetTransa
 	}
 
 	task := &pb.Task{
-		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
-		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
-		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
-		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
-		FeatureID:          taskRes.Data.GetFeatureID(),
 		TaskID:             taskRes.Data.GetTaskID(),
-		Status:             taskRes.Data.GetStatus().Enum().String(),
 		Type:               taskRes.Data.GetType(),
+		Status:             taskRes.Data.GetStatus().String(),
 		Step:               taskRes.Data.GetStep().String(),
-		Comment:            taskRes.Data.GetComment(),
-		Reasons:            taskRes.Data.GetReasons(),
-		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
 		CreatedByName:      taskRes.Data.GetCreatedByName(),
-		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
 		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
+		Reasons:            taskRes.Data.GetReasons(),
+		Comment:            taskRes.Data.GetComment(),
+		CompanyID:          taskRes.Data.GetCompanyID(),
+		HoldingID:          taskRes.Data.GetHoldingID(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
 	}
 
-	taskData := []*pb.TransactionTaskData{}
+	taskData := []*pb.MappingData{}
 	json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	var company *pb.Company
-	var transactionTaskData []*pb.TransactionTaskData
 
-	for i, v := range taskData {
-		if i == 0 && len(v.Transaction) > 0 {
-			companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.Transaction[0].GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			if len(companyRes.GetData()) > 0 {
-				company = &pb.Company{
-					CompanyID:          companyRes.Data[0].GetCompanyID(),
-					HoldingID:          companyRes.Data[0].GetHoldingID(),
-					GroupName:          companyRes.Data[0].GetGroupName(),
-					CompanyName:        companyRes.Data[0].GetCompanyName(),
-					HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
-					CreatedAt:          companyRes.Data[0].GetCreatedAt(),
-					UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
-				}
-			} else {
-				return nil, status.Errorf(codes.NotFound, "Company not found.")
-			}
-		}
-
-		transactionTaskData = append(transactionTaskData, &pb.TransactionTaskData{
-			ThirdParty:  v.ThirdParty,
-			Transaction: v.Transaction,
-		})
+	companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: taskRes.Data.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	result.Data = &pb.TransactionTask{
+	if len(companyRes.GetData()) > 0 {
+		company = &pb.Company{
+			CompanyID:          companyRes.Data[0].GetCompanyID(),
+			HoldingID:          companyRes.Data[0].GetHoldingID(),
+			GroupName:          companyRes.Data[0].GetGroupName(),
+			CompanyName:        companyRes.Data[0].GetCompanyName(),
+			HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+			CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+			UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+		}
+	} else {
+		return nil, status.Errorf(codes.NotFound, "Company not found.")
+	}
+
+	result.Data = &pb.TaskMappingData{
 		Task:    task,
 		Company: company,
-		Data:    transactionTaskData,
+		Data:    taskData,
 	}
 
 	return result, nil
 }
 
-func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransactionTaskRequest) (*pb.CreateTransactionTaskResponse, error) {
-	result := &pb.CreateTransactionTaskResponse{
+func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappingRequest) (*pb.CreateTaskMappingResponse, error) {
+	result := &pb.CreateTaskMappingResponse{
 		Error:   false,
 		Code:    200,
-		Message: "Data",
+		Message: "Success",
 	}
 
 	me, err := s.manager.GetMeFromJWT(ctx, "")
@@ -320,15 +299,15 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 		return nil, err
 	}
 
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+	// client := &http.Client{}
+	// if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+	// 	proxyURL, err := url.Parse("http://localhost:5002")
+	// 	if err != nil {
+	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// 	}
 
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
+	// 	client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	// }
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
@@ -364,94 +343,99 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
-	taskData := []*pb.TransactionTaskData{}
-	for _, v := range req.ThirdParty {
-		httpReqParamsOpt := ApiListTransactionRequest{
-			ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
-			Page:         1,
-			Limit:        100,
-		}
+	taskData := []*pb.MappingData{}
+	for _, v := range req.Data {
+		// httpReqParamsOpt := ApiListTransactionRequest{
+		// 	ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
+		// 	Page:         1,
+		// 	Limit:        100,
+		// }
 
-		httpReqParams, err := query.Values(httpReqParamsOpt)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReqParams, err := query.Values(httpReqParamsOpt)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		logrus.Println(httpReqParams.Encode())
+		// logrus.Println(httpReqParams.Encode())
 
-		httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+		// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
+		// httpRes, err := client.Do(httpReq)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
+		// defer httpRes.Body.Close()
 
-		var httpResData ApiListTransactionResponse
-		httpResBody, err := ioutil.ReadAll(httpRes.Body)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// var httpResData ApiListTransactionResponse
+		// httpResBody, err := ioutil.ReadAll(httpRes.Body)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		err = json.Unmarshal(httpResBody, &httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		// err = json.Unmarshal(httpResBody, &httpResData)
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
 
-		if httpResData.ResponseCode != "00" {
-			logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-		} else {
-			transactionDataList := []*pb.Transaction{}
-			for _, d := range httpResData.ResponseData {
-				transactionData := &pb.Transaction{
-					Amount:             d.Amount,
-					ApplicantName:      d.ApplicantName,
-					BeneficiaryName:    d.BeneficiaryName,
-					ChannelID:          d.ChannelId,
-					ChannelName:        d.ChannelName,
-					ClaimPeriod:        d.ClaimPeriod,
-					ClosingDate:        d.ClosingDate,
-					CompanyID:          req.CompanyID,
-					CreatedByID:        me.UserID,
-					Currency:           d.Currency,
-					DocumentPath:       d.DocumentPath,
-					EffectiveDate:      d.EffectiveDate,
-					ExpiryDate:         d.ExpiryDate,
-					IsAllowBeneficiary: v.IsAllowBeneficiary,
-					IssueDate:          d.IssueDate,
-					ReferenceNo:        d.ReferenceNo,
-					RegistrationNo:     d.RegistrationNo,
-					Remark:             d.Remark,
-					Status:             "Pending",
-					ThirdPartyID:       d.ThirdPartyId,
-					TransactionID:      d.TransactionId,
-					TransactionStatus:  d.Status,
-					TransactionTypeID:  d.TransactionTypeId,
-					UpdatedByID:        me.UserID,
-				}
-				transactionDataList = append(transactionDataList, transactionData)
-			}
+		// if httpResData.ResponseCode != "00" {
+		// 	logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+		// } else {
+		// 	transactionDataList := []*pb.Transaction{}
+		// 	for _, d := range httpResData.ResponseData {
+		// 		transactionData := &pb.Transaction{
+		// 			Amount:             d.Amount,
+		// 			ApplicantName:      d.ApplicantName,
+		// 			BeneficiaryName:    d.BeneficiaryName,
+		// 			ChannelID:          d.ChannelId,
+		// 			ChannelName:        d.ChannelName,
+		// 			ClaimPeriod:        d.ClaimPeriod,
+		// 			ClosingDate:        d.ClosingDate,
+		// 			CompanyID:          req.CompanyID,
+		// 			CreatedByID:        me.UserID,
+		// 			Currency:           d.Currency,
+		// 			DocumentPath:       d.DocumentPath,
+		// 			EffectiveDate:      d.EffectiveDate,
+		// 			ExpiryDate:         d.ExpiryDate,
+		// 			IsAllowBeneficiary: v.IsAllowBeneficiary,
+		// 			IssueDate:          d.IssueDate,
+		// 			ReferenceNo:        d.ReferenceNo,
+		// 			RegistrationNo:     d.RegistrationNo,
+		// 			Remark:             d.Remark,
+		// 			Status:             "Pending",
+		// 			ThirdPartyID:       d.ThirdPartyId,
+		// 			TransactionID:      d.TransactionId,
+		// 			TransactionStatus:  d.Status,
+		// 			TransactionTypeID:  d.TransactionTypeId,
+		// 			UpdatedByID:        me.UserID,
+		// 		}
+		// 		transactionDataList = append(transactionDataList, transactionData)
+		// 	}
 
-			thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.GetThirdPartyID()})
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
+		// 	thirdPartyORM, err := s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: v.GetThirdPartyID()})
+		// 	if err != nil {
+		// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// 	}
 
-			thirdParty, err := thirdPartyORM.ToPB(ctx)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
+		// 	thirdParty, err := thirdPartyORM.ToPB(ctx)
+		// 	if err != nil {
+		// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// 	}
 
-			taskData = append(taskData, &pb.TransactionTaskData{
-				ThirdParty:  &thirdParty,
-				Transaction: transactionDataList,
-			})
-		}
+		// 	taskData = append(taskData, &pb.TransactionTaskBankData{
+		// 		ThirdParty:  &thirdParty,
+		// 		Transaction: transactionDataList,
+		// 	})
+		// }
+
+		taskData = append(taskData, &pb.MappingData{
+			ThirdPartyID:          v.GetThirdPartyID(),
+			IsAllowAllBeneficiary: v.GetIsAllowAllBeneficiary(),
+		})
 	}
 
 	data, err := json.Marshal(taskData)
@@ -492,6 +476,381 @@ func (s *Server) CreateTransactionTask(ctx context.Context, req *pb.CreateTransa
 		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
 		Reasons:            taskRes.Data.GetReasons(),
 		Comment:            taskRes.Data.GetComment(),
+		CompanyID:          taskRes.Data.GetCompanyID(),
+		HoldingID:          taskRes.Data.GetHoldingID(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
+	}
+
+	return result, nil
+}
+
+func (s *Server) GetMappingDigital(ctx context.Context, req *pb.GetMappingDigitalRequest) (*pb.GetMappingDigitalResponse, error) {
+	result := &pb.GetMappingDigitalResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.TaskMappingDigitalData{},
+	}
+
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	}
+	defer companyConn.Close()
+
+	companyClient := company_pb.NewApiServiceClient(companyConn)
+
+	statuses := []string{}
+	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
+	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
+	if len(me.Authorities) > 0 {
+		switch strings.ToLower(me.Authorities[0]) {
+		case "maker":
+			statuses = []string{"2", "3", "1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>7"
+
+		case "signer":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		default:
+			return nil, status.Errorf(codes.PermissionDenied, "Authority Denied")
+		}
+	}
+
+	customOrder := ""
+	if req.Sort == "status" {
+		direction := ">"
+		if req.Dir.String() == "DESC" {
+			direction = "<"
+		}
+		customOrder = "status|" + direction + "|" + strings.Join(statuses, ",")
+		req.Sort = ""
+		req.Dir = 0
+	} else if req.Sort == "" {
+		customOrder = "status|>|" + strings.Join(statuses, ",")
+		req.Dir = 0
+	}
+
+	filter := &task_pb.Task{
+		Type:      "BG Mapping Digital",
+		CompanyID: me.CompanyID,
+	}
+
+	if req.Status.Number() > 0 {
+		filter.Status = task_pb.Statuses(req.Status.Number())
+	}
+	if req.Step.Number() > 0 {
+		filter.Step = task_pb.Steps(req.Step.Number())
+	}
+
+	dataReq := &task_pb.ListTaskRequest{
+		Task:        filter,
+		Limit:       req.GetLimit(),
+		Page:        req.GetPage(),
+		Sort:        req.GetSort(),
+		Dir:         task_pb.ListTaskRequestDirection(req.GetDir()),
+		Filter:      req.GetFilter(),
+		Query:       req.GetQuery(),
+		CustomOrder: customOrder,
+		In:          me.TaskFilter,
+	}
+
+	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	for _, v := range dataList.Data {
+		task := &pb.Task{
+			TaskID:             v.GetTaskID(),
+			Type:               v.GetType(),
+			Status:             v.GetStatus().String(),
+			Step:               v.GetStep().String(),
+			FeatureID:          v.GetFeatureID(),
+			LastApprovedByID:   v.GetLastApprovedByID(),
+			LastRejectedByID:   v.GetLastRejectedByID(),
+			LastApprovedByName: v.GetLastApprovedByName(),
+			LastRejectedByName: v.GetLastRejectedByName(),
+			CreatedByName:      v.GetCreatedByName(),
+			UpdatedByName:      v.GetUpdatedByName(),
+			Reasons:            v.GetReasons(),
+			Comment:            v.GetComment(),
+			CompanyID:          v.GetCompanyID(),
+			HoldingID:          v.GetHoldingID(),
+			CreatedAt:          v.GetCreatedAt(),
+			UpdatedAt:          v.GetUpdatedAt(),
+		}
+
+		taskData := []*pb.MappingDigitalData{}
+		json.Unmarshal([]byte(v.Data), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		var company *pb.Company
+
+		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		if len(companyRes.GetData()) > 0 {
+			company = &pb.Company{
+				CompanyID:          companyRes.Data[0].GetCompanyID(),
+				HoldingID:          companyRes.Data[0].GetHoldingID(),
+				GroupName:          companyRes.Data[0].GetGroupName(),
+				CompanyName:        companyRes.Data[0].GetCompanyName(),
+				HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+			}
+		} else {
+			return nil, status.Errorf(codes.NotFound, "Company not found.")
+		}
+
+		result.Data = append(result.Data, &pb.TaskMappingDigitalData{
+			Task:    task,
+			Company: company,
+			Data:    taskData,
+		})
+	}
+
+	result.Pagination = &pb.PaginationResponse{
+		Limit:      dataList.GetPagination().GetLimit(),
+		Page:       dataList.GetPagination().GetPage(),
+		TotalRows:  dataList.GetPagination().GetTotalRows(),
+		TotalPages: dataList.GetPagination().GetTotalPages(),
+	}
+
+	return result, nil
+}
+
+func (s *Server) GetMappingDigitalDetail(ctx context.Context, req *pb.GetMappingDigitalDetailRequest) (*pb.GetMappingDigitalDetailResponse, error) {
+	result := &pb.GetMappingDigitalDetailResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Success",
+	}
+
+	// me, err := s.manager.GetMeFromJWT(ctx, "")
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	}
+	defer companyConn.Close()
+
+	companyClient := company_pb.NewApiServiceClient(companyConn)
+
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	task := &pb.Task{
+		TaskID:             taskRes.Data.GetTaskID(),
+		Type:               taskRes.Data.GetType(),
+		Status:             taskRes.Data.GetStatus().String(),
+		Step:               taskRes.Data.GetStep().String(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
+		CreatedByName:      taskRes.Data.GetCreatedByName(),
+		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
+		Reasons:            taskRes.Data.GetReasons(),
+		Comment:            taskRes.Data.GetComment(),
+		CompanyID:          taskRes.Data.GetCompanyID(),
+		HoldingID:          taskRes.Data.GetHoldingID(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
+	}
+
+	taskData := []*pb.MappingDigitalData{}
+	json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	var company *pb.Company
+
+	companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if len(companyRes.GetData()) > 0 {
+		company = &pb.Company{
+			CompanyID:          companyRes.Data[0].GetCompanyID(),
+			HoldingID:          companyRes.Data[0].GetHoldingID(),
+			GroupName:          companyRes.Data[0].GetGroupName(),
+			CompanyName:        companyRes.Data[0].GetCompanyName(),
+			HoldingCompanyName: companyRes.Data[0].GetHoldingCompanyName(),
+			CreatedAt:          companyRes.Data[0].GetCreatedAt(),
+			UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
+		}
+	} else {
+		return nil, status.Errorf(codes.NotFound, "Company not found.")
+	}
+
+	result.Data = &pb.TaskMappingDigitalData{
+		Task:    task,
+		Company: company,
+		Data:    taskData,
+	}
+
+	return result, nil
+}
+
+func (s *Server) CreateMappingDigital(ctx context.Context, req *pb.CreateMappingDigitalRequest) (*pb.CreateMappingDigitalResponse, error) {
+	result := &pb.CreateMappingDigitalResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Success",
+	}
+
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	}
+	defer companyConn.Close()
+
+	companyClient := company_pb.NewApiServiceClient(companyConn)
+
+	company, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	if !(len(company.GetData()) > 0) {
+		return nil, status.Errorf(codes.NotFound, "Company not found.")
+	}
+
+	taskData := []*pb.MappingDigitalData{}
+	for _, v := range req.BeneficiaryNames {
+		taskData = append(taskData, &pb.MappingDigitalData{
+			ThirdPartyID:    req.GetThirdPartyID(),
+			BeneficiaryName: v,
+		})
+	}
+
+	data, err := json.Marshal(taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	taskReq := &task_pb.SaveTaskRequest{
+		TaskID: req.TaskID,
+		Task: &task_pb.Task{
+			Type:        "BG Mapping Digital",
+			Data:        string(data),
+			CreatedByID: me.UserID,
+			CompanyID:   me.CompanyID,
+		},
+	}
+
+	if req.IsDraft {
+		taskReq.IsDraft = true
+	}
+
+	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	result.Data = &pb.Task{
+		TaskID:             taskRes.Data.GetTaskID(),
+		Type:               taskRes.Data.GetType(),
+		Status:             taskRes.Data.GetStatus().String(),
+		Step:               taskRes.Data.GetStep().String(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
+		CreatedByName:      taskRes.Data.GetCreatedByName(),
+		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
+		Reasons:            taskRes.Data.GetReasons(),
+		Comment:            taskRes.Data.GetComment(),
+		CompanyID:          taskRes.Data.GetCompanyID(),
+		HoldingID:          taskRes.Data.GetHoldingID(),
 		CreatedAt:          taskRes.Data.GetCreatedAt(),
 		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
 	}
