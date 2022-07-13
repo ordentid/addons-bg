@@ -52,6 +52,7 @@ type ApiListTransactionResponse struct {
 type ApiTransaction struct {
 	TransactionId     uint64  `json:"transactionId,string"`
 	ThirdPartyId      uint64  `json:"thirdPartyId,string"`
+	ThirdPartyName    string  `json:"thirdPartyName"`
 	ReferenceNo       string  `json:"referenceNo"`
 	RegistrationNo    string  `json:"registrationNo"`
 	ApplicantName     string  `json:"applicantName"`
@@ -450,31 +451,36 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 	}
 
 	for _, v := range req.Data {
+		// transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: v.GetReferenceNo()})
+		// if err != nil {
+		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		// }
+
 		data := &pb.TransactionORM{
-			Amount:             v.Amount,
-			ApplicantName:      v.ApplicantName,
-			BeneficiaryName:    v.BeneficiaryName,
-			ChannelID:          v.ChannelID,
-			ChannelName:        v.ChannelName,
-			ClaimPeriod:        v.ClaimPeriod,
-			ClosingDate:        v.ClosingDate,
-			CompanyID:          v.CompanyID,
-			CreatedByID:        me.UserID,
-			Currency:           v.Currency,
-			DocumentPath:       v.DocumentPath,
-			EffectiveDate:      v.EffectiveDate,
-			ExpiryDate:         v.ExpiryDate,
-			IsAllowBeneficiary: v.IsAllowBeneficiary,
-			IssueDate:          v.IssueDate,
-			ReferenceNo:        v.ReferenceNo,
-			RegistrationNo:     v.RegistrationNo,
-			Remark:             v.Remark,
-			Status:             "Pending",
-			ThirdPartyID:       v.ThirdPartyID,
-			TransactionID:      v.TransactionID,
-			TransactionStatus:  v.Status,
-			TransactionTypeID:  v.TransactionTypeID,
-			UpdatedByID:        me.UserID,
+			Amount:          v.GetAmount(),
+			ApplicantName:   v.GetApplicantName(),
+			BeneficiaryName: v.GetBeneficiaryName(),
+			BgStatus:        int32(v.GetBgStatus()),
+			BgType:          int32(v.GetBgType()),
+			ChannelID:       v.GetChannelID(),
+			ChannelName:     v.GetChannelName(),
+			ClaimPeriod:     v.GetClaimPeriod(),
+			ClosingDate:     v.GetClosingDate(),
+			CompanyID:       v.GetCompanyID(),
+			CreatedByID:     me.UserID,
+			Currency:        v.GetCurrency(),
+			DocumentPath:    v.GetDocumentPath(),
+			EffectiveDate:   v.GetEffectiveDate(),
+			ExpiryDate:      v.GetExpiryDate(),
+			IssueDate:       v.GetIssueDate(),
+			ReferenceNo:     v.GetReferenceNo(),
+			RegistrationNo:  v.GetRegistrationNo(),
+			Remark:          v.GetRemark(),
+			Status:          int32(v.GetStatus()),
+			ThirdPartyID:    v.GetThirdPartyID(),
+			ThirdPartyName:  v.GetThirdPartyName(),
+			TransactionID:   v.GetTransactionID(),
+			UpdatedByID:     me.UserID,
 		}
 
 		transactionORM, err := s.provider.UpdateOrCreateTransaction(ctx, data)

@@ -737,6 +737,13 @@
             "format": "uint64"
           },
           {
+            "name": "transaction.thirdPartyName",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
             "name": "transaction.referenceNo",
             "in": "query",
             "required": false,
@@ -815,10 +822,18 @@
             "type": "string"
           },
           {
-            "name": "transaction.transactionStatus",
+            "name": "transaction.bgStatus",
             "in": "query",
             "required": false,
-            "type": "string"
+            "type": "string",
+            "enum": [
+              "Cancelled",
+              "Active",
+              "ClaimPeriod",
+              "ClosingPeriod",
+              "Closed"
+            ],
+            "default": "Cancelled"
           },
           {
             "name": "transaction.channelID",
@@ -834,11 +849,21 @@
             "type": "string"
           },
           {
-            "name": "transaction.transactionTypeID",
+            "name": "transaction.bgType",
             "in": "query",
             "required": false,
             "type": "string",
-            "format": "uint64"
+            "enum": [
+              "BidBond",
+              "AdvancePayment",
+              "PerformanceBond",
+              "GovernmentPaymentGuarantee",
+              "MaintenanceBond",
+              "ProcurementBond",
+              "TransactionRiskBond",
+              "CustomsBond"
+            ],
+            "default": "BidBond"
           },
           {
             "name": "transaction.documentPath",
@@ -857,13 +882,12 @@
             "name": "transaction.status",
             "in": "query",
             "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.isAllowBeneficiary",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
+            "type": "string",
+            "enum": [
+              "MappingDigital",
+              "PendingForIssuing"
+            ],
+            "default": "MappingDigital"
           },
           {
             "name": "transaction.createdByID",
@@ -1111,6 +1135,31 @@
           "format": "int64"
         }
       }
+    },
+    "v1BgStatus": {
+      "type": "string",
+      "enum": [
+        "Cancelled",
+        "Active",
+        "ClaimPeriod",
+        "ClosingPeriod",
+        "Closed"
+      ],
+      "default": "Cancelled"
+    },
+    "v1BgType": {
+      "type": "string",
+      "enum": [
+        "BidBond",
+        "AdvancePayment",
+        "PerformanceBond",
+        "GovernmentPaymentGuarantee",
+        "MaintenanceBond",
+        "ProcurementBond",
+        "TransactionRiskBond",
+        "CustomsBond"
+      ],
+      "default": "BidBond"
     },
     "v1Company": {
       "type": "object",
@@ -1513,6 +1562,19 @@
           "type": "string",
           "format": "uint64"
         },
+        "thirdPartyName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "companyID": {
+          "type": "string",
+          "format": "uint64",
+          "readOnly": true
+        },
+        "companyName": {
+          "type": "string",
+          "readOnly": true
+        },
         "isAllowAllBeneficiary": {
           "type": "boolean"
         }
@@ -1524,6 +1586,19 @@
         "thirdPartyID": {
           "type": "string",
           "format": "uint64"
+        },
+        "thirdPartyName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "companyID": {
+          "type": "string",
+          "format": "uint64",
+          "readOnly": true
+        },
+        "companyName": {
+          "type": "string",
+          "readOnly": true
         },
         "beneficiaryName": {
           "type": "string"
@@ -1715,6 +1790,10 @@
           "type": "string",
           "format": "uint64"
         },
+        "thirdPartyName": {
+          "type": "string",
+          "format": "uint64"
+        },
         "referenceNo": {
           "type": "string"
         },
@@ -1765,8 +1844,8 @@
         "remark": {
           "type": "string"
         },
-        "transactionStatus": {
-          "type": "string"
+        "bgStatus": {
+          "$ref": "#/definitions/v1BgStatus"
         },
         "channelID": {
           "type": "string",
@@ -1775,9 +1854,8 @@
         "channelName": {
           "type": "string"
         },
-        "transactionTypeID": {
-          "type": "string",
-          "format": "uint64"
+        "bgType": {
+          "$ref": "#/definitions/v1BgType"
         },
         "documentPath": {
           "type": "string"
@@ -1787,10 +1865,7 @@
           "format": "uint64"
         },
         "status": {
-          "type": "string"
-        },
-        "isAllowBeneficiary": {
-          "type": "boolean"
+          "$ref": "#/definitions/v1TransactionStatus"
         },
         "createdByID": {
           "type": "string",
@@ -1813,6 +1888,14 @@
           "readOnly": true
         }
       }
+    },
+    "v1TransactionStatus": {
+      "type": "string",
+      "enum": [
+        "MappingDigital",
+        "PendingForIssuing"
+      ],
+      "default": "MappingDigital"
     },
     "v1UpdateTransactionResponse": {
       "type": "object",

@@ -8,7 +8,7 @@ option go_package = "./pb";
 
 // import "mwitkow/go-proto-validators/validator.proto";
 import "google/protobuf/timestamp.proto";
-// import "google/api/field_behavior.proto";
+import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 // import "google/protobuf/struct.proto";
 
@@ -76,7 +76,10 @@ message TaskMappingData {
 
 message MappingData {
     uint64 thirdPartyID = 1;
-    bool isAllowAllBeneficiary = 2;
+    string thirdPartyName = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    uint64 companyID = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    string companyName = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+    bool isAllowAllBeneficiary = 5;
 }
 
 message TaskMappingDigitalData {
@@ -87,7 +90,10 @@ message TaskMappingDigitalData {
 
 message MappingDigitalData {
     uint64 thirdPartyID = 1;
-    string beneficiaryName = 2;
+    string thirdPartyName = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
+    uint64 companyID = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
+    string companyName = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
+    string beneficiaryName = 5;
 }
 
 message ApiPaginationResponse {

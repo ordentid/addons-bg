@@ -9,10 +9,17 @@ import "protoc-gen-openapiv2/options/annotations.proto";
 package bg.service.v1;
 option go_package = "./pb";
 
+enum TransactionStatus {
+    MappingDigital = 0;
+    PendingForIssuing = 1;
+}
+
 enum BgStatus {
-    Active = 0;
-    InActive = 1;
-    Claimed = 2;
+    Cancelled = 0;
+    Active = 1;
+    ClaimPeriod = 2;
+    ClosingPeriod = 3;
+    Closed = 4;
 }
 
 enum BgType {
@@ -51,12 +58,13 @@ message Transaction {
     };
     uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
     uint64 transactionID = 2 [(gorm.field).tag = {not_null: true}];
-    uint64 thirdPartyID = 3;
-    string referenceNo = 4 [(gorm.field).tag = {not_null: true}];
-    string registrationNo = 5 [(gorm.field).tag = {not_null: true}];
-    string applicantName = 6 [(gorm.field).tag = {not_null: true}];
-    string beneficiaryName = 7 [(gorm.field).tag = {not_null: true}];
-    string issueDate = 8 [
+    uint64 thirdPartyID = 3 [(gorm.field).tag = {not_null: true}];
+    uint64 thirdPartyName = 4 [(gorm.field).tag = {not_null: true}];
+    string referenceNo = 5 [(gorm.field).tag = {not_null: true}];
+    string registrationNo = 6 [(gorm.field).tag = {not_null: true}];
+    string applicantName = 7 [(gorm.field).tag = {not_null: true}];
+    string beneficiaryName = 8 [(gorm.field).tag = {not_null: true}];
+    string issueDate = 9 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             format: "date",
             pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
@@ -64,7 +72,7 @@ message Transaction {
         },
         (gorm.field).tag = {not_null: true}
     ];
-    string effectiveDate = 9 [
+    string effectiveDate = 10 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             format: "date",
             pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
@@ -72,7 +80,7 @@ message Transaction {
         },
         (gorm.field).tag = {not_null: true}
     ];
-    string expiryDate = 10 [
+    string expiryDate = 11 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             format: "date",
             pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
@@ -80,8 +88,8 @@ message Transaction {
         },
         (gorm.field).tag = {not_null: true}
     ];
-    uint64 claimPeriod = 11 [(gorm.field).tag = {not_null: true}];
-    string closingDate = 12 [
+    uint64 claimPeriod = 12 [(gorm.field).tag = {not_null: true}];
+    string closingDate = 13 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             format: "date",
             pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
@@ -89,17 +97,16 @@ message Transaction {
         },
         (gorm.field).tag = {not_null: true}
     ];
-    string currency = 13 [(gorm.field).tag = {not_null: true}];
-    double amount = 14 [(gorm.field).tag = {not_null: true}];
-    string remark = 15 [(gorm.field).tag = {not_null: true}];
-    string transactionStatus = 16 [(gorm.field).tag = {not_null: true}];
-    uint64 channelID = 17;
-    string channelName = 18;
-    uint64 transactionTypeID = 19;
-    string documentPath = 20;
-    uint64 companyID = 21 [(gorm.field).tag = {not_null: true}];
-    string status = 22 [(gorm.field).tag = {not_null: true}];
-    bool isAllowBeneficiary = 23 [(gorm.field).tag = {not_null: true}];
+    string currency = 14 [(gorm.field).tag = {not_null: true}];
+    double amount = 15 [(gorm.field).tag = {not_null: true}];
+    string remark = 16 [(gorm.field).tag = {not_null: true}];
+    BgStatus bgStatus = 17 [(gorm.field).tag = {not_null: true}];
+    uint64 channelID = 18;
+    string channelName = 19;
+    BgType bgType = 20 [(gorm.field).tag = {not_null: true}];
+    string documentPath = 21;
+    uint64 companyID = 22 [(gorm.field).tag = {not_null: true}];
+    TransactionStatus status = 23 [(gorm.field).tag = {not_null: true}];
     uint64 createdByID = 41 [
         (google.api.field_behavior) = OUTPUT_ONLY,
         (gorm.field).tag = {not_null: true}
