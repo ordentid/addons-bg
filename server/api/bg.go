@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strconv"
@@ -217,16 +218,20 @@ func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPa
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				} else {
-					httpReqData := &ApiInquiryThirdPartyByIDRequest{
-						ThirdPartyID: id,
+					httpReqParamsOpt := ApiListTransactionRequest{
+						ThirdPartyId: d,
+						Page:         1,
+						Limit:        1,
 					}
 
-					httpReqPayload, err := json.Marshal(httpReqData)
+					httpReqParams, err := query.Values(httpReqParamsOpt)
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 
-					httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
+					logrus.Println(httpReqParams.Encode())
+
+					httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
@@ -239,17 +244,25 @@ func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPa
 					}
 					defer httpRes.Body.Close()
 
-					var httpResData ApiInquiryThirdPartyByIDResponse
-					err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+					var httpResData ApiListTransactionResponse
+					httpResBody, err := ioutil.ReadAll(httpRes.Body)
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 
-					logrus.Println(httpResData.ResponseCode)
+					err = json.Unmarshal(httpResBody, &httpResData)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					if httpResData.ResponseCode != "00" {
+						logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+					}
 
 					data := &pb.ThirdPartyORM{ThirdPartyID: id, Name: fmt.Sprintf("THIRD PARTY %s", d)}
 					if httpResData.ResponseCode == "00" {
-						data.Name = httpResData.ResponseData.FullName
+						data.Name = httpResData.ResponseData[0].ThirdPartyName
 					}
 
 					_, err = s.provider.UpdateOrCreateThirdParty(ctx, data)
