@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 import "google/api/annotations.proto";
-// import "google/api/httpbody.proto";
+import "google/api/httpbody.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 
 // import "bg_core.proto";
@@ -87,7 +87,7 @@ service ApiService {
         };
     };
 
-    rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (GetTaskMappingFileResponse) {
+    rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (google.api.HttpBody) {
         option (google.api.http) = {
             get: "/api/bg/mapping/task/template/{fileFormat}"
         };

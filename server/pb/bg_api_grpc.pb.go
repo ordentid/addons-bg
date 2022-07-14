@@ -8,6 +8,7 @@ package pb
 
 import (
 	context "context"
+	httpbody "google.golang.org/genproto/googleapis/api/httpbody"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -27,7 +28,7 @@ type ApiServiceClient interface {
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
-	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*GetTaskMappingFileResponse, error)
+	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error)
 	CreateTaskMapping(ctx context.Context, in *CreateTaskMappingRequest, opts ...grpc.CallOption) (*CreateTaskMappingResponse, error)
@@ -93,8 +94,8 @@ func (c *apiServiceClient) GenerateThirdParty(ctx context.Context, in *GenerateT
 	return out, nil
 }
 
-func (c *apiServiceClient) GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*GetTaskMappingFileResponse, error) {
-	out := new(GetTaskMappingFileResponse)
+func (c *apiServiceClient) GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
+	out := new(httpbody.HttpBody)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMappingFile", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -201,7 +202,7 @@ type ApiServiceServer interface {
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
-	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*GetTaskMappingFileResponse, error)
+	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error)
 	GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error)
 	CreateTaskMapping(context.Context, *CreateTaskMappingRequest) (*CreateTaskMappingResponse, error)
@@ -234,7 +235,7 @@ func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPar
 func (UnimplementedApiServiceServer) GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateThirdParty not implemented")
 }
-func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*GetTaskMappingFileResponse, error) {
+func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFile not implemented")
 }
 func (UnimplementedApiServiceServer) GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error) {
