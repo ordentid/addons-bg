@@ -59,7 +59,7 @@ message Transaction {
     uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
     uint64 transactionID = 2 [(gorm.field).tag = {not_null: true}];
     uint64 thirdPartyID = 3 [(gorm.field).tag = {not_null: true}];
-    uint64 thirdPartyName = 4 [(gorm.field).tag = {not_null: true}];
+    string thirdPartyName = 4 [(gorm.field).tag = {not_null: true}];
     string referenceNo = 5 [(gorm.field).tag = {not_null: true}];
     string registrationNo = 6 [(gorm.field).tag = {not_null: true}];
     string applicantName = 7 [(gorm.field).tag = {not_null: true}];

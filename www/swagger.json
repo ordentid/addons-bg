@@ -25,7 +25,7 @@
     "/api/bg/applicant-name": {
       "get": {
         "summary": "Applicant Name",
-        "description": "This API for applicant name list",
+        "description": "This API for Applicant Name list",
         "operationId": "ApiService_GetApplicantName",
         "responses": {
           "200": {
@@ -43,6 +43,39 @@
         },
         "tags": [
           "Applicant Name"
+        ]
+      }
+    },
+    "/api/bg/beneficiary-name": {
+      "get": {
+        "summary": "Beneficiary Name",
+        "description": "This API for Beneficiary Name list",
+        "operationId": "ApiService_GetBeneficiaryName",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBeneficiaryNameResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "thirdPartyID",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Beneficiary Name"
         ]
       }
     },
@@ -642,7 +675,7 @@
     "/api/bg/third-party": {
       "get": {
         "summary": "Third Party",
-        "description": "This API for third party list",
+        "description": "This API for Third Party list",
         "operationId": "ApiService_GetThirdParty",
         "responses": {
           "200": {
@@ -664,7 +697,7 @@
       },
       "post": {
         "summary": "Generate Third Party",
-        "description": "This API for generate third party",
+        "description": "This API for Generate Third Party",
         "operationId": "ApiService_GenerateThirdParty",
         "responses": {
           "200": {
@@ -740,8 +773,7 @@
             "name": "transaction.thirdPartyName",
             "in": "query",
             "required": false,
-            "type": "string",
-            "format": "uint64"
+            "type": "string"
           },
           {
             "name": "transaction.referenceNo",
@@ -1136,6 +1168,40 @@
         }
       }
     },
+    "v1ApplicantName": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "total": {
+          "type": "string",
+          "format": "uint64"
+        }
+      }
+    },
+    "v1BeneficiaryName": {
+      "type": "object",
+      "properties": {
+        "beneficiaryId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "thirdPartyId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "cif": {
+          "type": "string"
+        },
+        "fullname": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        }
+      }
+    },
     "v1BgStatus": {
       "type": "string",
       "enum": [
@@ -1274,11 +1340,9 @@
     "v1CreateTransactionRequest": {
       "type": "object",
       "properties": {
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Transaction"
-          }
+        "taskID": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -1352,18 +1416,6 @@
         }
       }
     },
-    "v1GetApplicantNameData": {
-      "type": "object",
-      "properties": {
-        "name": {
-          "type": "string"
-        },
-        "total": {
-          "type": "string",
-          "format": "uint64"
-        }
-      }
-    },
     "v1GetApplicantNameResponse": {
       "type": "object",
       "properties": {
@@ -1380,7 +1432,28 @@
         "data": {
           "type": "array",
           "items": {
-            "$ref": "#/definitions/v1GetApplicantNameData"
+            "$ref": "#/definitions/v1ApplicantName"
+          }
+        }
+      }
+    },
+    "v1GetBeneficiaryNameResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1BeneficiaryName"
           }
         }
       }
@@ -1791,8 +1864,7 @@
           "format": "uint64"
         },
         "thirdPartyName": {
-          "type": "string",
-          "format": "uint64"
+          "type": "string"
         },
         "referenceNo": {
           "type": "string"

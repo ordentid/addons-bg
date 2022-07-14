@@ -12,8 +12,8 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.GetApplicantNameData, error) {
-	data := []*pb.GetApplicantNameData{}
+func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.ApplicantName, error) {
+	data := []*pb.ApplicantName{}
 	query := p.db_main
 
 	query = query.Model(&pb.TransactionORM{})

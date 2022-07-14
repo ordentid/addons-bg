@@ -10,12 +10,16 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
+	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
+	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
@@ -102,6 +106,28 @@ type ApiDownloadResponse struct {
 	ResponseData    []UrlObject `json:"responseData"`
 }
 
+type ApiInquiryBenficiaryRequest struct {
+	Cif          string `url:"cif"`
+	Fullname     string `url:"fullname"`
+	ThirdPartyID uint64 `url:"thirdPartyId"`
+}
+
+type ApiInquiryBenficiaryResponse struct {
+	ResponseCode    string            `json:"responseCode"`
+	ResponseMessage string            `json:"responseMessage"`
+	ResponseData    []*ApiBeneficiary `json:"responseData"`
+}
+
+type ApiBeneficiary struct {
+	BeneficiaryID uint64 `json:"beneficiaryId,string"`
+	ThirdPartyID  uint64 `json:"thirdPartyId,string"`
+	Cif           string `json:"cif"`
+	FullName      string `json:"fullName"`
+	CreatedDate   string `json:"createdDate"`
+	ModifiedDate  string `json:"modifiedDate"`
+	Status        string `json:"status"`
+}
+
 type UrlObject struct {
 	Url string `json:"url"`
 }
@@ -111,7 +137,7 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		Error:   false,
 		Code:    200,
 		Message: "List Data",
-		Data:    []*pb.GetApplicantNameData{},
+		Data:    []*pb.ApplicantName{},
 	}
 
 	applicantNameList, err := s.provider.GetApplicantName(ctx)
@@ -120,6 +146,67 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 	}
 
 	result.Data = applicantNameList
+
+	return result, nil
+}
+
+func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryNameRequest) (*pb.GetBeneficiaryNameResponse, error) {
+	result := &pb.GetBeneficiaryNameResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.BeneficiaryName{},
+	}
+
+	httpReqData := ApiInquiryBenficiaryRequest{
+		ThirdPartyID: req.ThirdPartyID,
+	}
+
+	httpReqParam, err := query.Values(httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	client := &http.Client{}
+	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+		proxyURL, err := url.Parse("http://localhost:5002")
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	}
+
+	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiInquiryBenficiaryResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if httpResData.ResponseCode == "00" {
+		for _, v := range httpResData.ResponseData {
+			result.Data = append(result.Data, &pb.BeneficiaryName{
+				BeneficiaryId: v.BeneficiaryID,
+				ThirdPartyId:  v.ThirdPartyID,
+				Cif:           v.Cif,
+				Fullname:      v.FullName,
+				Status:        v.Status,
+			})
+		}
+	}
 
 	return result, nil
 }
@@ -463,50 +550,272 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		return nil, err
 	}
 
-	for _, v := range req.Data {
-		// transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: v.GetReferenceNo()})
-		// if err != nil {
-		// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		// }
-
-		data := &pb.TransactionORM{
-			Amount:          v.GetAmount(),
-			ApplicantName:   v.GetApplicantName(),
-			BeneficiaryName: v.GetBeneficiaryName(),
-			BgStatus:        int32(v.GetBgStatus()),
-			BgType:          int32(v.GetBgType()),
-			ChannelID:       v.GetChannelID(),
-			ChannelName:     v.GetChannelName(),
-			ClaimPeriod:     v.GetClaimPeriod(),
-			ClosingDate:     v.GetClosingDate(),
-			CompanyID:       v.GetCompanyID(),
-			CreatedByID:     me.UserID,
-			Currency:        v.GetCurrency(),
-			DocumentPath:    v.GetDocumentPath(),
-			EffectiveDate:   v.GetEffectiveDate(),
-			ExpiryDate:      v.GetExpiryDate(),
-			IssueDate:       v.GetIssueDate(),
-			ReferenceNo:     v.GetReferenceNo(),
-			RegistrationNo:  v.GetRegistrationNo(),
-			Remark:          v.GetRemark(),
-			Status:          int32(v.GetStatus()),
-			ThirdPartyID:    v.GetThirdPartyID(),
-			ThirdPartyName:  v.GetThirdPartyName(),
-			TransactionID:   v.GetTransactionID(),
-			UpdatedByID:     me.UserID,
-		}
-
-		transactionORM, err := s.provider.UpdateOrCreateTransaction(ctx, data)
+	client := &http.Client{}
+	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+		proxyURL, err := url.Parse("http://localhost:5002")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		transaction, err := transactionORM.ToPB(ctx)
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	}
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	task := &pb.Task{
+		TaskID:             taskRes.Data.GetTaskID(),
+		Type:               taskRes.Data.GetType(),
+		Status:             taskRes.Data.GetStatus().String(),
+		Step:               taskRes.Data.GetStep().String(),
+		FeatureID:          taskRes.Data.GetFeatureID(),
+		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
+		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
+		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
+		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
+		CreatedByName:      taskRes.Data.GetCreatedByName(),
+		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
+		Reasons:            taskRes.Data.GetReasons(),
+		Comment:            taskRes.Data.GetComment(),
+		CompanyID:          taskRes.Data.GetCompanyID(),
+		HoldingID:          taskRes.Data.GetHoldingID(),
+		CreatedAt:          taskRes.Data.GetCreatedAt(),
+		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
+	}
+
+	switch task.Type {
+	case "BG Mapping":
+		taskData := []*pb.MappingData{}
+		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		result.Data = append(result.Data, &transaction)
+		for _, v := range taskData {
+			httpReqParamsOpt := ApiListTransactionRequest{
+				ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
+				Page:         1,
+				Limit:        100,
+			}
+
+			httpReqParams, err := query.Values(httpReqParamsOpt)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			logrus.Println(httpReqParams.Encode())
+
+			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+			httpRes, err := client.Do(httpReq)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+			defer httpRes.Body.Close()
+
+			var httpResData ApiListTransactionResponse
+			httpResBody, err := ioutil.ReadAll(httpRes.Body)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			err = json.Unmarshal(httpResBody, &httpResData)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			if httpResData.ResponseCode != "00" {
+				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+			}
+
+			for _, d := range httpResData.ResponseData {
+				transactionStatus := pb.TransactionStatus_value["MappingDigital"]
+				if v.IsAllowAllBeneficiary {
+					transactionStatus = pb.TransactionStatus_value["PendingForIssuing"]
+				}
+				t := &pb.TransactionORM{
+					Amount:          d.Amount,
+					ApplicantName:   d.ApplicantName,
+					BeneficiaryName: d.BeneficiaryName,
+					BgStatus:        pb.BgStatus_value[strings.ReplaceAll(d.Status, " ", "")],
+					BgType:          int32(d.TransactionTypeId),
+					ChannelID:       d.ChannelId,
+					ChannelName:     d.ChannelName,
+					ClaimPeriod:     d.ClaimPeriod,
+					ClosingDate:     d.ClosingDate,
+					CompanyID:       v.CompanyID,
+					CreatedByID:     me.UserID,
+					Currency:        d.Currency,
+					DocumentPath:    d.DocumentPath,
+					EffectiveDate:   d.EffectiveDate,
+					ExpiryDate:      d.ExpiryDate,
+					IssueDate:       d.IssueDate,
+					ReferenceNo:     d.ReferenceNo,
+					RegistrationNo:  d.RegistrationNo,
+					Remark:          d.Remark,
+					Status:          transactionStatus,
+					ThirdPartyID:    v.ThirdPartyID,
+					ThirdPartyName:  v.ThirdPartyName,
+					TransactionID:   d.TransactionId,
+					UpdatedByID:     me.UserID,
+				}
+
+				transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: d.ReferenceNo})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if transactionORM.Id > 0 {
+					t.Id = transactionORM.Id
+				}
+
+				transactionORM, err = s.provider.UpdateOrCreateTransaction(ctx, t)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				transactionPB, err := transactionORM.ToPB(ctx)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				result.Data = append(result.Data, &transactionPB)
+
+			}
+		}
+	case "BG Mapping Digital":
+		taskData := []*pb.MappingDigitalData{}
+		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		for _, v := range taskData {
+			httpReqParamsOpt := ApiListTransactionRequest{
+				ThirdPartyId:    strconv.FormatUint(v.ThirdPartyID, 10),
+				BeneficiaryName: v.BeneficiaryName,
+				Page:            1,
+				Limit:           100,
+			}
+
+			httpReqParams, err := query.Values(httpReqParamsOpt)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			logrus.Println(httpReqParams.Encode())
+
+			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+			httpRes, err := client.Do(httpReq)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+			defer httpRes.Body.Close()
+
+			var httpResData ApiListTransactionResponse
+			httpResBody, err := ioutil.ReadAll(httpRes.Body)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			err = json.Unmarshal(httpResBody, &httpResData)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			if httpResData.ResponseCode != "00" {
+				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+			}
+
+			for _, d := range httpResData.ResponseData {
+				t := &pb.TransactionORM{
+					Amount:          d.Amount,
+					ApplicantName:   d.ApplicantName,
+					BeneficiaryName: d.BeneficiaryName,
+					BgStatus:        pb.BgStatus_value[strings.ReplaceAll(d.Status, " ", "")],
+					BgType:          int32(d.TransactionTypeId),
+					ChannelID:       d.ChannelId,
+					ChannelName:     d.ChannelName,
+					ClaimPeriod:     d.ClaimPeriod,
+					ClosingDate:     d.ClosingDate,
+					CompanyID:       v.CompanyID,
+					CreatedByID:     me.UserID,
+					Currency:        d.Currency,
+					DocumentPath:    d.DocumentPath,
+					EffectiveDate:   d.EffectiveDate,
+					ExpiryDate:      d.ExpiryDate,
+					IssueDate:       d.IssueDate,
+					ReferenceNo:     d.ReferenceNo,
+					RegistrationNo:  d.RegistrationNo,
+					Remark:          d.Remark,
+					Status:          pb.TransactionStatus_value["PendingForIssuing"],
+					ThirdPartyID:    v.ThirdPartyID,
+					ThirdPartyName:  v.ThirdPartyName,
+					TransactionID:   d.TransactionId,
+					UpdatedByID:     me.UserID,
+				}
+
+				transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: d.ReferenceNo})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if transactionORM.Id > 0 {
+					t.Id = transactionORM.Id
+				}
+
+				transactionORM, err = s.provider.UpdateOrCreateTransaction(ctx, t)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				transactionPB, err := transactionORM.ToPB(ctx)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				result.Data = append(result.Data, &transactionPB)
+
+			}
+		}
 	}
 
 	return result, nil

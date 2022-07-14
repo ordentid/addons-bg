@@ -42,6 +42,17 @@ service ApiService {
         };
     };
 
+    rpc GetBeneficiaryName(GetBeneficiaryNameRequest) returns (GetBeneficiaryNameResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/beneficiary-name"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Beneficiary Name"]
+            summary: "Beneficiary Name"
+            description: "This API for Beneficiary Name list"
+        };
+    };
+
     rpc GetApplicantName(GetApplicantNameRequest) returns (GetApplicantNameResponse) {
         option (google.api.http) = {
             get: "/api/bg/applicant-name"
@@ -49,7 +60,7 @@ service ApiService {
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["Applicant Name"]
             summary: "Applicant Name"
-            description: "This API for applicant name list"
+            description: "This API for Applicant Name list"
         };
     };
 
@@ -60,7 +71,7 @@ service ApiService {
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["Third Party"]
             summary: "Third Party"
-            description: "This API for third party list"
+            description: "This API for Third Party list"
         };
     };
 
@@ -72,7 +83,7 @@ service ApiService {
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["Third Party"]
             summary: "Generate Third Party"
-            description: "This API for generate third party"
+            description: "This API for Generate Third Party"
         };
     };
 

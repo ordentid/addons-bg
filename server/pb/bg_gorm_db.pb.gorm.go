@@ -124,7 +124,7 @@ type TransactionORM struct {
 	Remark          string     `gorm:"not null"`
 	Status          int32      `gorm:"not null"`
 	ThirdPartyID    uint64     `gorm:"not null"`
-	ThirdPartyName  uint64     `gorm:"not null"`
+	ThirdPartyName  string     `gorm:"not null"`
 	TransactionID   uint64     `gorm:"not null"`
 	UpdatedAt       *time.Time `gorm:"not null"`
 	UpdatedByID     uint64     `gorm:"not null"`

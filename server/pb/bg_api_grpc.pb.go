@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ApiServiceClient interface {
 	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
+	GetBeneficiaryName(ctx context.Context, in *GetBeneficiaryNameRequest, opts ...grpc.CallOption) (*GetBeneficiaryNameResponse, error)
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
@@ -50,6 +51,15 @@ func NewApiServiceClient(cc grpc.ClientConnInterface) ApiServiceClient {
 func (c *apiServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
 	out := new(HealthCheckResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/HealthCheck", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetBeneficiaryName(ctx context.Context, in *GetBeneficiaryNameRequest, opts ...grpc.CallOption) (*GetBeneficiaryNameResponse, error) {
+	out := new(GetBeneficiaryNameResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetBeneficiaryName", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -187,6 +197,7 @@ func (c *apiServiceClient) UpdateTransaction(ctx context.Context, in *UpdateTran
 // for forward compatibility
 type ApiServiceServer interface {
 	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+	GetBeneficiaryName(context.Context, *GetBeneficiaryNameRequest) (*GetBeneficiaryNameResponse, error)
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
@@ -210,6 +221,9 @@ type UnimplementedApiServiceServer struct {
 
 func (UnimplementedApiServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+func (UnimplementedApiServiceServer) GetBeneficiaryName(context.Context, *GetBeneficiaryNameRequest) (*GetBeneficiaryNameResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetBeneficiaryName not implemented")
 }
 func (UnimplementedApiServiceServer) GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetApplicantName not implemented")
@@ -280,6 +294,24 @@ func _ApiService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetBeneficiaryName_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetBeneficiaryNameRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetBeneficiaryName(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetBeneficiaryName",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetBeneficiaryName(ctx, req.(*GetBeneficiaryNameRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -546,6 +578,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HealthCheck",
 			Handler:    _ApiService_HealthCheck_Handler,
+		},
+		{
+			MethodName: "GetBeneficiaryName",
+			Handler:    _ApiService_GetBeneficiaryName_Handler,
 		},
 		{
 			MethodName: "GetApplicantName",
