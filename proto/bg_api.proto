@@ -87,6 +87,17 @@ service ApiService {
         };
     };
 
+    rpc GetTaskMappingFilterCompany(GetTaskMappingFilterCompanyRequest) returns (GetTaskMappingFilterCompanyResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/mapping/filter/company"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Mapping"]
+            summary: "BG Mapping Company List"
+            description: "This API for BG Mapping Company list"
+        };
+    };
+
     rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (google.api.HttpBody) {
         option (google.api.http) = {
             get: "/api/bg/mapping/task/template/{fileFormat}"

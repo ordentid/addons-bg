@@ -28,6 +28,7 @@ type ApiServiceClient interface {
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error)
+	GetTaskMappingFilterCompany(ctx context.Context, in *GetTaskMappingFilterCompanyRequest, opts ...grpc.CallOption) (*GetTaskMappingFilterCompanyResponse, error)
 	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error)
@@ -88,6 +89,15 @@ func (c *apiServiceClient) GetThirdParty(ctx context.Context, in *GetThirdPartyR
 func (c *apiServiceClient) GenerateThirdParty(ctx context.Context, in *GenerateThirdPartyRequest, opts ...grpc.CallOption) (*GenerateThirdPartyResponse, error) {
 	out := new(GenerateThirdPartyResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GenerateThirdParty", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetTaskMappingFilterCompany(ctx context.Context, in *GetTaskMappingFilterCompanyRequest, opts ...grpc.CallOption) (*GetTaskMappingFilterCompanyResponse, error) {
+	out := new(GetTaskMappingFilterCompanyResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMappingFilterCompany", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -202,6 +212,7 @@ type ApiServiceServer interface {
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error)
+	GetTaskMappingFilterCompany(context.Context, *GetTaskMappingFilterCompanyRequest) (*GetTaskMappingFilterCompanyResponse, error)
 	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error)
 	GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error)
@@ -234,6 +245,9 @@ func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPar
 }
 func (UnimplementedApiServiceServer) GenerateThirdParty(context.Context, *GenerateThirdPartyRequest) (*GenerateThirdPartyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GenerateThirdParty not implemented")
+}
+func (UnimplementedApiServiceServer) GetTaskMappingFilterCompany(context.Context, *GetTaskMappingFilterCompanyRequest) (*GetTaskMappingFilterCompanyResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFilterCompany not implemented")
 }
 func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFile not implemented")
@@ -367,6 +381,24 @@ func _ApiService_GenerateThirdParty_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).GenerateThirdParty(ctx, req.(*GenerateThirdPartyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetTaskMappingFilterCompany_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskMappingFilterCompanyRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetTaskMappingFilterCompany(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetTaskMappingFilterCompany",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetTaskMappingFilterCompany(ctx, req.(*GetTaskMappingFilterCompanyRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -595,6 +627,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GenerateThirdParty",
 			Handler:    _ApiService_GenerateThirdParty_Handler,
+		},
+		{
+			MethodName: "GetTaskMappingFilterCompany",
+			Handler:    _ApiService_GetTaskMappingFilterCompany_Handler,
 		},
 		{
 			MethodName: "GetTaskMappingFile",

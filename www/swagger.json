@@ -329,6 +329,30 @@
         ]
       }
     },
+    "/api/bg/mapping/filter/company": {
+      "get": {
+        "summary": "BG Mapping Company List",
+        "description": "This API for BG Mapping Company list",
+        "operationId": "ApiService_GetTaskMappingFilterCompany",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTaskMappingFilterCompanyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "BG Mapping"
+        ]
+      }
+    },
     "/api/bg/mapping/task": {
       "get": {
         "summary": "BG Mapping List",
@@ -1540,6 +1564,27 @@
         },
         "data": {
           "$ref": "#/definitions/v1TaskMappingData"
+        }
+      }
+    },
+    "v1GetTaskMappingFilterCompanyResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Company"
+          }
         }
       }
     },

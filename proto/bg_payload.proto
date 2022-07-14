@@ -36,6 +36,7 @@ enum FormatTemplate {
     csv = 1;
     xls = 2;
     xlsx = 3;
+    pdf = 4; 
 }
 
 message Task {
@@ -155,6 +156,14 @@ message GetThirdPartyResponse {
     uint32 code = 2;
     string message = 3;
     repeated ThirdParty data = 4;
+}
+
+message GetTaskMappingFilterCompanyRequest {}
+message GetTaskMappingFilterCompanyResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated Company data = 4;
 }
 
 message GetTaskMappingFileRequest {
