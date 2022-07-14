@@ -440,43 +440,119 @@ func local_request_ApiService_CreateTaskMapping_1(ctx context.Context, marshaler
 }
 
 var (
-	filter_ApiService_GetMappingDigital_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+	filter_ApiService_GetTaskMappingDigitalFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
 )
 
-func request_ApiService_GetMappingDigital_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetMappingDigitalRequest
+func request_ApiService_GetTaskMappingDigitalFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalFileRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		e   int32
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["fileFormat"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "fileFormat")
+	}
+
+	e, err = runtime.Enum(val, FormatTemplate_value)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "fileFormat", err)
+	}
+
+	protoReq.FileFormat = FormatTemplate(e)
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTaskMappingDigitalFile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetTaskMappingDigitalFile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_ApiService_GetTaskMappingDigitalFile_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalFileRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		e   int32
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["fileFormat"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "fileFormat")
+	}
+
+	e, err = runtime.Enum(val, FormatTemplate_value)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "fileFormat", err)
+	}
+
+	protoReq.FileFormat = FormatTemplate(e)
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTaskMappingDigitalFile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetTaskMappingDigitalFile(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_ApiService_GetTaskMappingDigital_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
+func request_ApiService_GetTaskMappingDigital_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetMappingDigital_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTaskMappingDigital_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.GetMappingDigital(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetTaskMappingDigital(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ApiService_GetMappingDigital_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetMappingDigitalRequest
+func local_request_ApiService_GetTaskMappingDigital_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalRequest
 	var metadata runtime.ServerMetadata
 
 	if err := req.ParseForm(); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetMappingDigital_0); err != nil {
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTaskMappingDigital_0); err != nil {
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.GetMappingDigital(ctx, &protoReq)
+	msg, err := server.GetTaskMappingDigital(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_ApiService_GetMappingDigitalDetail_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetMappingDigitalDetailRequest
+func request_ApiService_GetTaskMappingDigitalDetail_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalDetailRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -496,13 +572,13 @@ func request_ApiService_GetMappingDigitalDetail_0(ctx context.Context, marshaler
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "taskID", err)
 	}
 
-	msg, err := client.GetMappingDigitalDetail(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.GetTaskMappingDigitalDetail(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ApiService_GetMappingDigitalDetail_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq GetMappingDigitalDetailRequest
+func local_request_ApiService_GetTaskMappingDigitalDetail_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTaskMappingDigitalDetailRequest
 	var metadata runtime.ServerMetadata
 
 	var (
@@ -522,7 +598,7 @@ func local_request_ApiService_GetMappingDigitalDetail_0(ctx context.Context, mar
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "taskID", err)
 	}
 
-	msg, err := server.GetMappingDigitalDetail(ctx, &protoReq)
+	msg, err := server.GetTaskMappingDigitalDetail(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -625,6 +701,82 @@ func local_request_ApiService_CreateMappingDigital_1(ctx context.Context, marsha
 	}
 
 	msg, err := server.CreateMappingDigital(ctx, &protoReq)
+	return msg, metadata, err
+
+}
+
+var (
+	filter_ApiService_GetTransactionFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+)
+
+func request_ApiService_GetTransactionFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTransactionFileRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		e   int32
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["fileFormat"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "fileFormat")
+	}
+
+	e, err = runtime.Enum(val, FormatTemplate_value)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "fileFormat", err)
+	}
+
+	protoReq.FileFormat = FormatTemplate(e)
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTransactionFile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := client.GetTransactionFile(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	return msg, metadata, err
+
+}
+
+func local_request_ApiService_GetTransactionFile_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+	var protoReq GetTransactionFileRequest
+	var metadata runtime.ServerMetadata
+
+	var (
+		val string
+		e   int32
+		ok  bool
+		err error
+		_   = err
+	)
+
+	val, ok = pathParams["fileFormat"]
+	if !ok {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "fileFormat")
+	}
+
+	e, err = runtime.Enum(val, FormatTemplate_value)
+	if err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "fileFormat", err)
+	}
+
+	protoReq.FileFormat = FormatTemplate(e)
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetTransactionFile_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+
+	msg, err := server.GetTransactionFile(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1078,18 +1230,18 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("GET", pattern_ApiService_GetMappingDigital_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigitalFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetMappingDigital", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigitalFile", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/template/{fileFormat}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GetMappingDigital_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GetTaskMappingDigitalFile_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1097,22 +1249,22 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_ApiService_GetMappingDigital_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_GetTaskMappingDigitalFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ApiService_GetMappingDigitalDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigital_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetMappingDigitalDetail", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/{taskID}"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigital", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GetMappingDigitalDetail_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GetTaskMappingDigital_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1120,7 +1272,30 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_ApiService_GetMappingDigitalDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_GetTaskMappingDigital_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigitalDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigitalDetail", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/{taskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiService_GetTaskMappingDigitalDetail_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ApiService_GetTaskMappingDigitalDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1167,6 +1342,29 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_ApiService_CreateMappingDigital_1(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_ApiService_GetTransactionFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		var stream runtime.ServerTransportStream
+		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionFile", runtime.WithHTTPPathPattern("/api/bg/transaction/data/template/{fileFormat}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := local_request_ApiService_GetTransactionFile_0(rctx, inboundMarshaler, server, req, pathParams)
+		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ApiService_GetTransactionFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1523,43 +1721,63 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("GET", pattern_ApiService_GetMappingDigital_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigitalFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetMappingDigital", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigitalFile", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/template/{fileFormat}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GetMappingDigital_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GetTaskMappingDigitalFile_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApiService_GetMappingDigital_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_GetTaskMappingDigitalFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("GET", pattern_ApiService_GetMappingDigitalDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigital_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetMappingDigitalDetail", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/{taskID}"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigital", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GetMappingDigitalDetail_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GetTaskMappingDigital_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApiService_GetMappingDigitalDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_GetTaskMappingDigital_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_ApiService_GetTaskMappingDigitalDetail_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTaskMappingDigitalDetail", runtime.WithHTTPPathPattern("/api/bg/mapping-digital/task/{taskID}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiService_GetTaskMappingDigitalDetail_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ApiService_GetTaskMappingDigitalDetail_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1600,6 +1818,26 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		}
 
 		forward_ApiService_CreateMappingDigital_1(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+
+	})
+
+	mux.Handle("GET", pattern_ApiService_GetTransactionFile_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+		ctx, cancel := context.WithCancel(req.Context())
+		defer cancel()
+		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionFile", runtime.WithHTTPPathPattern("/api/bg/transaction/data/template/{fileFormat}"))
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+		resp, md, err := request_ApiService_GetTransactionFile_0(rctx, inboundMarshaler, client, req, pathParams)
+		ctx = runtime.NewServerMetadataContext(ctx, md)
+		if err != nil {
+			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
+			return
+		}
+
+		forward_ApiService_GetTransactionFile_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1709,13 +1947,17 @@ var (
 
 	pattern_ApiService_CreateTaskMapping_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "mapping", "task", "taskID"}, ""))
 
-	pattern_ApiService_GetMappingDigital_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "mapping-digital", "task"}, ""))
+	pattern_ApiService_GetTaskMappingDigitalFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "bg", "mapping-digital", "task", "template", "fileFormat"}, ""))
 
-	pattern_ApiService_GetMappingDigitalDetail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "mapping-digital", "task", "taskID"}, ""))
+	pattern_ApiService_GetTaskMappingDigital_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "mapping-digital", "task"}, ""))
+
+	pattern_ApiService_GetTaskMappingDigitalDetail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "mapping-digital", "task", "taskID"}, ""))
 
 	pattern_ApiService_CreateMappingDigital_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "mapping-digital", "task"}, ""))
 
 	pattern_ApiService_CreateMappingDigital_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "mapping-digital", "task", "taskID"}, ""))
+
+	pattern_ApiService_GetTransactionFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "bg", "transaction", "data", "template", "fileFormat"}, ""))
 
 	pattern_ApiService_GetTransaction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "transaction", "data"}, ""))
 
@@ -1749,13 +1991,17 @@ var (
 
 	forward_ApiService_CreateTaskMapping_1 = runtime.ForwardResponseMessage
 
-	forward_ApiService_GetMappingDigital_0 = runtime.ForwardResponseMessage
+	forward_ApiService_GetTaskMappingDigitalFile_0 = runtime.ForwardResponseMessage
 
-	forward_ApiService_GetMappingDigitalDetail_0 = runtime.ForwardResponseMessage
+	forward_ApiService_GetTaskMappingDigital_0 = runtime.ForwardResponseMessage
+
+	forward_ApiService_GetTaskMappingDigitalDetail_0 = runtime.ForwardResponseMessage
 
 	forward_ApiService_CreateMappingDigital_0 = runtime.ForwardResponseMessage
 
 	forward_ApiService_CreateMappingDigital_1 = runtime.ForwardResponseMessage
+
+	forward_ApiService_GetTransactionFile_0 = runtime.ForwardResponseMessage
 
 	forward_ApiService_GetTransaction_0 = runtime.ForwardResponseMessage
 

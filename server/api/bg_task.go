@@ -448,8 +448,8 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 	return result, nil
 }
 
-func (s *Server) GetMappingDigital(ctx context.Context, req *pb.GetMappingDigitalRequest) (*pb.GetMappingDigitalResponse, error) {
-	result := &pb.GetMappingDigitalResponse{
+func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappingDigitalRequest) (*pb.GetTaskMappingDigitalResponse, error) {
+	result := &pb.GetTaskMappingDigitalResponse{
 		Error:   false,
 		Code:    200,
 		Message: "List Data",
@@ -620,8 +620,8 @@ func (s *Server) GetMappingDigital(ctx context.Context, req *pb.GetMappingDigita
 	return result, nil
 }
 
-func (s *Server) GetMappingDigitalDetail(ctx context.Context, req *pb.GetMappingDigitalDetailRequest) (*pb.GetMappingDigitalDetailResponse, error) {
-	result := &pb.GetMappingDigitalDetailResponse{
+func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTaskMappingDigitalDetailRequest) (*pb.GetTaskMappingDigitalDetailResponse, error) {
+	result := &pb.GetTaskMappingDigitalDetailResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",

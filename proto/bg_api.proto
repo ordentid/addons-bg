@@ -149,7 +149,18 @@ service ApiService {
         };
     };
 
-    rpc GetMappingDigital(GetMappingDigitalRequest) returns (GetMappingDigitalResponse) {
+    rpc GetTaskMappingDigitalFile(GetTaskMappingDigitalFileRequest) returns (google.api.HttpBody) {
+        option (google.api.http) = {
+            get: "/api/bg/mapping-digital/task/template/{fileFormat}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Mapping Digital"]
+            summary: "BG Mapping Digital Export"
+            description: "This API for BG Mapping Digital export"
+        };
+    };
+
+    rpc GetTaskMappingDigital(GetTaskMappingDigitalRequest) returns (GetTaskMappingDigitalResponse) {
         option (google.api.http) = {
             get: "/api/bg/mapping-digital/task"
         };
@@ -160,7 +171,7 @@ service ApiService {
         };
     };
 
-    rpc GetMappingDigitalDetail(GetMappingDigitalDetailRequest) returns (GetMappingDigitalDetailResponse) {
+    rpc GetTaskMappingDigitalDetail(GetTaskMappingDigitalDetailRequest) returns (GetTaskMappingDigitalDetailResponse) {
         option (google.api.http) = {
             get: "/api/bg/mapping-digital/task/{taskID}"
         };
@@ -186,6 +197,17 @@ service ApiService {
             tags: ["BG Mapping Digital"]
             summary: "Update Or Create BG Mapping Digital"
             description: "This API for update or create BG Mapping Digital"
+        };
+    };
+
+    rpc GetTransactionFile(GetTransactionFileRequest) returns (google.api.HttpBody) {
+        option (google.api.http) = {
+            get: "/api/bg/transaction/data/template/{fileFormat}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction"]
+            summary: "Transaction Export"
+            description: "This API for Transaction export"
         };
     };
 
