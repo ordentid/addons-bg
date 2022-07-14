@@ -107,7 +107,6 @@ message Transaction {
     string documentPath = 21;
     uint64 companyID = 22 [(gorm.field).tag = {not_null: true}];
     TransactionStatus status = 23 [(gorm.field).tag = {not_null: true}];
-    string maturityDate = 24;
     uint64 createdByID = 41 [
         (google.api.field_behavior) = OUTPUT_ONLY,
         (gorm.field).tag = {not_null: true}

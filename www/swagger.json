@@ -922,12 +922,6 @@
             "default": "MappingDigital"
           },
           {
-            "name": "transaction.maturityDate",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
             "name": "transaction.createdByID",
             "in": "query",
             "required": false,
@@ -1954,9 +1948,6 @@
         },
         "status": {
           "$ref": "#/definitions/v1TransactionStatus"
-        },
-        "maturityDate": {
-          "type": "string"
         },
         "createdByID": {
           "type": "string",
