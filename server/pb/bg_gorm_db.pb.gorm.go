@@ -115,10 +115,11 @@ type TransactionORM struct {
 	CreatedByID     uint64     `gorm:"not null"`
 	Currency        string     `gorm:"not null"`
 	DocumentPath    string
-	EffectiveDate   string     `gorm:"not null"`
-	ExpiryDate      string     `gorm:"not null"`
-	Id              uint64     `gorm:"primary_key;not null"`
-	IssueDate       string     `gorm:"not null"`
+	EffectiveDate   string `gorm:"not null"`
+	ExpiryDate      string `gorm:"not null"`
+	Id              uint64 `gorm:"primary_key;not null"`
+	IssueDate       string `gorm:"not null"`
+	MaturityDate    string
 	ReferenceNo     string     `gorm:"not null"`
 	RegistrationNo  string     `gorm:"not null"`
 	Remark          string     `gorm:"not null"`
@@ -168,6 +169,7 @@ func (m *Transaction) ToORM(ctx context.Context) (TransactionORM, error) {
 	to.DocumentPath = m.DocumentPath
 	to.CompanyID = m.CompanyID
 	to.Status = int32(m.Status)
+	to.MaturityDate = m.MaturityDate
 	to.CreatedByID = m.CreatedByID
 	to.UpdatedByID = m.UpdatedByID
 	if m.CreatedAt != nil {
@@ -217,6 +219,7 @@ func (m *TransactionORM) ToPB(ctx context.Context) (Transaction, error) {
 	to.DocumentPath = m.DocumentPath
 	to.CompanyID = m.CompanyID
 	to.Status = TransactionStatus(m.Status)
+	to.MaturityDate = m.MaturityDate
 	to.CreatedByID = m.CreatedByID
 	to.UpdatedByID = m.UpdatedByID
 	if m.CreatedAt != nil {
@@ -1026,6 +1029,10 @@ func DefaultApplyFieldMaskTransaction(ctx context.Context, patchee *Transaction,
 		}
 		if f == prefix+"Status" {
 			patchee.Status = patcher.Status
+			continue
+		}
+		if f == prefix+"MaturityDate" {
+			patchee.MaturityDate = patcher.MaturityDate
 			continue
 		}
 		if f == prefix+"CreatedByID" {
