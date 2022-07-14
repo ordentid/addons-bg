@@ -16,7 +16,7 @@ func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.ApplicantNam
 	data := []*pb.ApplicantName{}
 	query := p.db_main
 
-	query = query.Model(&pb.TransactionORM{})
+	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"]})
 	query = query.Select(`"applicant_name" as name, count("id") as total`)
 	query = query.Group(`"applicant_name"`)
 
