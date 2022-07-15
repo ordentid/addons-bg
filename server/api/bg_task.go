@@ -527,9 +527,10 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 	}
 
 	filter := &task_pb.Task{
-		Type:      "BG Mapping Digital",
-		CompanyID: me.CompanyID,
+		Type: "BG Mapping Digital",
 	}
+
+	logrus.Println(filter)
 
 	if req.Status.Number() > 0 {
 		filter.Status = task_pb.Statuses(req.Status.Number())
@@ -547,7 +548,7 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 		Filter:      req.GetFilter(),
 		Query:       req.GetQuery(),
 		CustomOrder: customOrder,
-		In:          me.TaskFilter,
+		In:          me.TaskCompanyFilter,
 	}
 
 	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
