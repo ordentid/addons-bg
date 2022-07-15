@@ -81,7 +81,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TC"}
 
 	var (
-		cellList [9]cellType
+		cellList [6]cellType
 		cell     cellType
 	)
 
@@ -400,7 +400,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TC"}
 
 	var (
-		cellList [9]cellType
+		cellList [7]cellType
 		cell     cellType
 	)
 
@@ -729,7 +729,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TC"}
 
 	var (
-		cellList [9]cellType
+		cellList [15]cellType
 		cell     cellType
 	)
 
