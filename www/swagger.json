@@ -104,6 +104,224 @@
         "security": []
       }
     },
+    "/api/bg/issuing/task": {
+      "get": {
+        "summary": "BG Issuing List",
+        "description": "This API for BG Issuing list",
+        "operationId": "ApiService_GetTaskIssuing",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTaskIssuingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStatus",
+              "Pending",
+              "Draft",
+              "Returned",
+              "Approved",
+              "Rejected",
+              "DeleteRequest",
+              "Deleted"
+            ],
+            "default": "AllStatus"
+          },
+          {
+            "name": "step",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "AllStep",
+              "Maker",
+              "Checker",
+              "Signer",
+              "Releaser"
+            ],
+            "default": "AllStep"
+          },
+          {
+            "name": "limit",
+            "description": "Limit data per page. Default value '-1' for disable limit",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "page",
+            "description": "Page number to get data. Default value '-1' for disable page",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sort",
+            "description": "Order data by column name",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "dir",
+            "description": "Sort DirectionEnum should be ASC or DESC",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "DESC",
+              "ASC"
+            ],
+            "default": "DESC"
+          },
+          {
+            "name": "filter",
+            "description": "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement =\u003e Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key:\u003e=value' =\u003e 'key \u003e= value' \n - 'key:\u003c=value' =\u003e 'key \u003c= value' \n - 'key1:\u003e=value1,key2:\u003c=value2' =\u003e 'key1 \u003e= value1 AND key2 \u003c= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "query",
+            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      },
+      "post": {
+        "summary": "Update Or Create BG Issuing",
+        "description": "This API for update or create BG Issuing",
+        "operationId": "ApiService_CreateTaskIssuing",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateTaskIssuingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CreateTaskIssuingRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      }
+    },
+    "/api/bg/issuing/task/{taskID}": {
+      "get": {
+        "summary": "BG Issuing Detail",
+        "description": "This API for BG Issuing detail",
+        "operationId": "ApiService_GetTaskIssuingDetail",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetTaskIssuingDetailResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      },
+      "put": {
+        "summary": "Update Or Create BG Issuing",
+        "description": "This API for update or create BG Issuing",
+        "operationId": "ApiService_CreateTaskIssuing2",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CreateTaskIssuingResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "data": {
+                  "$ref": "#/definitions/v1IssuingData"
+                },
+                "isDraft": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      }
+    },
     "/api/bg/mapping-digital/task": {
       "get": {
         "summary": "BG Mapping Digital List",
@@ -212,12 +430,12 @@
       "post": {
         "summary": "Update Or Create BG Mapping Digital",
         "description": "This API for update or create BG Mapping Digital",
-        "operationId": "ApiService_CreateMappingDigital",
+        "operationId": "ApiService_CreateTaskMappingDigital",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateMappingDigitalResponse"
+              "$ref": "#/definitions/v1CreateTaskMappingDigitalResponse"
             }
           },
           "default": {
@@ -233,7 +451,7 @@
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1CreateMappingDigitalRequest"
+              "$ref": "#/definitions/v1CreateTaskMappingDigitalRequest"
             }
           }
         ],
@@ -396,12 +614,12 @@
       "put": {
         "summary": "Update Or Create BG Mapping Digital",
         "description": "This API for update or create BG Mapping Digital",
-        "operationId": "ApiService_CreateMappingDigital2",
+        "operationId": "ApiService_CreateTaskMappingDigital2",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1CreateMappingDigitalResponse"
+              "$ref": "#/definitions/v1CreateTaskMappingDigitalResponse"
             }
           },
           "default": {
@@ -1404,6 +1622,20 @@
         }
       }
     },
+    "v1AccountData": {
+      "type": "object",
+      "properties": {
+        "cif": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "accountNumber": {
+          "type": "string"
+        }
+      }
+    },
     "v1ApiPaginationResponse": {
       "type": "object",
       "properties": {
@@ -1425,6 +1657,29 @@
         }
       }
     },
+    "v1ApplicantData": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "birthDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-07-06",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "gender": {
+          "$ref": "#/definitions/v1Gender"
+        },
+        "address": {
+          "type": "string"
+        },
+        "contactPerson": {
+          "type": "string"
+        }
+      }
+    },
     "v1ApplicantName": {
       "type": "object",
       "properties": {
@@ -1436,6 +1691,14 @@
           "format": "uint64"
         }
       }
+    },
+    "v1ApplicantType": {
+      "type": "string",
+      "enum": [
+        "IndividualApplicant",
+        "CompanyApplicant"
+      ],
+      "default": "IndividualApplicant"
     },
     "v1BeneficiaryName": {
       "type": "object",
@@ -1514,7 +1777,40 @@
         }
       }
     },
-    "v1CreateMappingDigitalRequest": {
+    "v1CreateTaskIssuingRequest": {
+      "type": "object",
+      "properties": {
+        "taskID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "data": {
+          "$ref": "#/definitions/v1IssuingData"
+        },
+        "isDraft": {
+          "type": "boolean"
+        }
+      }
+    },
+    "v1CreateTaskIssuingResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1Task"
+        }
+      }
+    },
+    "v1CreateTaskMappingDigitalRequest": {
       "type": "object",
       "properties": {
         "taskID": {
@@ -1536,7 +1832,7 @@
         }
       }
     },
-    "v1CreateMappingDigitalResponse": {
+    "v1CreateTaskMappingDigitalResponse": {
       "type": "object",
       "properties": {
         "error": {
@@ -1632,6 +1928,29 @@
       ],
       "default": "DESC"
     },
+    "v1DocumentData": {
+      "type": "object",
+      "properties": {
+        "businessLegal": {
+          "type": "string"
+        },
+        "tender": {
+          "type": "string"
+        },
+        "sp": {
+          "type": "string"
+        },
+        "bg": {
+          "type": "string"
+        },
+        "other": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "v1FormatTemplate": {
       "type": "string",
       "enum": [
@@ -1642,6 +1961,14 @@
         "pdf"
       ],
       "default": "null"
+    },
+    "v1Gender": {
+      "type": "string",
+      "enum": [
+        "Male",
+        "Female"
+      ],
+      "default": "Male"
     },
     "v1GenerateThirdPartyRequest": {
       "type": "object",
@@ -1713,6 +2040,48 @@
           "items": {
             "$ref": "#/definitions/v1BeneficiaryName"
           }
+        }
+      }
+    },
+    "v1GetTaskIssuingDetailResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1TaskIssuingData"
+        }
+      }
+    },
+    "v1GetTaskIssuingResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1TaskIssuingData"
+          }
+        },
+        "pagination": {
+          "$ref": "#/definitions/v1PaginationResponse"
         }
       }
     },
@@ -1892,6 +2261,30 @@
         }
       }
     },
+    "v1IssuingData": {
+      "type": "object",
+      "properties": {
+        "step": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "publishing": {
+          "$ref": "#/definitions/v1PublishingData"
+        },
+        "account": {
+          "$ref": "#/definitions/v1AccountData"
+        },
+        "applicant": {
+          "$ref": "#/definitions/v1ApplicantData"
+        },
+        "project": {
+          "$ref": "#/definitions/v1ProjectData"
+        },
+        "document": {
+          "$ref": "#/definitions/v1DocumentData"
+        }
+      }
+    },
     "v1MappingData": {
       "type": "object",
       "properties": {
@@ -1963,6 +2356,98 @@
         }
       }
     },
+    "v1ProjectData": {
+      "type": "object",
+      "properties": {
+        "contractNumber": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "projectDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-07-06",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "nrkNumber": {
+          "type": "string"
+        },
+        "projectCurrency": {
+          "type": "string"
+        },
+        "projectAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "bgCurrency": {
+          "type": "string"
+        },
+        "bgAmount": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "v1PublishingData": {
+      "type": "object",
+      "properties": {
+        "applicantType": {
+          "$ref": "#/definitions/v1ApplicantType"
+        },
+        "publishingType": {
+          "$ref": "#/definitions/v1PublishingType"
+        },
+        "thirdPartyID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "thirdPartyName": {
+          "type": "string",
+          "readOnly": true
+        },
+        "bgType": {
+          "$ref": "#/definitions/v1BgType"
+        },
+        "effectiveDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-07-06",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "expiryDate": {
+          "type": "string",
+          "format": "date",
+          "example": "2022-07-06",
+          "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+        },
+        "remark": {
+          "type": "string"
+        },
+        "claimPeriod": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "lawArticle": {
+          "type": "string"
+        },
+        "openingBranch": {
+          "type": "string"
+        },
+        "publishingBranch": {
+          "type": "string"
+        }
+      }
+    },
+    "v1PublishingType": {
+      "type": "string",
+      "enum": [
+        "SingleBranch",
+        "InterBranch"
+      ],
+      "default": "SingleBranch"
+    },
     "v1Task": {
       "type": "object",
       "properties": {
@@ -2024,6 +2509,20 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "v1TaskIssuingData": {
+      "type": "object",
+      "properties": {
+        "task": {
+          "$ref": "#/definitions/v1Task"
+        },
+        "company": {
+          "$ref": "#/definitions/v1Company"
+        },
+        "data": {
+          "$ref": "#/definitions/v1IssuingData"
         }
       }
     },

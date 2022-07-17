@@ -182,7 +182,7 @@ service ApiService {
         };
     };
 
-    rpc CreateMappingDigital(CreateMappingDigitalRequest) returns (CreateMappingDigitalResponse) {
+    rpc CreateTaskMappingDigital(CreateTaskMappingDigitalRequest) returns (CreateTaskMappingDigitalResponse) {
         option (google.api.http) = {
             post: "/api/bg/mapping-digital/task"
             body: "*"
@@ -256,6 +256,46 @@ service ApiService {
             tags: ["Transaction"]
             summary: "Update Transaction"
             description: "This API for update transaction"
+        };
+    };
+
+    rpc GetTaskIssuing(GetTaskIssuingRequest) returns (GetTaskIssuingResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/issuing/task"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "BG Issuing List"
+            description: "This API for BG Issuing list"
+        };
+    };
+
+    rpc GetTaskIssuingDetail(GetTaskIssuingDetailRequest) returns (GetTaskIssuingDetailResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/issuing/task/{taskID}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "BG Issuing Detail"
+            description: "This API for BG Issuing detail"
+        };
+    };
+
+    rpc CreateTaskIssuing(CreateTaskIssuingRequest) returns (CreateTaskIssuingResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/issuing/task"
+            body: "*"
+            additional_bindings: [
+				{
+					put: "/api/bg/issuing/task/{taskID}"
+					body: "*"
+				}
+			]
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Update Or Create BG Issuing"
+            description: "This API for update or create BG Issuing"
         };
     };
     

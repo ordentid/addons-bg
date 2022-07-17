@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Fri Jul 15 13:46:51 2022
+# Make data base, printed on Sun Jul 17 06:34:57 2022
 
 # Variables
 
@@ -16,6 +16,10 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
+# environment
+ELECTRON_NO_ATTACH_CONSOLE = 1
+# environment
+LC_CTYPE = UTF-8
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
@@ -32,7 +36,6 @@ BUILD_DATE = $(shell date -u +'%Y-%m-%dT00:00:00Z')
 VSCODE_NLS_CONFIG = {"locale":"en-us","availableLanguages":{},"_languagePackSupport":true}
 # environment
 _ = /usr/bin/make
- 
 # makefile (from `Makefile', line 1)
 MAKEFILE_LIST :=  Makefile
 # makefile (from `Makefile', line 1)
@@ -46,7 +49,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /
+VSCODE_CWD = /Users/farizrachmanyusuf/Codes/addons-bg-service
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -56,13 +59,13 @@ LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
 GOPATH = /Users/farizrachmanyusuf/go
 # environment
-LaunchInstanceID = E2CD96CC-F108-48FC-BDD6-EA98BC44C1A2
+LaunchInstanceID = 9BA32D76-1081-4D2D-88D8-9E62A113AE3A
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.E5t5M2mnft/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.u9nbXHpUVn/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -75,8 +78,8 @@ GOMODCACHE = /Users/farizrachmanyusuf/go/pkg/mod
 HOME = /Users/farizrachmanyusuf
 # default
 MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
-# makefile (from `Makefile', line 12)
-BINARY = addons-bg-service
+# environment
+VSCODE_CLI = 1
 # environment
 VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Code/CachedData/b06ae3b2d2dbfe28bca3134cc6be65935cdfea6a
 # environment
@@ -96,7 +99,7 @@ MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-SHLVL = 1
+SHLVL = 3
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -106,6 +109,8 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
+TERM_SESSION_ID = 09BC30D2-39C3-4267-8358-F537408644BF
+# environment
 LESS = -R
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
@@ -113,6 +118,8 @@ LESS = -R
 MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
 # makefile (from `Makefile', line 5)
 DOCKER_BUILD_ARGS = 
+# environment
+TERM_PROGRAM = Apple_Terminal
 # default
 .VARIABLES := 
 # environment
@@ -132,7 +139,9 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.23929812.23929818
+TERM_PROGRAM_VERSION = 445
+# environment
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.23929812.23929818.3B7934D9-F8B6-4DDE-B677-79A8053D57AF
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -147,6 +156,8 @@ COMMAND_MODE = unix2003
 MAKEFILES := 
 # automatic
 <F = $(notdir $<)
+# makefile (from `Makefile', line 12)
+BINARY = addons-bg-service
 # environment
 PAGER = less
 # environment
@@ -154,7 +165,9 @@ LC_ALL = C
 # makefile (from `Makefile', line 9)
 BUILD_VERSION = 0.1.0
 # environment
-SECURITYSESSIONID = 186a3
+SECURITYSESSIONID = 186a4
+# environment
+P9K_TTY = old
 # automatic
 ^F = $(notdir $^)
 # default
@@ -166,9 +179,13 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 401
+TERM = xterm-256color
+# environment
+_P9K_TTY = /dev/ttys000
+# environment
+VSCODE_PID = 6696
 # variable set hash-table stats:
-# Load=77/1024=8%, Rehash=0, Collisions=2/109=2%
+# Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
 
 # Pattern-specific Variable Values
 
@@ -176,7 +193,7 @@ VSCODE_PID = 401
 
 # Directories
 
-# . (device 16777224, inode 22680524): 21 files, no impossibilities.
+# . (device 16777221, inode 22680524): 21 files, no impossibilities.
 
 # 21 files, no impossibilities in 1 directories.
 
@@ -252,7 +269,6 @@ docker-build:
 # Not a target:
 Makefile:
 #  Implicit rule search has been done.
- 
 #  Last modified 2022-07-06 11:20:46
 #  File has been updated.
 #  Successfully updated.
@@ -283,6 +299,7 @@ vet:
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 36):
 	@echo "Running Go static code analysis with go vet"
+ 
 	go vet -asmdecl -atomic -bool -buildtags -copylocks -httpresponse -loopclosure -lostcancel -methods -nilfunc -printf -rangeloops -shift -structtag -tests -unreachable -unsafeptr ./...
 	@echo "go vet complete"
 	
@@ -407,6 +424,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Fri Jul 15 13:46:51 2022
+# Finished Make data base on Sun Jul 17 06:34:57 2022
 
  
