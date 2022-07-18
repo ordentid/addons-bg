@@ -100,7 +100,8 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 	}
 
 	filter := &task_pb.Task{
-		Type: "BG Mapping",
+		Type:      "BG Mapping",
+		CompanyID: me.CompanyID,
 	}
 
 	if req.Status.Number() > 0 {
@@ -119,7 +120,6 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 		Filter:      req.GetFilter(),
 		Query:       req.GetQuery(),
 		CustomOrder: customOrder,
-		In:          me.TaskFilter,
 	}
 
 	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
