@@ -6,8 +6,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
 
-# Make data base, printed on Mon Jul 18 09:53:03 2022
+# Make data base, printed on Mon Jul 18 10:42:16 2022
 
 # Variables
 
@@ -28,6 +29,7 @@ LC_CTYPE = UTF-8
 # makefile
 CURDIR := /Users/farizrachmanyusuf/Codes/addons-bg-service
 # makefile
+ 
 SHELL = /bin/sh
 # makefile (from `Makefile', line 8)
 BUILD_DATE = $(shell date -u +'%Y-%m-%dT00:00:00Z')
@@ -48,7 +50,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/addons-bg-service
+VSCODE_CWD = /Users/farizrachmanyusuf/Codes/charlie-mobile
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -140,7 +142,7 @@ MFLAGS = -Rrqp
 # environment
 TERM_PROGRAM_VERSION = 445
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.23929812.23929818.FC8EBBF2-AA1F-48A3-AB60-D93436AA7D15
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.23929812.23929818.A8CF6F83-4515-4C87-89AD-00322C148CEC
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -182,7 +184,7 @@ TERM = xterm-256color
 # environment
 _P9K_TTY = /dev/ttys001
 # environment
-VSCODE_PID = 16957
+VSCODE_PID = 17970
 # variable set hash-table stats:
 # Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
 
@@ -288,7 +290,6 @@ build:
 #  commands to execute (from `Makefile', line 31):
 	@echo "Executing go build"
 	go build -v -buildmode=pie -ldflags "-X main.version=$(BUILD_VERSION)" -o app ./server/
- 
 	@echo "Binary ready"
 	
 
@@ -311,6 +312,7 @@ default: depend
 generate:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 46):
 	go generate ./...
@@ -423,6 +425,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon Jul 18 09:53:03 2022
+# Finished Make data base on Mon Jul 18 10:42:16 2022
 
  
