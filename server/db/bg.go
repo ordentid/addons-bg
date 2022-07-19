@@ -12,11 +12,11 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.ApplicantName, error) {
+func (p *GormProvider) GetApplicantName(ctx context.Context, thirdPartyID uint64) ([]*pb.ApplicantName, error) {
 	data := []*pb.ApplicantName{}
 	query := p.db_main
 
-	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"]})
+	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"], ThirdPartyID: thirdPartyID})
 	query = query.Select(`"applicant_name" as name, count("id") as total`)
 	query = query.Group(`"applicant_name"`)
 

@@ -41,6 +41,15 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "thirdPartyID",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
         "tags": [
           "Applicant Name"
         ]

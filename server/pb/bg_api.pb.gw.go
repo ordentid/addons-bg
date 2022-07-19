@@ -85,9 +85,20 @@ func local_request_ApiService_GetBeneficiaryName_0(ctx context.Context, marshale
 
 }
 
+var (
+	filter_ApiService_GetApplicantName_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_ApiService_GetApplicantName_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetApplicantNameRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetApplicantName_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := client.GetApplicantName(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
@@ -97,6 +108,13 @@ func request_ApiService_GetApplicantName_0(ctx context.Context, marshaler runtim
 func local_request_ApiService_GetApplicantName_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq GetApplicantNameRequest
 	var metadata runtime.ServerMetadata
+
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_GetApplicantName_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
+	}
 
 	msg, err := server.GetApplicantName(ctx, &protoReq)
 	return msg, metadata, err

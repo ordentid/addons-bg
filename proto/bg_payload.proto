@@ -244,7 +244,9 @@ message ApplicantName {
     string name = 1;
     uint64 total = 2;
 }
-message GetApplicantNameRequest {}
+message GetApplicantNameRequest {
+    uint64 thirdPartyID = 1;
+}
 message GetApplicantNameResponse {
     bool error = 1;
     uint32 code = 2;

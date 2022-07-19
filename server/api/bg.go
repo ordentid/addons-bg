@@ -140,7 +140,7 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		Data:    []*pb.ApplicantName{},
 	}
 
-	applicantNameList, err := s.provider.GetApplicantName(ctx)
+	applicantNameList, err := s.provider.GetApplicantName(ctx, req.ThirdPartyID)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
