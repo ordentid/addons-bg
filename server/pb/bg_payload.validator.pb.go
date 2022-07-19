@@ -203,6 +203,9 @@ func (this *GetApplicantNameResponse) Validate() error {
 	}
 	return nil
 }
+func (this *ThirdPartyName) Validate() error {
+	return nil
+}
 func (this *GetThirdPartyRequest) Validate() error {
 	return nil
 }

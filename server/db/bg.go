@@ -29,6 +29,23 @@ func (p *GormProvider) GetApplicantName(ctx context.Context) ([]*pb.ApplicantNam
 	return data, nil
 }
 
+func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, companyID uint64) ([]*pb.ThirdPartyName, error) {
+	data := []*pb.ThirdPartyName{}
+	query := p.db_main
+
+	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"], CompanyID: companyID})
+	query = query.Select(`"third_party_id" as id, "third_party_name" as name, count("id") as total`)
+	query = query.Group(`"third_party_id"`)
+
+	if err := query.Find(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	return data, nil
+}
+
 func (p *GormProvider) GetThirdParty(ctx context.Context) ([]*pb.ThirdPartyORM, error) {
 	data := []*pb.ThirdPartyORM{}
 	query := p.db_main

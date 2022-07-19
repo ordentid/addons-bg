@@ -252,6 +252,11 @@ message GetApplicantNameResponse {
     repeated ApplicantName data = 4;
 }
 
+message ThirdPartyName {
+    uint64 id = 1;
+    string name = 2;
+    uint64 total = 3;
+}
 message GetThirdPartyRequest {}
 message GetThirdPartyResponse {
     bool error = 1;

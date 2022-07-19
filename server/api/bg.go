@@ -219,17 +219,37 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		Data:    []*pb.ThirdParty{},
 	}
 
-	thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
+	me, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
-	for _, v := range thirdPartyORMList {
-		thirdParty, err := v.ToPB(ctx)
+	if me.UserType == "ba" {
+		thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
-		result.Data = append(result.Data, &thirdParty)
+
+		for _, v := range thirdPartyORMList {
+			thirdParty, err := v.ToPB(ctx)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+			result.Data = append(result.Data, &thirdParty)
+		}
+	} else {
+		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, me.CompanyID)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		for _, v := range thirdPartyNameList {
+			result.Data = append(result.Data, &pb.ThirdParty{
+				Id:           v.Id,
+				Name:         v.Name,
+				ThirdPartyID: v.Id,
+			})
+		}
 	}
 
 	return result, nil
