@@ -35,7 +35,7 @@ func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, companyID uin
 
 	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"], CompanyID: companyID})
 	query = query.Select(`"third_party_id" as id, "third_party_name" as name, count("id") as total`)
-	query = query.Group(`"third_party_id"`)
+	query = query.Group(`"third_party_id", "third_party_name"`)
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
