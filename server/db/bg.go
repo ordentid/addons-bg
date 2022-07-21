@@ -34,11 +34,6 @@ func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, v *pb.Transac
 	query := p.db_main
 
 	query = query.Model(&pb.TransactionORM{}).Where(v)
-
-	if v.Status == 0 {
-		query = query.Where("status = 0")
-	}
-
 	query = query.Select(`"third_party_id" as id, "third_party_name" as name, count("id") as total`)
 	query = query.Group(`"third_party_id", "third_party_name"`)
 
