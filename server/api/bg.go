@@ -169,7 +169,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -274,7 +274,7 @@ func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPa
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -410,7 +410,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -508,7 +508,7 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 
 		client := &http.Client{}
 		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-			proxyURL, err := url.Parse("http://localhost:5002")
+			proxyURL, err := url.Parse("http://localhost:5100")
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
@@ -572,7 +572,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}

@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Tue Jul 19 11:36:11 2022
+# Make data base, printed on Thu Jul 21 13:12:11 2022
 
 # Variables
 
@@ -42,11 +42,15 @@ DOCKER_CONTAINER_NAME = addons-bg-service
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
 # environment
+P9K_SSH = 0
+# environment
 VSCODE_CWD = /
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
-PATH = /usr/local/Cellar/go/1.18.3/libexec/bin:/usr/bin:/bin:/usr/sbin:/sbin
+PATH = /Users/farizrachmanyusuf/.amplify/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/Library/Apple/usr/bin
+# environment
+LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
 GOPATH = /Users/farizrachmanyusuf/go
 # environment
@@ -54,7 +58,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.GMPQxV7Ql8/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.GTZNmmhyQM/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -66,7 +70,7 @@ GOMODCACHE = /Users/farizrachmanyusuf/go/pkg/mod
 # environment
 HOME = /Users/farizrachmanyusuf
 # default
-MAKEFILEPATH = $(shell /usr/bin/xcode-select -print-path 2>/dev/null || echo /Developer)/Makefiles
+MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
 # makefile (from `Makefile', line 12)
 BINARY = addons-bg-service
 # environment
@@ -75,6 +79,8 @@ VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Co
 LOGNAME = farizrachmanyusuf
 # environment
 APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+ZSH = /Users/farizrachmanyusuf/.oh-my-zsh
 # environment
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # automatic
@@ -95,10 +101,12 @@ USER = farizrachmanyusuf
 .DEFAULT_GOAL := build
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
+# environment
+LESS = -R
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
 # default
-MAKE_COMMAND := /Library/Developer/CommandLineTools/usr/bin/make
+MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
 # makefile (from `Makefile', line 5)
 DOCKER_BUILD_ARGS = 
 # default
@@ -136,6 +144,8 @@ MAKEFILES :=
 # automatic
 <F = $(notdir $<)
 # environment
+PAGER = less
+# environment
 LC_ALL = C
 # makefile (from `Makefile', line 9)
 BUILD_VERSION = 0.1.0
@@ -150,9 +160,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 8639
+VSCODE_PID = 25245
 # variable set hash-table stats:
-# Load=70/1024=7%, Rehash=0, Collisions=2/102=2%
+# Load=75/1024=7%, Rehash=0, Collisions=2/107=2%
 
 # Pattern-specific Variable Values
 
@@ -229,7 +239,6 @@ docker-build:
 
 # Not a target:
 .SUFFIXES:
- 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -272,6 +281,7 @@ vet:
 	
 
 default: depend
+ 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -391,6 +401,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue Jul 19 11:36:11 2022
+# Finished Make data base on Thu Jul 21 13:12:11 2022
 
  

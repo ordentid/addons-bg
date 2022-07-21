@@ -74,7 +74,11 @@ func setPagination(page int32, limit int32) *pb.PaginationResponse {
 		Page:  1,
 	}
 
-	if limit > 0 || page > 0 {
+	if limit == 0 && page == 0 {
+		res.Limit = -1
+		res.Page = -1
+		return res
+	} else {
 		res.Limit = limit
 		res.Page = page
 	}

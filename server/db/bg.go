@@ -103,6 +103,7 @@ func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagina
 
 	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
 	query = query.Scopes(Paginate(data, pagination, query), Sort(sort))
+	query = query.Where("status > 0")
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {

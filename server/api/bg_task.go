@@ -155,7 +155,7 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -263,7 +263,7 @@ func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappin
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: taskRes.Data.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: taskRes.Data.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -305,7 +305,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -330,7 +330,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	companyClient := company_pb.NewApiServiceClient(companyConn)
 
-	company, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: req.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: req.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -357,6 +357,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 		httpReqParams, err := query.Values(httpReqParamsOpt)
 		if err != nil {
+			logrus.Error("Failed to Convert Params : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
@@ -364,6 +365,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 		httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 		if err != nil {
+			logrus.Error("Failed to Create Request : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
@@ -371,6 +373,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 		httpRes, err := client.Do(httpReq)
 		if err != nil {
+			logrus.Error("Failed to Request Data : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 		defer httpRes.Body.Close()
@@ -378,11 +381,13 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 		var httpResData ApiListTransactionResponse
 		httpResBody, err := ioutil.ReadAll(httpRes.Body)
 		if err != nil {
+			logrus.Error("Failed to Read All Data : ", httpResData.ResponseMessage)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
 		err = json.Unmarshal(httpResBody, &httpResData)
 		if err != nil {
+			logrus.Error("Failed To Unmarshal : ", httpResData.ResponseMessage)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
@@ -402,6 +407,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
+		logrus.Error("Failed To Marshal : ", taskData)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -421,6 +427,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
+		logrus.Error("Failed To Transfer Data : ", "FAK")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -584,7 +591,7 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -692,7 +699,7 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -758,7 +765,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 
 	companyClient := company_pb.NewApiServiceClient(companyConn)
 
-	company, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -768,7 +775,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -1013,7 +1020,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -1121,7 +1128,7 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1187,7 +1194,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	companyClient := company_pb.NewApiServiceClient(companyConn)
 
-	company, err := companyClient.ListCompanyData(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1197,7 +1204,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5002")
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
