@@ -29,11 +29,11 @@ func (p *GormProvider) GetApplicantName(ctx context.Context, thirdPartyID uint64
 	return data, nil
 }
 
-func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, companyID uint64) ([]*pb.ThirdPartyName, error) {
+func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, v *pb.TransactionORM) ([]*pb.ThirdPartyName, error) {
 	data := []*pb.ThirdPartyName{}
 	query := p.db_main
 
-	query = query.Model(&pb.TransactionORM{}).Where(&pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"], CompanyID: companyID})
+	query = query.Model(&pb.TransactionORM{}).Where(v)
 	query = query.Select(`"third_party_id" as id, "third_party_name" as name, count("id") as total`)
 	query = query.Group(`"third_party_id", "third_party_name"`)
 

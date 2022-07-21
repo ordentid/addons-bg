@@ -237,8 +237,21 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 			result.Data = append(result.Data, &thirdParty)
 		}
+	} else if me.UserType == "ca" {
+		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{Status: pb.TransactionStatus_value["MappingDigital"], CompanyID: me.CompanyID})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		for _, v := range thirdPartyNameList {
+			result.Data = append(result.Data, &pb.ThirdParty{
+				Id:           v.Id,
+				Name:         v.Name,
+				ThirdPartyID: v.Id,
+			})
+		}
 	} else {
-		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, me.CompanyID)
+		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{Status: pb.TransactionStatus_value["PendingForIssuing"], CompanyID: me.CompanyID})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
