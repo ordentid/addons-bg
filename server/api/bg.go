@@ -96,6 +96,16 @@ type ApiInquiryThirdParty struct {
 	Status       string `json:"status"`
 }
 
+type ApiInquiryThirdPartyByStatusRequest struct {
+	Status string `json:"status"`
+}
+
+type ApiInquiryThirdPartyByStatusResponse struct {
+	ResponseCode    string                  `json:"responseCode"`
+	ResponseMessage string                  `json:"responseMessage"`
+	ResponseData    []*ApiInquiryThirdParty `json:"responseData"`
+}
+
 type ApiDownloadRequest struct {
 	ReferenceNo string `json:"referenceNo"`
 }
@@ -225,17 +235,55 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 	}
 
 	if me.UserType == "ba" {
-		thirdPartyORMList, err := s.provider.GetThirdParty(ctx)
+		client := &http.Client{}
+		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+			proxyURL, err := url.Parse("http://localhost:5100")
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+		}
+
+		httpReqData := ApiInquiryThirdPartyByStatusRequest{
+			Status: "Active",
+		}
+
+		httpReqPayload, err := json.Marshal(httpReqData)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		for _, v := range thirdPartyORMList {
-			thirdParty, err := v.ToPB(ctx)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReq.Header.Add("Content-Type", "application/json")
+		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+		httpRes, err := client.Do(httpReq)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		defer httpRes.Body.Close()
+
+		var httpResData ApiInquiryThirdPartyByStatusResponse
+		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		logrus.Println(httpResData.ResponseCode)
+
+		if httpResData.ResponseCode == "00" {
+			for _, v := range httpResData.ResponseData {
+				result.Data = append(result.Data, &pb.ThirdParty{
+					Id:           v.ThirdPartyID,
+					Name:         v.FullName,
+					ThirdPartyID: v.ThirdPartyID,
+				})
 			}
-			result.Data = append(result.Data, &thirdParty)
 		}
 	} else if me.UserType == "ca" {
 		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{Status: 0, CompanyID: me.CompanyID})
