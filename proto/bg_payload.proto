@@ -172,6 +172,8 @@ message ApplicantData {
     Gender gender = 3;
     string address = 4;
     string contactPerson = 5;
+    string beneficiaryName = 6;
+    string beneficiaryAddress = 7;
 }
 
 message ProjectData {

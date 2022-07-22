@@ -1,1 +1,0 @@
-{"buildTargets":[".FORCE",".PHONY","all","build","clean","default","depend","docker-build","generate","generates","install","migrate-db","proto-gen","run","solr","unit-test","vet"],"launchTargets":[],"customConfigurationProvider":{"workspaceBrowse":{"browsePath":[],"compilerArgs":[]},"fileIndex":[]}}
