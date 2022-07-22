@@ -743,7 +743,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	for index, v := range file.res.Data {
 
 		p := message.NewPrinter(language.English)
-		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
+		amountString := p.Sprintf("%d\n", v.Amount)
+		amount := fmt.Sprintf(v.Currency, amountString)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -862,7 +863,8 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 	for index, v := range file.res.Data {
 
 		p := message.NewPrinter(language.English)
-		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
+		amountString := p.Sprintf("%d\n", v.Amount)
+		amount := fmt.Sprintf(v.Currency, amountString)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -949,7 +951,8 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	for k, v := range file.res.Data {
 
 		p := message.NewPrinter(language.English)
-		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
+		amountString := p.Sprintf("%d\n", v.Amount)
+		amount := fmt.Sprintf(v.Currency, amountString)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
