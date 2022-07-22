@@ -12,6 +12,8 @@ import (
 	"github.com/jung-kurt/gofpdf"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
+	"golang.org/x/text/language"
+	"golang.org/x/text/message"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -194,7 +196,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.pdf\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.pdf\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -260,7 +262,7 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.csv\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.csv\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -328,7 +330,7 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.xlsx\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.xlsx\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -516,7 +518,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.pdf\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.pdf\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -585,7 +587,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToCsv(ctx context.Context)
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.csv\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.csv\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -657,7 +659,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToXls(ctx context.Context)
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.xlsx\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.xlsx\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -752,6 +754,9 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	for index, v := range file.res.Data {
 
+		p := message.NewPrinter(language.English)
+		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
+
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
@@ -789,7 +794,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 			v.ExpiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
 			v.BgType.String(),
-			strconv.FormatUint(uint64(v.Amount), 10),
+			amount,
 			dateCreated,
 			dateModified,
 			status,
@@ -847,7 +852,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.pdf\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.pdf\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -867,6 +872,9 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 	_ = w.Write(fields)
 
 	for index, v := range file.res.Data {
+
+		p := message.NewPrinter(language.English)
+		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -904,7 +912,7 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 			v.ExpiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
 			v.BgType.String(),
-			strconv.FormatUint(uint64(v.Amount), 10),
+			amount,
 			dateCreated,
 			dateModified,
 			status,
@@ -919,7 +927,7 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.csv\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.csv\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{
@@ -951,6 +959,9 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	_ = f.SetCellValue("Sheet1", "O1", "Status")
 
 	for k, v := range file.res.Data {
+
+		p := message.NewPrinter(language.English)
+		amount := fmt.Sprintf(v.Currency, p.Sprintf("%d\n", v.Amount))
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -988,7 +999,7 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), v.ExpiryDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), strconv.FormatUint(v.ClaimPeriod, 10)+" day(s)")
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("K%d", rowNumber), v.BgType.String())
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("L%d", rowNumber), strconv.FormatUint(uint64(v.Amount), 10))
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("L%d", rowNumber), amount)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), dateCreated)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("N%d", rowNumber), dateModified)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("O%d", rowNumber), status)
@@ -1002,7 +1013,7 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	}
 
 	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
-	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"Account.xlsx\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.xlsx\""))
 	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
 
 	return &httpbody.HttpBody{

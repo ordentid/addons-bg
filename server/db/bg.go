@@ -37,6 +37,10 @@ func (p *GormProvider) GetThirdPartyByCompany(ctx context.Context, v *pb.Transac
 	query = query.Select(`"third_party_id" as id, "third_party_name" as name, count("id") as total`)
 	query = query.Group(`"third_party_id", "third_party_name"`)
 
+	if v.Status == 0 {
+		query = query.Where("status = 0")
+	}
+
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			logrus.Errorln(err)
