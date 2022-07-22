@@ -106,10 +106,6 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 
 	for index, v := range file.res.Data {
 
-		company := string(v.Company.CompanyName)
-
-		thirdPartyCount := len(v.Data)
-
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
@@ -137,8 +133,8 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 		maxHt := lineHt
 		vals := []string{
 			fmt.Sprintf("%d", index+1),
-			company,
-			strconv.FormatUint(uint64(thirdPartyCount), 10),
+			string(v.Company.CompanyName),
+			strconv.FormatUint(uint64(len(v.Data)), 10),
 			dateCreated,
 			dateModified,
 			status,
@@ -217,10 +213,6 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 
 	for index, v := range file.res.Data {
 
-		company := string(v.Company.CompanyName)
-
-		thirdPartyCount := len(v.Data)
-
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
@@ -246,8 +238,8 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 		status := v.Task.Status
 		row := []string{
 			fmt.Sprintf("%d", index+1),
-			company,
-			strconv.FormatUint(uint64(thirdPartyCount), 10),
+			string(v.Company.CompanyName),
+			strconv.FormatUint(uint64(len(v.Data)), 10),
 			dateCreated,
 			dateModified,
 			status,
@@ -286,10 +278,6 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 
 	for k, v := range file.res.Data {
 
-		company := string(v.Company.CompanyName)
-
-		thirdPartyCount := len(v.Data)
-
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
@@ -315,8 +303,8 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 		status := v.Task.Status
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), company)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), strconv.FormatUint(uint64(thirdPartyCount), 10))
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), string(v.Company.CompanyName))
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), strconv.FormatUint(uint64(len(v.Data)), 10))
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), dateCreated)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), dateModified)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), status)
