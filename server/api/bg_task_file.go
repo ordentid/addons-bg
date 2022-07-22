@@ -10,10 +10,9 @@ import (
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/leekchan/accounting"
 	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
-	"golang.org/x/text/language"
-	"golang.org/x/text/message"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -742,9 +741,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	for index, v := range file.res.Data {
 
-		p := message.NewPrinter(language.English)
-		amountString := p.Sprintf("%d\n", v.Amount)
-		amount := fmt.Sprintf(v.Currency, amountString)
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
+		amount := ac.FormatMoney(v.Amount)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -862,9 +860,8 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 
 	for index, v := range file.res.Data {
 
-		p := message.NewPrinter(language.English)
-		amountString := p.Sprintf("%d\n", v.Amount)
-		amount := fmt.Sprintf(v.Currency, amountString)
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
+		amount := ac.FormatMoney(v.Amount)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
@@ -950,9 +947,8 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 
 	for k, v := range file.res.Data {
 
-		p := message.NewPrinter(language.English)
-		amountString := p.Sprintf("%d\n", v.Amount)
-		amount := fmt.Sprintf(v.Currency, amountString)
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
+		amount := ac.FormatMoney(v.Amount)
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
