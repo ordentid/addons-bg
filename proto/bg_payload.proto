@@ -115,6 +115,23 @@ message Transaction {
     uint64 companyID = 23;
 }
 
+message TransactionRequest {
+    string startDate = 1;
+    string endDate = 2;
+    string branch = 3;
+    string applicantName = 4;
+    uint32 claimPeriod = 5;
+    string Status = 6;
+    string referenceNo = 7;
+    string eventPeriod = 8;
+    uint64 beneficiaryID = 9;
+    string beneficiaryName = 10;
+    uint64 thirdPartyID = 11;
+    string thirdPartyName = 12;
+    uint64 channelID = 13;
+    string channelName = 14;
+}
+
 message TaskMappingData {
     Task task = 1;
     Company company = 2;
@@ -510,7 +527,7 @@ message GetTransactionFileResponse {
 }
 
 message GetTransactionRequest {
-    Transaction transaction = 1;
+    TransactionRequest transaction = 1;
     int32 limit = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
 		description: "Limit data per page. Default value '-1' for disable limit",
 	}];

@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
@@ -350,7 +349,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 	taskData := []*pb.MappingData{}
 	for _, v := range req.Data {
 		httpReqParamsOpt := ApiListTransactionRequest{
-			ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
+			ThirdPartyId: v.ThirdPartyID,
 			Page:         1,
 			Limit:        1,
 		}
@@ -786,7 +785,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
-		ThirdPartyId: strconv.FormatUint(req.ThirdPartyID, 10),
+		ThirdPartyId: req.ThirdPartyID,
 		Page:         1,
 		Limit:        1,
 	}
@@ -1216,7 +1215,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
-		ThirdPartyId: strconv.FormatUint(req.Data.Publishing.ThirdPartyID, 10),
+		ThirdPartyId: req.Data.Publishing.ThirdPartyID,
 		Page:         1,
 		Limit:        1,
 	}

@@ -1097,21 +1097,38 @@
         },
         "parameters": [
           {
-            "name": "transaction.transactionID",
+            "name": "transaction.startDate",
             "in": "query",
             "required": false,
-            "type": "string",
-            "format": "uint64"
+            "type": "string"
           },
           {
-            "name": "transaction.thirdPartyID",
+            "name": "transaction.endDate",
             "in": "query",
             "required": false,
-            "type": "string",
-            "format": "uint64"
+            "type": "string"
           },
           {
-            "name": "transaction.thirdPartyName",
+            "name": "transaction.branch",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "transaction.applicantName",
+            "in": "query",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "transaction.claimPeriod",
+            "in": "query",
+            "required": false,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "transaction.Status",
             "in": "query",
             "required": false,
             "type": "string"
@@ -1123,13 +1140,7 @@
             "type": "string"
           },
           {
-            "name": "transaction.registrationNo",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.applicantName",
+            "name": "transaction.eventPeriod",
             "in": "query",
             "required": false,
             "type": "string"
@@ -1148,71 +1159,14 @@
             "type": "string"
           },
           {
-            "name": "transaction.issueDate",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.effectiveDate",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.expiryDate",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.claimPeriod",
-            "in": "query",
-            "required": false,
-            "type": "integer",
-            "format": "int64"
-          },
-          {
-            "name": "transaction.closingDate",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.currency",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.amount",
-            "in": "query",
-            "required": false,
-            "type": "number",
-            "format": "double"
-          },
-          {
-            "name": "transaction.createdDate",
+            "name": "transaction.thirdPartyID",
             "in": "query",
             "required": false,
             "type": "string",
-            "format": "date-time"
+            "format": "uint64"
           },
           {
-            "name": "transaction.modifiedDate",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "transaction.remark",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "transaction.status",
+            "name": "transaction.thirdPartyName",
             "in": "query",
             "required": false,
             "type": "string"
@@ -1229,30 +1183,6 @@
             "in": "query",
             "required": false,
             "type": "string"
-          },
-          {
-            "name": "transaction.transactionTypeID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "enum": [
-              "BidBond",
-              "AdvancePayment",
-              "PerformanceBond",
-              "GovernmentPaymentGuarantee",
-              "MaintenanceBond",
-              "ProcurementBond",
-              "TransactionRiskBond",
-              "CustomsBond"
-            ],
-            "default": "BidBond"
-          },
-          {
-            "name": "transaction.companyID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
           },
           {
             "name": "limit",
@@ -2643,6 +2573,57 @@
         "companyID": {
           "type": "string",
           "format": "uint64"
+        }
+      }
+    },
+    "v1TransactionRequest": {
+      "type": "object",
+      "properties": {
+        "startDate": {
+          "type": "string"
+        },
+        "endDate": {
+          "type": "string"
+        },
+        "branch": {
+          "type": "string"
+        },
+        "applicantName": {
+          "type": "string"
+        },
+        "claimPeriod": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "Status": {
+          "type": "string"
+        },
+        "referenceNo": {
+          "type": "string"
+        },
+        "eventPeriod": {
+          "type": "string"
+        },
+        "beneficiaryID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "beneficiaryName": {
+          "type": "string"
+        },
+        "thirdPartyID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "thirdPartyName": {
+          "type": "string"
+        },
+        "channelID": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "channelName": {
+          "type": "string"
         }
       }
     },

@@ -60,6 +60,9 @@ func (this *Transaction) Validate() error {
 	}
 	return nil
 }
+func (this *TransactionRequest) Validate() error {
+	return nil
+}
 func (this *TaskMappingData) Validate() error {
 	if this.Task != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {

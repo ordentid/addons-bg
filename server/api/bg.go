@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strconv"
 	"time"
 
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
@@ -30,15 +31,20 @@ type ApiPaginationResponse struct {
 }
 
 type ApiListTransactionRequest struct {
+	StartDate             string `url:"startDate"`
+	EndDate               string `url:"endDate"`
 	Branch                string `url:"branch"`
 	ApplicantName         string `url:"applicationName"`
 	ClaimPeriod           string `url:"claimPeriod"`
 	Status                string `url:"status"`
 	ReferenceNo           string `url:"referenceNo"`
 	EventPeriod           string `url:"eventPeriod"`
+	BeneficiaryId         uint64 `url:"beneficiaryId,string"`
 	BeneficiaryName       string `url:"beneficiaryName"`
-	ThirdPartyId          string `url:"thirdPartyId"`
-	ChannelId             string `url:"channel_id"`
+	ThirdPartyId          uint64 `url:"thirdPartyId,string"`
+	ThirdPartyName        string `url:"thirdPartyName"`
+	ChannelId             uint64 `url:"channel_id"`
+	ChannelName           string `url:"channel_name"`
 	ApplicationCustomerId string `url:"applicant_customer_id"`
 	BeneficiaryCustomerId string `url:"beneficiary_customer_id"`
 	Page                  uint64 `url:"page,string"`
@@ -416,8 +422,22 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
-		Page:  uint64(req.Page),
-		Limit: uint64(req.Limit),
+		StartDate:       req.Transaction.StartDate,
+		EndDate:         req.Transaction.EndDate,
+		Branch:          req.Transaction.Branch,
+		ApplicantName:   req.Transaction.ApplicantName,
+		ClaimPeriod:     strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10),
+		Status:          req.Transaction.Status,
+		ReferenceNo:     req.Transaction.ReferenceNo,
+		EventPeriod:     req.Transaction.EventPeriod,
+		BeneficiaryId:   req.Transaction.BeneficiaryID,
+		BeneficiaryName: req.Transaction.BeneficiaryName,
+		ThirdPartyId:    req.Transaction.ThirdPartyID,
+		ThirdPartyName:  req.Transaction.ThirdPartyName,
+		ChannelId:       req.Transaction.ChannelID,
+		ChannelName:     req.Transaction.ChannelName,
+		Page:            uint64(req.Page),
+		Limit:           uint64(req.Limit),
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
