@@ -101,8 +101,7 @@ type ApiInquiryThirdParty struct {
 }
 
 type ApiInquiryThirdPartyByStatusRequest struct {
-	Status       string `json:"status"`
-	ThirdPartyID uint64 `json:"thirdPartyId"`
+	Status string `json:"status"`
 }
 
 type ApiInquiryThirdPartyByStatusResponse struct {
@@ -296,7 +295,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		for _, v := range thirdPartyNameList {
 			name := ""
 
-			httpReqData := ApiInquiryThirdPartyByStatusRequest{
+			httpReqData := ApiInquiryThirdPartyByIDRequest{
 				ThirdPartyID: v.ThirdPartyID,
 			}
 
@@ -319,7 +318,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 			defer httpRes.Body.Close()
 
-			var httpResData ApiInquiryThirdPartyByStatusResponse
+			var httpResData ApiInquiryThirdPartyByIDResponse
 			err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -328,9 +327,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			logrus.Println(httpResData.ResponseCode)
 
 			if httpResData.ResponseCode == "00" {
-				for _, v := range httpResData.ResponseData {
-					name = v.FullName
-				}
+				name = httpResData.ResponseData.FullName
 			}
 
 			result.Data = append(result.Data, &pb.ThirdParty{
