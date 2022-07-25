@@ -94,16 +94,16 @@ func (p *GormProvider) UpdateOrCreateThirdParty(ctx context.Context, data *pb.Th
 	}
 }
 
-func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagination *pb.PaginationResponse, sort *pb.Sort) ([]*pb.TransactionORM, error) {
-	data := []*pb.TransactionORM{}
+func (p *GormProvider) GetTransaction(ctx context.Context, v *ListFilter, pagination *pb.PaginationResponse, sort *pb.Sort) (data []*pb.TransactionORM, err error) {
 	query := p.db_main
 	if v.Data != nil {
 		query = query.Preload(clause.Associations).Where(v.Data)
 	}
 
+	query = query.Where("status > 0")
+
 	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
 	query = query.Scopes(Paginate(data, pagination, query), Sort(sort))
-	query = query.Where("status > 0")
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {

@@ -11,18 +11,7 @@ import (
 )
 
 func Paginate(value interface{}, v *pb.PaginationResponse, db *gorm.DB) func(db *gorm.DB) *gorm.DB {
-	if v.Limit >= 0 || v.Page >= 0 {
-		if v.Page == 0 {
-			v.Page = 1
-		}
-
-		switch {
-		case v.Limit > 100:
-			v.Limit = 100
-		case v.Limit <= 0:
-			v.Limit = 10
-		}
-
+	if v.Limit > 0 || v.Page > 0 {
 		var totalRows int64
 		db.Model(value).Count(&totalRows)
 
