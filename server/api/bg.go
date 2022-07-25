@@ -559,7 +559,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		}
 
 		result.Data = append(result.Data, transactionPB)
+	}
 
+	result.Pagination = &pb.PaginationResponse{
+		Limit:      int32(httpResData.Pagination.Limit),
+		Page:       int32(httpResData.Pagination.Page),
+		TotalRows:  int64(httpResData.Pagination.TotalRecord),
+		TotalPages: int32(httpResData.Pagination.TotalPage),
 	}
 
 	return result, nil
