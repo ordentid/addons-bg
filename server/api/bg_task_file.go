@@ -743,16 +743,37 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	for index, v := range file.res.Data {
 
 		issueDateArr := strings.Split(v.IssueDate, "-")
-		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+		issueDate := issueDateArr[2] + "/" + issueDateArr[1] + "/" + issueDateArr[0]
 
 		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
-		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+		effectiveDate := effectiveDateArr[2] + "/" + effectiveDateArr[1] + "/" + effectiveDateArr[0]
 
 		expiryDateArr := strings.Split(v.ExpiryDate, "-")
-		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+		expiryDate := expiryDateArr[2] + "/" + expiryDateArr[1] + "/" + expiryDateArr[0]
+
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
+		bgType := bgTypeStrings[v.BgStatus.Number()]
 
 		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
+
+		bgStatusStrings := []string{
+			"Cancelled",
+			"Active",
+			"Claim Period",
+			"Closing Period",
+			"Closed",
+		}
+		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		maxHt := lineHt
 		vals := []string{
@@ -766,9 +787,9 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 			effectiveDate,
 			expiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
-			v.BgType.String(),
+			bgType,
 			amount,
-			v.BgStatus.String(),
+			bgStatus,
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
@@ -845,16 +866,37 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 	for index, v := range file.res.Data {
 
 		issueDateArr := strings.Split(v.IssueDate, "-")
-		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+		issueDate := issueDateArr[2] + "/" + issueDateArr[1] + "/" + issueDateArr[0]
 
 		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
-		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+		effectiveDate := effectiveDateArr[2] + "/" + effectiveDateArr[1] + "/" + effectiveDateArr[0]
 
 		expiryDateArr := strings.Split(v.ExpiryDate, "-")
-		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+		expiryDate := expiryDateArr[2] + "/" + expiryDateArr[1] + "/" + expiryDateArr[0]
 
-		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2, Format: "%s %v"}
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
+		bgType := bgTypeStrings[v.BgStatus.Number()]
+
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
+
+		bgStatusStrings := []string{
+			"Cancelled",
+			"Active",
+			"Claim Period",
+			"Closing Period",
+			"Closed",
+		}
+		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		row := []string{
 			fmt.Sprintf("%d", index+1),
@@ -867,9 +909,9 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 			effectiveDate,
 			expiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
-			v.BgType.String(),
+			bgType,
 			amount,
-			v.BgStatus.String(),
+			bgStatus,
 		}
 		_ = w.Write(row)
 	}
@@ -913,16 +955,37 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	for k, v := range file.res.Data {
 
 		issueDateArr := strings.Split(v.IssueDate, "-")
-		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+		issueDate := issueDateArr[2] + "/" + issueDateArr[1] + "/" + issueDateArr[0]
 
 		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
-		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+		effectiveDate := effectiveDateArr[2] + "/" + effectiveDateArr[1] + "/" + effectiveDateArr[0]
 
 		expiryDateArr := strings.Split(v.ExpiryDate, "-")
-		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+		expiryDate := expiryDateArr[2] + "/" + expiryDateArr[1] + "/" + expiryDateArr[0]
 
-		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2, Format: "%s %v"}
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
+		bgType := bgTypeStrings[v.BgStatus.Number()]
+
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
+
+		bgStatusStrings := []string{
+			"Cancelled",
+			"Active",
+			"Claim Period",
+			"Closing Period",
+			"Closed",
+		}
+		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
@@ -935,9 +998,9 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), effectiveDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), expiryDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), strconv.FormatUint(v.ClaimPeriod, 10)+" day(s)")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("K%d", rowNumber), v.BgType.String())
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("K%d", rowNumber), bgType)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("L%d", rowNumber), amount)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), v.BgStatus.String())
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), bgStatus)
 
 	}
 
