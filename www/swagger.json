@@ -2547,12 +2547,10 @@
           "format": "double"
         },
         "createdDate": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "modifiedDate": {
-          "type": "string",
-          "format": "date-time"
+          "type": "string"
         },
         "remark": {
           "type": "string"

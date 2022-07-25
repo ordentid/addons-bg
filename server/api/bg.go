@@ -9,7 +9,7 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-	"time"
+	"strings"
 
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -19,7 +19,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
-	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
@@ -39,7 +38,7 @@ type ApiListTransactionRequest struct {
 	Status                string `url:"status"`
 	ReferenceNo           string `url:"referenceNo"`
 	EventPeriod           string `url:"eventPeriod"`
-	BeneficiaryId         uint64 `url:"beneficiaryId,string"`
+	BeneficiaryId         string `url:"beneficiaryId,string"`
 	BeneficiaryName       string `url:"beneficiaryName"`
 	ThirdPartyId          uint64 `url:"thirdPartyId,string"`
 	ThirdPartyName        string `url:"thirdPartyName"`
@@ -421,23 +420,47 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	mappingORM, err := s.provider.GetMapping(ctx, &pb.MappingORM{CompanyID: me.CompanyID})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	beneficiaryIDs := []string{}
+	for _, v := range mappingORM {
+		beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+	}
+
 	httpReqParamsOpt := ApiListTransactionRequest{
-		StartDate:       req.Transaction.StartDate,
-		EndDate:         req.Transaction.EndDate,
-		Branch:          req.Transaction.Branch,
-		ApplicantName:   req.Transaction.ApplicantName,
-		ClaimPeriod:     strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10),
-		Status:          req.Transaction.Status,
-		ReferenceNo:     req.Transaction.ReferenceNo,
-		EventPeriod:     req.Transaction.EventPeriod,
-		BeneficiaryId:   req.Transaction.BeneficiaryID,
-		BeneficiaryName: req.Transaction.BeneficiaryName,
-		ThirdPartyId:    req.Transaction.ThirdPartyID,
-		ThirdPartyName:  req.Transaction.ThirdPartyName,
-		ChannelId:       req.Transaction.ChannelID,
-		ChannelName:     req.Transaction.ChannelName,
-		Page:            uint64(req.Page),
-		Limit:           uint64(req.Limit),
+		Page:  uint64(req.Page),
+		Limit: uint64(req.Limit),
+	}
+
+	httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+
+	if req.Transaction != nil {
+		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
+			httpReqParamsOpt.StartDate = req.Transaction.StartDate
+			httpReqParamsOpt.EndDate = req.Transaction.EndDate
+		}
+
+		if req.Transaction.BeneficiaryID > 0 {
+			httpReqParamsOpt.BeneficiaryId = strconv.FormatUint(req.Transaction.BeneficiaryID, 10)
+		} else {
+			httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+		}
+
+		if req.Transaction.ThirdPartyID > 0 {
+			httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
+		}
+
+		if req.Transaction.ClaimPeriod > 0 {
+			httpReqParamsOpt.ClaimPeriod = strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10)
+		}
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -477,24 +500,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	}
 
 	for _, d := range httpResData.ResponseData {
-
-		mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryId})
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		timeLayout := "2006-01-02T15:04:05.000Z"
-
-		createdDate, err := time.Parse(d.CreatedDate, timeLayout)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		modifiedDate, err := time.Parse(d.ModifiedDate, timeLayout)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
 		transactionPB := &pb.Transaction{
 			TransactionID:     d.TransactionId,
 			ThirdPartyID:      d.ThirdPartyId,
@@ -511,14 +516,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			ClosingDate:       d.ClosingDate,
 			Currency:          d.Currency,
 			Amount:            d.Amount,
-			CreatedDate:       timestamppb.New(createdDate),
-			ModifiedDate:      timestamppb.New(modifiedDate),
+			CreatedDate:       d.CreatedDate,
+			ModifiedDate:      d.ModifiedDate,
 			Remark:            d.Remark,
 			Status:            d.Status,
 			ChannelID:         d.ChannelId,
 			ChannelName:       d.ChannelName,
 			TransactionTypeID: pb.BgType(d.TransactionTypeId),
-			CompanyID:         mappingORM.CompanyID,
 		}
 
 		result.Data = append(result.Data, transactionPB)
@@ -595,18 +599,6 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		timeLayout := "2006-01-02T15:04:05.000Z"
-
-		createdDate, err := time.Parse(d.CreatedDate, timeLayout)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		modifiedDate, err := time.Parse(d.ModifiedDate, timeLayout)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
 		result.Data = &pb.Transaction{
 			TransactionID:     d.TransactionId,
 			ThirdPartyID:      d.ThirdPartyId,
@@ -623,8 +615,8 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			ClosingDate:       d.ClosingDate,
 			Currency:          d.Currency,
 			Amount:            d.Amount,
-			CreatedDate:       timestamppb.New(createdDate),
-			ModifiedDate:      timestamppb.New(modifiedDate),
+			CreatedDate:       d.CreatedDate,
+			ModifiedDate:      d.ModifiedDate,
 			Remark:            d.Remark,
 			Status:            d.Status,
 			ChannelID:         d.ChannelId,

@@ -105,8 +105,8 @@ message Transaction {
     string closingDate = 13;
     string currency = 14;
     double amount = 15;
-    google.protobuf.Timestamp createdDate = 16;
-    google.protobuf.Timestamp modifiedDate = 17;
+    string createdDate = 16;
+    string modifiedDate = 17;
     string remark = 18;
     string status = 19;
     uint64 channelID = 20;
