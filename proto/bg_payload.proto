@@ -191,6 +191,11 @@ message ProjectData {
     double projectAmount = 6;
     string bgCurrency = 7;
     double bgAmount = 8;
+    string cashAccountNo = 9;
+    double cashAccountAmount = 10;
+    string nonCashAccountNo = 11;
+    double nonCashAccountAmount = 12;
+    double counterGuaranteeAmount = 13;
 }
 
 message DocumentData {
