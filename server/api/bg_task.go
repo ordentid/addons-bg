@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"io/ioutil"
@@ -348,56 +349,46 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	taskData := []*pb.MappingData{}
 	for _, v := range req.Data {
-		httpReqParamsOpt := ApiListTransactionRequest{
-			ThirdPartyId: v.ThirdPartyID,
-			Page:         1,
-			Limit:        1,
+		name := ""
+
+		httpReqData := ApiInquiryThirdPartyByIDRequest{
+			ThirdPartyID: v.ThirdPartyID,
 		}
 
-		httpReqParams, err := query.Values(httpReqParamsOpt)
+		httpReqPayload, err := json.Marshal(httpReqData)
 		if err != nil {
-			logrus.Error("Failed to Convert Params : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		logrus.Println(httpReqParams.Encode())
-
-		httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 		if err != nil {
-			logrus.Error("Failed to Create Request : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
+		httpReq.Header.Add("Content-Type", "application/json")
 		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
 		httpRes, err := client.Do(httpReq)
 		if err != nil {
-			logrus.Error("Failed to Request Data : ", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 		defer httpRes.Body.Close()
 
-		var httpResData ApiListTransactionResponse
-		httpResBody, err := ioutil.ReadAll(httpRes.Body)
+		var httpResData ApiInquiryThirdPartyByIDResponse
+		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 		if err != nil {
-			logrus.Error("Failed to Read All Data : ", httpResData.ResponseMessage)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		err = json.Unmarshal(httpResBody, &httpResData)
-		if err != nil {
-			logrus.Error("Failed To Unmarshal : ", httpResData.ResponseMessage)
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		logrus.Println(httpResData.ResponseCode)
 
-		if httpResData.ResponseCode != "00" {
-			logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+		if httpResData.ResponseCode == "00" {
+			name = httpResData.ResponseData.FullName
 		}
 
 		taskData = append(taskData, &pb.MappingData{
 			ThirdPartyID:          v.GetThirdPartyID(),
-			ThirdPartyName:        httpResData.ResponseData[0].ThirdPartyName,
+			ThirdPartyName:        name,
 			CompanyID:             company.Data[0].CompanyID,
 			CompanyName:           company.Data[0].CompanyName,
 			IsAllowAllBeneficiary: v.GetIsAllowAllBeneficiary(),
@@ -784,24 +775,23 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
-	httpReqParamsOpt := ApiListTransactionRequest{
-		ThirdPartyId: req.ThirdPartyID,
-		Page:         1,
-		Limit:        1,
+	name := ""
+
+	httpReqData := ApiInquiryThirdPartyByIDRequest{
+		ThirdPartyID: req.ThirdPartyID,
 	}
 
-	httpReqParams, err := query.Values(httpReqParamsOpt)
+	httpReqPayload, err := json.Marshal(httpReqData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println(httpReqParams.Encode())
-
-	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+	httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
 	httpRes, err := client.Do(httpReq)
@@ -810,27 +800,23 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 	defer httpRes.Body.Close()
 
-	var httpResData ApiListTransactionResponse
-	httpResBody, err := ioutil.ReadAll(httpRes.Body)
+	var httpResData ApiInquiryThirdPartyByIDResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	err = json.Unmarshal(httpResBody, &httpResData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	logrus.Println(httpResData.ResponseCode)
 
-	if httpResData.ResponseCode != "00" {
-		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+	if httpResData.ResponseCode == "00" {
+		name = httpResData.ResponseData.FullName
 	}
 
 	taskData := []*pb.MappingDigitalData{}
 	for _, v := range req.Beneficiary {
 		taskData = append(taskData, &pb.MappingDigitalData{
 			ThirdPartyID:    req.GetThirdPartyID(),
-			ThirdPartyName:  httpResData.ResponseData[0].ThirdPartyName,
+			ThirdPartyName:  name,
 			CompanyID:       company.Data[0].CompanyID,
 			CompanyName:     company.Data[0].CompanyName,
 			BeneficiaryId:   v.BeneficiaryId,
