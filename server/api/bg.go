@@ -310,40 +310,40 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			if !contains(ids, strconv.FormatUint(v.ThirdPartyID, 10)) {
 				name := ""
 
-				// httpReqData := ApiInquiryThirdPartyByIDRequest{
-				// 	ThirdPartyID: v.ThirdPartyID,
-				// }
+				httpReqData := ApiInquiryThirdPartyByIDRequest{
+					ThirdPartyID: v.ThirdPartyID,
+				}
 
-				// httpReqPayload, err := json.Marshal(httpReqData)
-				// if err != nil {
-				// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				// }
+				httpReqPayload, err := json.Marshal(httpReqData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
 
-				// httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
-				// if err != nil {
-				// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				// }
+				httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
 
-				// httpReq.Header.Add("Content-Type", "application/json")
-				// httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+				httpReq.Header.Add("Content-Type", "application/json")
+				httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-				// httpRes, err := client.Do(httpReq)
-				// if err != nil {
-				// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				// }
-				// defer httpRes.Body.Close()
+				httpRes, err := client.Do(httpReq)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+				defer httpRes.Body.Close()
 
-				// var httpResData ApiInquiryThirdPartyByIDResponse
-				// err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-				// if err != nil {
-				// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				// }
+				var httpResData ApiInquiryThirdPartyByIDResponse
+				err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
 
-				// logrus.Println(httpResData.ResponseCode)
+				logrus.Println(httpResData.ResponseCode)
 
-				// if httpResData.ResponseCode == "00" {
-				// 	name = httpResData.ResponseData.FullName
-				// }
+				if httpResData.ResponseCode == "00" {
+					name = httpResData.ResponseData.FullName
+				}
 
 				result.Data = append(result.Data, &pb.ThirdParty{
 					Id:   v.Id,
