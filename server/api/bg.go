@@ -749,48 +749,49 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			if httpResData.ResponseCode != "00" {
 				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-			}
+				// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+			} else {
+				for _, d := range httpResData.ResponseData {
 
-			for _, d := range httpResData.ResponseData {
+					data := &pb.MappingORM{
+						CompanyID:     v.CompanyID,
+						ThirdPartyID:  v.ThirdPartyID,
+						BeneficiaryID: d.BeneficiaryID,
+						IsMapped:      false,
+						CreatedByID:   me.UserID,
+						UpdatedByID:   me.UserID,
+					}
 
-				data := &pb.MappingORM{
-					CompanyID:     v.CompanyID,
-					ThirdPartyID:  v.ThirdPartyID,
-					BeneficiaryID: d.BeneficiaryID,
-					IsMapped:      false,
-					CreatedByID:   me.UserID,
-					UpdatedByID:   me.UserID,
-				}
+					if v.IsAllowAllBeneficiary {
+						data.IsMapped = true
+					}
 
-				if v.IsAllowAllBeneficiary {
-					data.IsMapped = true
-				}
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
+					if err != nil {
+						if !errors.Is(err, gorm.ErrRecordNotFound) {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+					}
 
-				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
-				if err != nil {
-					if !errors.Is(err, gorm.ErrRecordNotFound) {
+					if mappingORM.Id > 0 {
+						data.Id = mappingORM.Id
+					}
+
+					mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
+					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
+
+					mappingPB, err := mappingORM.ToPB(ctx)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					result.Data = append(result.Data, &mappingPB)
+
 				}
-
-				if mappingORM.Id > 0 {
-					data.Id = mappingORM.Id
-				}
-
-				mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				mappingPB, err := mappingORM.ToPB(ctx)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				result.Data = append(result.Data, &mappingPB)
-
 			}
+
 		}
 	case "BG Mapping Digital":
 		taskData := []*pb.MappingDigitalData{}
@@ -837,44 +838,45 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			if httpResData.ResponseCode != "00" {
 				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-			}
+				// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+			} else {
+				for _, d := range httpResData.ResponseData {
 
-			for _, d := range httpResData.ResponseData {
+					data := &pb.MappingORM{
+						CompanyID:     v.CompanyID,
+						ThirdPartyID:  v.ThirdPartyID,
+						BeneficiaryID: d.BeneficiaryID,
+						IsMapped:      true,
+						CreatedByID:   me.UserID,
+						UpdatedByID:   me.UserID,
+					}
 
-				data := &pb.MappingORM{
-					CompanyID:     v.CompanyID,
-					ThirdPartyID:  v.ThirdPartyID,
-					BeneficiaryID: d.BeneficiaryID,
-					IsMapped:      true,
-					CreatedByID:   me.UserID,
-					UpdatedByID:   me.UserID,
-				}
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
+					if err != nil {
+						if !errors.Is(err, gorm.ErrRecordNotFound) {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+					}
 
-				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
-				if err != nil {
-					if !errors.Is(err, gorm.ErrRecordNotFound) {
+					if mappingORM.Id > 0 {
+						data.Id = mappingORM.Id
+					}
+
+					mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
+					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
+
+					mappingPB, err := mappingORM.ToPB(ctx)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					result.Data = append(result.Data, &mappingPB)
+
 				}
-
-				if mappingORM.Id > 0 {
-					data.Id = mappingORM.Id
-				}
-
-				mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				mappingPB, err := mappingORM.ToPB(ctx)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				result.Data = append(result.Data, &mappingPB)
-
 			}
+
 		}
 	}
 
