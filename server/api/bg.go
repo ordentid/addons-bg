@@ -282,12 +282,15 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 		}
 	} else {
-		isMapped := true
-		if me.UserType == "ca" {
-			isMapped = false
+		filter := &pb.MappingORM{CompanyID: me.CompanyID}
+
+		if req.Type != pb.ThirdPartyType_NeedMapping {
+			filter.IsMapped = false
+		} else if req.Type != pb.ThirdPartyType_IsMapped {
+			filter.IsMapped = true
 		}
 
-		thirdPartyNameList, err := s.provider.GetMapping(ctx, &pb.MappingORM{IsMapped: isMapped, CompanyID: me.CompanyID})
+		thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}

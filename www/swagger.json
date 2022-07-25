@@ -1038,6 +1038,20 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "All",
+              "NeedMapping",
+              "IsMapped"
+            ],
+            "default": "All"
+          }
+        ],
         "tags": [
           "Third Party"
         ]
@@ -2492,6 +2506,15 @@
           "type": "string"
         }
       }
+    },
+    "v1ThirdPartyType": {
+      "type": "string",
+      "enum": [
+        "All",
+        "NeedMapping",
+        "IsMapped"
+      ],
+      "default": "All"
     },
     "v1Transaction": {
       "type": "object",

@@ -12,6 +12,12 @@ import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
 // import "google/protobuf/struct.proto";
 
+enum ThirdPartyType {
+    All = 0;
+    NeedMapping = 1;
+    IsMapped = 2;
+}
+
 enum TaskStatus {
     AllStatus = 0;
     Pending = 1;
@@ -309,7 +315,9 @@ message ThirdPartyName {
     string name = 2;
     uint64 total = 3;
 }
-message GetThirdPartyRequest {}
+message GetThirdPartyRequest {
+    ThirdPartyType type = 1;
+}
 message GetThirdPartyResponse {
     bool error = 1;
     uint32 code = 2;
