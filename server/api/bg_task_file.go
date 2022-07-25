@@ -6,6 +6,7 @@ import (
 	"encoding/csv"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -713,12 +714,12 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Third Party", "Applicant", "Beneficiary", "Date Issued", "Effective Date", "Maturity Date", "Claim Period", "BG Type", "Amount", "Date Created", "Date Modified", "Status"}
-	widths := []float64{8, 30, 35, 20, 20, 20, 20, 20, 20, 20, 20, 20, 28, 28, 20}
-	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TC"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Third Party", "Applicant", "Beneficiary", "Date Issued", "Effective Date", "Maturity Date", "Claim Period", "BG Type", "Amount", "BG Status"}
+	widths := []float64{8, 30, 35, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20}
+	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TC"}
 
 	var (
-		cellList [15]cellType
+		cellList [13]cellType
 		cell     cellType
 	)
 
@@ -741,32 +742,17 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	for index, v := range file.res.Data {
 
+		issueDateArr := strings.Split(v.IssueDate, "-")
+		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+
+		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
+		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+
+		expiryDateArr := strings.Split(v.ExpiryDate, "-")
+		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+
 		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
-
-		curYear, _, _ := time.Now().Date()
-		dateCreated := ""
-		dateModified := ""
-
-		err := v.CreatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.CreatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.CreatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		err = v.UpdatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.UpdatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.UpdatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		status := v.Status.String()
 
 		maxHt := lineHt
 		vals := []string{
@@ -776,15 +762,13 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 			v.ThirdPartyName,
 			v.ApplicantName,
 			v.BeneficiaryName,
-			v.IssueDate,
-			v.EffectiveDate,
-			v.ExpiryDate,
+			issueDate,
+			effectiveDate,
+			expiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
 			v.BgType.String(),
 			amount,
-			dateCreated,
-			dateModified,
-			status,
+			v.BgStatus.String(),
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
@@ -854,38 +838,23 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 
 	w := csv.NewWriter(&buf)
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Third Party", "Applicant", "Beneficiary", "Date Issued", "Effective Date", "Maturity Date", "Claim Period", "BG Type", "Amount", "Date Created", "Date Modified", "Status"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Third Party", "Applicant", "Beneficiary", "Date Issued", "Effective Date", "Maturity Date", "Claim Period", "BG Type", "Amount", "BG Status"}
 
 	_ = w.Write(fields)
 
 	for index, v := range file.res.Data {
 
-		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
+		issueDateArr := strings.Split(v.IssueDate, "-")
+		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+
+		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
+		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+
+		expiryDateArr := strings.Split(v.ExpiryDate, "-")
+		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2, Format: "%s %v"}
 		amount := ac.FormatMoney(v.Amount)
-
-		curYear, _, _ := time.Now().Date()
-		dateCreated := ""
-		dateModified := ""
-
-		err := v.CreatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.CreatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.CreatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		err = v.UpdatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.UpdatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.UpdatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		status := v.Status.String()
 
 		row := []string{
 			fmt.Sprintf("%d", index+1),
@@ -894,15 +863,13 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 			v.ThirdPartyName,
 			v.ApplicantName,
 			v.BeneficiaryName,
-			v.IssueDate,
-			v.EffectiveDate,
-			v.ExpiryDate,
+			issueDate,
+			effectiveDate,
+			expiryDate,
 			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
 			v.BgType.String(),
 			amount,
-			dateCreated,
-			dateModified,
-			status,
+			v.BgStatus.String(),
 		}
 		_ = w.Write(row)
 	}
@@ -941,38 +908,21 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	_ = f.SetCellValue("Sheet1", "J1", "Claim Period")
 	_ = f.SetCellValue("Sheet1", "K1", "BG Type")
 	_ = f.SetCellValue("Sheet1", "L1", "Amount")
-	_ = f.SetCellValue("Sheet1", "M1", "Date Created")
-	_ = f.SetCellValue("Sheet1", "N1", "Date Modified")
-	_ = f.SetCellValue("Sheet1", "O1", "Status")
+	_ = f.SetCellValue("Sheet1", "M1", "BG Status")
 
 	for k, v := range file.res.Data {
 
-		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
+		issueDateArr := strings.Split(v.IssueDate, "-")
+		issueDate := fmt.Sprintf(issueDateArr[2], "/", issueDateArr[1], "/", issueDateArr[0])
+
+		effectiveDateArr := strings.Split(v.EffectiveDate, "-")
+		effectiveDate := fmt.Sprintf(effectiveDateArr[2], "/", effectiveDateArr[1], "/", effectiveDateArr[0])
+
+		expiryDateArr := strings.Split(v.ExpiryDate, "-")
+		expiryDate := fmt.Sprintf(expiryDateArr[2], "/", expiryDateArr[1], "/", expiryDateArr[0])
+
+		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2, Format: "%s %v"}
 		amount := ac.FormatMoney(v.Amount)
-
-		curYear, _, _ := time.Now().Date()
-		dateCreated := ""
-		dateModified := ""
-
-		err := v.CreatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.CreatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.CreatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		err = v.UpdatedAt.CheckValid()
-		if err == nil {
-			year, _, _ := v.UpdatedAt.AsTime().Date()
-			yearDiff := curYear - year
-			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.UpdatedAt.AsTime().Format("02/01/2006")
-			}
-		}
-
-		status := v.Status.String()
 
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
@@ -981,15 +931,13 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), v.ThirdPartyName)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), v.ApplicantName)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), v.BeneficiaryName)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), v.IssueDate)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), v.EffectiveDate)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), v.ExpiryDate)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), issueDate)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), effectiveDate)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), expiryDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), strconv.FormatUint(v.ClaimPeriod, 10)+" day(s)")
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("K%d", rowNumber), v.BgType.String())
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("L%d", rowNumber), amount)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), dateCreated)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("N%d", rowNumber), dateModified)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("O%d", rowNumber), status)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), v.BgStatus.String())
 
 	}
 

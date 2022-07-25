@@ -537,7 +537,9 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 		CompanyID: me.CompanyID,
 	}
 
-	logrus.Println(filter)
+	logrus.Println("-------------------")
+	logrus.Println(me.TaskFilter)
+	logrus.Println("-------------------")
 
 	if req.Status.Number() > 0 {
 		filter.Status = task_pb.Statuses(req.Status.Number())
