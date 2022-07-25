@@ -293,9 +293,14 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		} else if req.Type != pb.ThirdPartyType_IsMapped {
 			filterMapped = ",is_mapped:true"
 		}
+
 		filter.Filter = filter.Filter + filterMapped
 
+		logrus.Println("------------------------")
+		logrus.Println(me.CompanyID)
+		logrus.Println("------------------------")
 		logrus.Println(filter.Filter)
+		logrus.Println("------------------------")
 
 		thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 		if err != nil {
@@ -777,7 +782,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						data.IsMapped = true
 					}
 
-					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID})
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -862,7 +867,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						UpdatedByID:   me.UserID,
 					}
 
-					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID})
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
