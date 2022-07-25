@@ -1062,14 +1062,6 @@
             }
           }
         },
-        "parameters": [
-          {
-            "name": "isMapped",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          }
-        ],
         "tags": [
           "Third Party"
         ]

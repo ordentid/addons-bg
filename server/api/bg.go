@@ -285,11 +285,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 		}
 	} else if me.UserType == "ca" {
-		filter := &pb.TransactionORM{CompanyID: me.CompanyID}
-		if req.IsMapped {
-			filter.Status = 0
-		}
-		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, filter)
+		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{CompanyID: me.CompanyID})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
