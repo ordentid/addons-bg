@@ -498,7 +498,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
-	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
