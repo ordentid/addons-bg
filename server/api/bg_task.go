@@ -824,10 +824,18 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		})
 	}
 
+	logrus.Println("--------------------")
+	logrus.Println(taskData)
+	logrus.Println("--------------------")
+
 	data, err := json.Marshal(taskData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("--------------------")
+	logrus.Println(string(data))
+	logrus.Println("--------------------")
 
 	taskReq := &task_pb.SaveTaskRequest{
 		TaskID: req.TaskID,
