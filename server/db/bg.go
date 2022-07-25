@@ -11,10 +11,20 @@ import (
 	"gorm.io/gorm"
 )
 
-func (p *GormProvider) GetMapping(ctx context.Context, v *pb.MappingORM) (data []*pb.MappingORM, err error) {
-	query := p.db_main
+type QueryBuilder struct {
+	Filter        string
+	FilterOr      string
+	CollectiveAnd string
+	In            string
+	// Distinct      string
+	// CustomOrder   string
+	Sort *pb.Sort
+}
 
-	query = query.Model(&pb.MappingORM{}).Where(v)
+func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*pb.MappingORM, err error) {
+	query := p.db_main.Model(&pb.MappingORM{})
+
+	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
