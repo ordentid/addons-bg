@@ -250,7 +250,9 @@ message ThirdPartyName {
     string name = 2;
     uint64 total = 3;
 }
-message GetThirdPartyRequest {}
+message GetThirdPartyRequest {
+    bool isMapped = 1;
+}
 message GetThirdPartyResponse {
     bool error = 1;
     uint32 code = 2;
