@@ -5,7 +5,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -316,241 +315,8 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 	return result, nil
 }
 
-func (s *Server) GenerateThirdParty(ctx context.Context, req *pb.GenerateThirdPartyRequest) (*pb.GenerateThirdPartyResponse, error) {
-	result := &pb.GenerateThirdPartyResponse{
-		Error:   false,
-		Code:    200,
-		Message: "Success",
-	}
-
-	httpReqData := ApiListTransactionRequest{
-		Page:  req.Page,
-		Limit: req.Limit,
-	}
-
-	httpReqParam, err := query.Values(httpReqData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-
-	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParam.Encode(), nil)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-	httpRes, err := client.Do(httpReq)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-	defer httpRes.Body.Close()
-
-	var httpResData ApiListTransactionResponse
-	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	if httpResData.ResponseCode != "00" {
-		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-	} else {
-		idList := []string{}
-		for _, d := range httpResData.ResponseData {
-			if d.ThirdPartyId > 0 {
-				if !contains(idList, strconv.FormatUint(d.ThirdPartyId, 10)) {
-					idList = append(idList, strconv.FormatUint(d.ThirdPartyId, 10))
-				}
-			}
-		}
-
-		logrus.Println(idList)
-		for _, d := range idList {
-			id, err := strconv.ParseUint(d, 10, 64)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			_, err = s.provider.GetThirdPartyDetail(ctx, &pb.ThirdPartyORM{ThirdPartyID: id})
-			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				} else {
-					httpReqParamsOpt := ApiListTransactionRequest{
-						ThirdPartyId: d,
-						Page:         1,
-						Limit:        1,
-					}
-
-					httpReqParams, err := query.Values(httpReqParamsOpt)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-
-					logrus.Println(httpReqParams.Encode())
-
-					httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-
-					httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-					httpRes, err := client.Do(httpReq)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-					defer httpRes.Body.Close()
-
-					var httpResData ApiListTransactionResponse
-					httpResBody, err := ioutil.ReadAll(httpRes.Body)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-
-					err = json.Unmarshal(httpResBody, &httpResData)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-
-					if httpResData.ResponseCode != "00" {
-						logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-					}
-
-					data := &pb.ThirdPartyORM{ThirdPartyID: id, Name: fmt.Sprintf("THIRD PARTY %s", d)}
-					if httpResData.ResponseCode == "00" {
-						data.Name = httpResData.ResponseData[0].ThirdPartyName
-					}
-
-					_, err = s.provider.UpdateOrCreateThirdParty(ctx, data)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-				}
-			}
-		}
-
-		result.Pagination = &pb.ApiPaginationResponse{
-			Page:        httpResData.Pagination.Page,
-			Limit:       httpResData.Pagination.Limit,
-			TotalRecord: httpResData.Pagination.TotalRecord,
-			TotalPage:   httpResData.Pagination.TotalPage,
-		}
-	}
-
-	return result, nil
-}
-
-func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error) {
-	result := &pb.GetTransactionResponse{
-		Error:   false,
-		Code:    200,
-		Message: "List Data",
-		Data:    []*pb.Transaction{},
-	}
-
-	var data pb.TransactionORM
-	var err error
-	if req.Transaction != nil {
-		data, err = req.Transaction.ToORM(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-	}
-
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-
-	result.Pagination = setPagination(req.Page, req.Limit)
-	sort := &pb.Sort{
-		Column:    req.GetSort(),
-		Direction: req.GetDir().Enum().String(),
-	}
-
-	filter := &db.ListFilter{
-		Data:   &data,
-		Filter: req.Filter,
-		Query:  req.Query,
-	}
-
-	listORM, err := s.provider.GetTransaction(ctx, filter, result.Pagination, sort)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	list := []*pb.Transaction{}
-	for _, v := range listORM {
-		transaction, err := v.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		httpReqData := ApiDownloadRequest{
-			ReferenceNo: transaction.ReferenceNo,
-		}
-
-		httpReqPayload, err := json.Marshal(httpReqData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		httpReq.Header.Add("Content-Type", "application/json")
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
-
-		var httpResData ApiDownloadResponse
-		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		logrus.Println(httpResData.ResponseCode)
-
-		transaction.DocumentPath = ""
-		if httpResData.ResponseCode == "00" {
-			if len(httpResData.ResponseData) > 0 {
-				transaction.DocumentPath = httpResData.ResponseData[0].Url
-			}
-		}
-
-		list = append(list, &transaction)
-	}
-
-	result.Data = list
-
-	return result, nil
-}
-
-func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactionDetailRequest) (*pb.GetTransactionDetailResponse, error) {
-	result := &pb.GetTransactionDetailResponse{
+func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransactionAttachmentRequest) (*pb.GetTransactionAttachmentResponse, error) {
+	result := &pb.GetTransactionAttachmentResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Data",
@@ -606,11 +372,83 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		data.DocumentPath = ""
-		if httpResData.ResponseCode == "00" {
-			if len(httpResData.ResponseData) > 0 {
-				data.DocumentPath = httpResData.ResponseData[0].Url
+		if httpResData.ResponseCode != "00" {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+		} else {
+			for _, v := range httpResData.ResponseData {
+				result.Data = append(result.Data, v.Url)
 			}
+		}
+	}
+
+	return result, nil
+}
+
+func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error) {
+	result := &pb.GetTransactionResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.Transaction{},
+	}
+
+	var data pb.TransactionORM
+	var err error
+	if req.Transaction != nil {
+		data, err = req.Transaction.ToORM(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+	}
+
+	result.Pagination = setPagination(req.Page, req.Limit)
+	sort := &pb.Sort{
+		Column:    req.GetSort(),
+		Direction: req.GetDir().Enum().String(),
+	}
+
+	filter := &db.ListFilter{
+		Data:   &data,
+		Filter: req.Filter,
+		Query:  req.Query,
+	}
+
+	listORM, err := s.provider.GetTransaction(ctx, filter, result.Pagination, sort)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	list := []*pb.Transaction{}
+	for _, v := range listORM {
+		transaction, err := v.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		list = append(list, &transaction)
+	}
+
+	result.Data = list
+
+	return result, nil
+}
+
+func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactionDetailRequest) (*pb.GetTransactionDetailResponse, error) {
+	result := &pb.GetTransactionDetailResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	if req.TransactionID > 0 {
+		orm, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{TransactionID: req.TransactionID})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		data, err := orm.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
 		result.Data = &data

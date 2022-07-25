@@ -213,17 +213,6 @@ message HealthCheckResponse {
     string message = 1;
 }
 
-message GenerateThirdPartyRequest {
-    uint64 page = 1;
-    uint64 limit = 2;
-}
-message GenerateThirdPartyResponse {
-    bool error = 1;
-    uint32 code = 2;
-    string message = 3;
-    ApiPaginationResponse pagination = 4;
-}
-
 message BeneficiaryName {
     uint64 beneficiaryId = 1;
     uint64 thirdPartyId = 2;
@@ -439,6 +428,16 @@ message CreateTaskMappingDigitalResponse {
     uint32 code = 2;
     string message = 3;
     Task data = 4;
+}
+
+message GetTransactionAttachmentRequest {
+    uint64 transactionID = 1;
+}
+message GetTransactionAttachmentResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated string data = 4;
 }
 
 message GetTransactionFileRequest {

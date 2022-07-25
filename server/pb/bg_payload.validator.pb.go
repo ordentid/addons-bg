@@ -160,17 +160,6 @@ func (this *HealthCheckRequest) Validate() error {
 func (this *HealthCheckResponse) Validate() error {
 	return nil
 }
-func (this *GenerateThirdPartyRequest) Validate() error {
-	return nil
-}
-func (this *GenerateThirdPartyResponse) Validate() error {
-	if this.Pagination != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Pagination); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Pagination", err)
-		}
-	}
-	return nil
-}
 func (this *BeneficiaryName) Validate() error {
 	return nil
 }
@@ -329,6 +318,12 @@ func (this *CreateTaskMappingDigitalResponse) Validate() error {
 			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
 		}
 	}
+	return nil
+}
+func (this *GetTransactionAttachmentRequest) Validate() error {
+	return nil
+}
+func (this *GetTransactionAttachmentResponse) Validate() error {
 	return nil
 }
 func (this *GetTransactionFileRequest) Validate() error {

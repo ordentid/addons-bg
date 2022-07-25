@@ -75,18 +75,6 @@ service ApiService {
         };
     };
 
-    rpc GenerateThirdParty(GenerateThirdPartyRequest) returns (GenerateThirdPartyResponse) {
-        option (google.api.http) = {
-            post: "/api/bg/third-party"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Third Party"]
-            summary: "Generate Third Party"
-            description: "This API for Generate Third Party"
-        };
-    };
-
     rpc GetTaskMappingFilterCompany(GetTaskMappingFilterCompanyRequest) returns (GetTaskMappingFilterCompanyResponse) {
         option (google.api.http) = {
             get: "/api/bg/mapping/filter/company"
@@ -197,6 +185,18 @@ service ApiService {
             tags: ["BG Mapping Digital"]
             summary: "Update Or Create BG Mapping Digital"
             description: "This API for update or create BG Mapping Digital"
+        };
+    };
+
+    rpc GetTransactionAttachment(GetTransactionAttachmentRequest) returns (GetTransactionAttachmentResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/transaction/attachment/{transactionID}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            security: {} // Disable security key
+            tags: ["Transaction"]
+            summary: "Transaction Attachment"
+            description: "This API for transaction attachment"
         };
     };
 
