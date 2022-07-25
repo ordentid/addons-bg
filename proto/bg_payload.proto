@@ -144,6 +144,11 @@ message MappingDigitalData {
     string beneficiaryName = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
+message Beneficiary {
+    uint64 beneficiaryId = 1;
+    string beneficiaryName = 2;
+}
+
 message TaskIssuingData {
     Task task = 1;
     Company company = 2;
@@ -457,7 +462,7 @@ message GetTaskMappingDigitalDetailResponse {
 message CreateTaskMappingDigitalRequest {
     uint64 taskID = 1;
     uint64 thirdPartyID = 2;
-    repeated string beneficiaryNames = 3;
+    repeated Beneficiary beneficiary = 3;
     bool isDraft = 4;
 }
 message CreateTaskMappingDigitalResponse {

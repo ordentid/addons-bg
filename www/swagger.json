@@ -657,10 +657,10 @@
                   "type": "string",
                   "format": "uint64"
                 },
-                "beneficiaryNames": {
+                "beneficiary": {
                   "type": "array",
                   "items": {
-                    "type": "string"
+                    "$ref": "#/definitions/v1Beneficiary"
                   }
                 },
                 "isDraft": {
@@ -1629,6 +1629,18 @@
       ],
       "default": "IndividualApplicant"
     },
+    "v1Beneficiary": {
+      "type": "object",
+      "properties": {
+        "beneficiaryId": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "beneficiaryName": {
+          "type": "string"
+        }
+      }
+    },
     "v1BeneficiaryName": {
       "type": "object",
       "properties": {
@@ -1739,10 +1751,10 @@
           "type": "string",
           "format": "uint64"
         },
-        "beneficiaryNames": {
+        "beneficiary": {
           "type": "array",
           "items": {
-            "type": "string"
+            "$ref": "#/definitions/v1Beneficiary"
           }
         },
         "isDraft": {

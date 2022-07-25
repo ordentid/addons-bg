@@ -106,6 +106,9 @@ func (this *TaskMappingDigitalData) Validate() error {
 func (this *MappingDigitalData) Validate() error {
 	return nil
 }
+func (this *Beneficiary) Validate() error {
+	return nil
+}
 func (this *TaskIssuingData) Validate() error {
 	if this.Task != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {
@@ -326,6 +329,13 @@ func (this *GetTaskMappingDigitalDetailResponse) Validate() error {
 	return nil
 }
 func (this *CreateTaskMappingDigitalRequest) Validate() error {
+	for _, item := range this.Beneficiary {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Beneficiary", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *CreateTaskMappingDigitalResponse) Validate() error {

@@ -828,13 +828,14 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 
 	taskData := []*pb.MappingDigitalData{}
-	for _, v := range req.BeneficiaryNames {
+	for _, v := range req.Beneficiary {
 		taskData = append(taskData, &pb.MappingDigitalData{
 			ThirdPartyID:    req.GetThirdPartyID(),
 			ThirdPartyName:  httpResData.ResponseData[0].ThirdPartyName,
 			CompanyID:       company.Data[0].CompanyID,
 			CompanyName:     company.Data[0].CompanyName,
-			BeneficiaryName: v,
+			BeneficiaryId:   v.BeneficiaryId,
+			BeneficiaryName: v.BeneficiaryName,
 		})
 	}
 
