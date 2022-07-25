@@ -761,19 +761,10 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 			"Transaction Risk Bond",
 			"Customs Bond",
 		}
-		bgType := bgTypeStrings[v.BgStatus.Number()]
+		bgType := bgTypeStrings[v.TransactionTypeID.Number()]
 
 		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
-
-		bgStatusStrings := []string{
-			"Cancelled",
-			"Active",
-			"Claim Period",
-			"Closing Period",
-			"Closed",
-		}
-		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		maxHt := lineHt
 		vals := []string{
@@ -786,10 +777,10 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 			issueDate,
 			effectiveDate,
 			expiryDate,
-			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
+			strconv.FormatUint(uint64(v.ClaimPeriod), 10) + " day(s)",
 			bgType,
 			amount,
-			bgStatus,
+			v.Status,
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
@@ -884,19 +875,10 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 			"Transaction Risk Bond",
 			"Customs Bond",
 		}
-		bgType := bgTypeStrings[v.BgStatus.Number()]
+		bgType := bgTypeStrings[v.TransactionTypeID.Number()]
 
 		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
-
-		bgStatusStrings := []string{
-			"Cancelled",
-			"Active",
-			"Claim Period",
-			"Closing Period",
-			"Closed",
-		}
-		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		row := []string{
 			fmt.Sprintf("%d", index+1),
@@ -908,10 +890,10 @@ func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.Ht
 			issueDate,
 			effectiveDate,
 			expiryDate,
-			strconv.FormatUint(v.ClaimPeriod, 10) + " day(s)",
+			strconv.FormatUint(uint64(v.ClaimPeriod), 10) + " day(s)",
 			bgType,
 			amount,
-			bgStatus,
+			v.Status,
 		}
 		_ = w.Write(row)
 	}
@@ -973,19 +955,10 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 			"Transaction Risk Bond",
 			"Customs Bond",
 		}
-		bgType := bgTypeStrings[v.BgStatus.Number()]
+		bgType := bgTypeStrings[v.TransactionTypeID.Number()]
 
 		ac := accounting.Accounting{Symbol: v.Currency, Precision: 2}
 		amount := ac.FormatMoney(v.Amount)
-
-		bgStatusStrings := []string{
-			"Cancelled",
-			"Active",
-			"Claim Period",
-			"Closing Period",
-			"Closed",
-		}
-		bgStatus := bgStatusStrings[v.BgStatus.Number()]
 
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
@@ -997,10 +970,10 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), issueDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), effectiveDate)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), expiryDate)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), strconv.FormatUint(v.ClaimPeriod, 10)+" day(s)")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), strconv.FormatUint(uint64(v.ClaimPeriod), 10)+" day(s)")
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("K%d", rowNumber), bgType)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("L%d", rowNumber), amount)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), bgStatus)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("M%d", rowNumber), v.Status)
 
 	}
 

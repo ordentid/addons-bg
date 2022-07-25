@@ -3,16 +3,11 @@ syntax = "proto3";
 import "google/protobuf/timestamp.proto";
 import "google/api/field_behavior.proto";
 import "protoc-gen-gorm/options/gorm.proto";
-import "protoc-gen-openapiv2/options/annotations.proto";
+// import "protoc-gen-openapiv2/options/annotations.proto";
 // import "mwitkow/go-proto-validators/validator.proto";
 
 package bg.service.v1;
 option go_package = "./pb";
-
-enum TransactionStatus {
-    MappingDigital = 0;
-    PendingForIssuing = 1;
-}
 
 enum BgStatus {
     Cancelled = 0;
@@ -33,80 +28,16 @@ enum BgType {
     CustomsBond = 7;
 }
 
-message ThirdParty {
+message Mapping {
     option (gorm.opts) = {
         ormable: true,
-        table: "third_parties",
+        table: "mappings",
     };
     uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
-    uint64 thirdPartyID = 2 [(gorm.field).tag = {not_null: true}];
-    string name = 3 [(gorm.field).tag = {not_null: true}];
-    google.protobuf.Timestamp createdAt = 51 [
-        (google.api.field_behavior) = OUTPUT_ONLY,
-        (gorm.field).tag = {not_null: true}
-    ];
-    google.protobuf.Timestamp updatedAt = 52 [
-        (google.api.field_behavior) = OUTPUT_ONLY, 
-        (gorm.field).tag = {not_null: true}
-    ];
-}
-
-message Transaction {
-    option (gorm.opts) = {
-        ormable: true,
-        table: "transactions",
-    };
-    uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
-    uint64 transactionID = 2 [(gorm.field).tag = {not_null: true}];
+    uint64 companyID = 2 [(gorm.field).tag = {not_null: true}];
     uint64 thirdPartyID = 3 [(gorm.field).tag = {not_null: true}];
-    string thirdPartyName = 4 [(gorm.field).tag = {not_null: true}];
-    string referenceNo = 5 [(gorm.field).tag = {not_null: true}];
-    string registrationNo = 6 [(gorm.field).tag = {not_null: true}];
-    string applicantName = 7 [(gorm.field).tag = {not_null: true}];
-    string beneficiaryName = 8 [(gorm.field).tag = {not_null: true}];
-    string issueDate = 9 [
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            format: "date",
-            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
-            example: "\"2022-07-06\""
-        },
-        (gorm.field).tag = {not_null: true}
-    ];
-    string effectiveDate = 10 [
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            format: "date",
-            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
-            example: "\"2022-07-06\""
-        },
-        (gorm.field).tag = {not_null: true}
-    ];
-    string expiryDate = 11 [
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            format: "date",
-            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
-            example: "\"2022-07-06\""
-        },
-        (gorm.field).tag = {not_null: true}
-    ];
-    uint64 claimPeriod = 12 [(gorm.field).tag = {not_null: true}];
-    string closingDate = 13 [
-        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-            format: "date",
-            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
-            example: "\"2022-07-06\""
-        },
-        (gorm.field).tag = {not_null: true}
-    ];
-    string currency = 14 [(gorm.field).tag = {not_null: true}];
-    double amount = 15 [(gorm.field).tag = {not_null: true}];
-    string remark = 16 [(gorm.field).tag = {not_null: true}];
-    BgStatus bgStatus = 17 [(gorm.field).tag = {not_null: true}];
-    uint64 channelID = 18;
-    string channelName = 19;
-    BgType bgType = 20 [(gorm.field).tag = {not_null: true}];
-    string documentPath = 21;
-    uint64 companyID = 22 [(gorm.field).tag = {not_null: true}];
-    TransactionStatus status = 23 [(gorm.field).tag = {not_null: true}];
+    uint64 beneficiaryID = 4 [(gorm.field).tag = {not_null: true}];
+    bool isMapped = 5 [(gorm.field).tag = {not_null: true default: "false"}];
     uint64 createdByID = 41 [
         (google.api.field_behavior) = OUTPUT_ONLY,
         (gorm.field).tag = {not_null: true}

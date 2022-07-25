@@ -75,17 +75,6 @@ service ApiService {
         };
     };
 
-    rpc GetTaskMappingFilterCompany(GetTaskMappingFilterCompanyRequest) returns (GetTaskMappingFilterCompanyResponse) {
-        option (google.api.http) = {
-            get: "/api/bg/mapping/filter/company"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["BG Mapping"]
-            summary: "BG Mapping Company List"
-            description: "This API for BG Mapping Company list"
-        };
-    };
-
     rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (google.api.HttpBody) {
         option (google.api.http) = {
             get: "/api/bg/mapping/task/template/{fileFormat}"
@@ -190,7 +179,7 @@ service ApiService {
 
     rpc GetTransactionAttachment(GetTransactionAttachmentRequest) returns (GetTransactionAttachmentResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/attachment/{transactionID}"
+            get: "/api/bg/transaction/attachment/{referenceNo}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {} // Disable security key
@@ -225,7 +214,7 @@ service ApiService {
 
     rpc GetTransactionDetail(GetTransactionDetailRequest) returns (GetTransactionDetailResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/data/{transactionID}"
+            get: "/api/bg/transaction/data/{referenceNo}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {} // Disable security key

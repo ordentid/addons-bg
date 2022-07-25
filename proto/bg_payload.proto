@@ -84,6 +84,37 @@ message Company {
     google.protobuf.Timestamp updatedAt = 102;
 }
 
+message ThirdParty {
+    uint64 id = 1;
+    string name = 3;
+}
+
+message Transaction {
+    uint64 transactionID = 1;
+    uint64 thirdPartyID = 2;
+    string thirdPartyName = 3;
+    string referenceNo = 4;
+    string registrationNo = 5;
+    string applicantName = 6;
+    uint64 beneficiaryID = 7;
+    string beneficiaryName = 8;
+    string issueDate = 9;
+    string effectiveDate = 10;
+    string expiryDate = 11;
+    uint32 claimPeriod = 12;
+    string closingDate = 13;
+    string currency = 14;
+    double amount = 15;
+    google.protobuf.Timestamp createdDate = 16;
+    google.protobuf.Timestamp modifiedDate = 17;
+    string remark = 18;
+    string status = 19;
+    uint64 channelID = 20;
+    string channelName = 21;
+    BgType transactionTypeID = 22;
+    uint64 companyID = 23;
+}
+
 message TaskMappingData {
     Task task = 1;
     Company company = 2;
@@ -109,7 +140,8 @@ message MappingDigitalData {
     string thirdPartyName = 2 [(google.api.field_behavior) = OUTPUT_ONLY];
     uint64 companyID = 3 [(google.api.field_behavior) = OUTPUT_ONLY];
     string companyName = 4 [(google.api.field_behavior) = OUTPUT_ONLY];
-    string beneficiaryName = 5;
+    uint64 beneficiaryId = 5;
+    string beneficiaryName = 6 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
 message TaskIssuingData {
@@ -436,7 +468,7 @@ message CreateTaskMappingDigitalResponse {
 }
 
 message GetTransactionAttachmentRequest {
-    uint64 transactionID = 1;
+    string referenceNo = 1;
 }
 message GetTransactionAttachmentResponse {
     bool error = 1;
@@ -502,7 +534,7 @@ message GetTransactionResponse {
 }
 
 message GetTransactionDetailRequest {
-    uint64 transactionID = 1;
+    string referenceNo = 1;
 }
 message GetTransactionDetailResponse {
     bool error = 1;
@@ -518,7 +550,7 @@ message CreateTransactionResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    repeated Transaction data = 4;
+    repeated Mapping data = 4;
 }
 
 message UpdateTransactionRequest {

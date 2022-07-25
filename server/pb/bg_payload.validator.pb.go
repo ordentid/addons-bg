@@ -44,6 +44,22 @@ func (this *Company) Validate() error {
 	}
 	return nil
 }
+func (this *ThirdParty) Validate() error {
+	return nil
+}
+func (this *Transaction) Validate() error {
+	if this.CreatedDate != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreatedDate); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("CreatedDate", err)
+		}
+	}
+	if this.ModifiedDate != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.ModifiedDate); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("ModifiedDate", err)
+		}
+	}
+	return nil
+}
 func (this *TaskMappingData) Validate() error {
 	if this.Task != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {

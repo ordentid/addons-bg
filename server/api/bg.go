@@ -8,10 +8,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"strconv"
-	"strings"
+	"time"
 
-	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
@@ -20,6 +18,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/types/known/timestamppb"
 	"gorm.io/gorm"
 )
 
@@ -60,11 +59,12 @@ type ApiTransaction struct {
 	ReferenceNo       string  `json:"referenceNo"`
 	RegistrationNo    string  `json:"registrationNo"`
 	ApplicantName     string  `json:"applicantName"`
+	BeneficiaryId     uint64  `json:"beneficiaryId,string"`
 	BeneficiaryName   string  `json:"beneficiaryName"`
 	IssueDate         string  `json:"issueDate"`
 	EffectiveDate     string  `json:"effectiveDate"`
 	ExpiryDate        string  `json:"expiryDate"`
-	ClaimPeriod       uint64  `json:"claimPeriod,string"`
+	ClaimPeriod       uint32  `json:"claimPeriod,string"`
 	ClosingDate       string  `json:"closingDate"`
 	Currency          string  `json:"currency"`
 	Amount            float64 `json:"amount,string"`
@@ -96,7 +96,8 @@ type ApiInquiryThirdParty struct {
 }
 
 type ApiInquiryThirdPartyByStatusRequest struct {
-	Status string `json:"status"`
+	Status       string `json:"status"`
+	ThirdPartyID uint64 `json:"thirdPartyId"`
 }
 
 type ApiInquiryThirdPartyByStatusResponse struct {
@@ -148,13 +149,6 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		Message: "List Data",
 		Data:    []*pb.ApplicantName{},
 	}
-
-	applicantNameList, err := s.provider.GetApplicantName(ctx, req.ThirdPartyID)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	result.Data = applicantNameList
 
 	return result, nil
 }
@@ -233,17 +227,17 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, err
 	}
 
-	if me.UserType == "ba" {
-		client := &http.Client{}
-		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-			proxyURL, err := url.Parse("http://localhost:5100")
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	client := &http.Client{}
+	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+		proxyURL, err := url.Parse("http://localhost:5100")
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	}
+
+	if me.UserType == "ba" {
 		httpReqData := ApiInquiryThirdPartyByStatusRequest{
 			Status: "Active",
 		}
@@ -278,36 +272,65 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		if httpResData.ResponseCode == "00" {
 			for _, v := range httpResData.ResponseData {
 				result.Data = append(result.Data, &pb.ThirdParty{
-					Id:           v.ThirdPartyID,
-					Name:         v.FullName,
-					ThirdPartyID: v.ThirdPartyID,
+					Id:   v.ThirdPartyID,
+					Name: v.FullName,
 				})
 			}
 		}
-	} else if me.UserType == "ca" {
-		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{CompanyID: me.CompanyID})
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		for _, v := range thirdPartyNameList {
-			result.Data = append(result.Data, &pb.ThirdParty{
-				Id:           v.Id,
-				Name:         v.Name,
-				ThirdPartyID: v.Id,
-			})
-		}
 	} else {
-		thirdPartyNameList, err := s.provider.GetThirdPartyByCompany(ctx, &pb.TransactionORM{Status: 1, CompanyID: me.CompanyID})
+		isMapped := true
+		if me.UserType == "ca" {
+			isMapped = false
+		}
+
+		thirdPartyNameList, err := s.provider.GetMapping(ctx, &pb.MappingORM{IsMapped: isMapped, CompanyID: me.CompanyID})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
 		for _, v := range thirdPartyNameList {
+			name := ""
+
+			httpReqData := ApiInquiryThirdPartyByStatusRequest{
+				ThirdPartyID: v.ThirdPartyID,
+			}
+
+			httpReqPayload, err := json.Marshal(httpReqData)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			httpReq.Header.Add("Content-Type", "application/json")
+			httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+			httpRes, err := client.Do(httpReq)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+			defer httpRes.Body.Close()
+
+			var httpResData ApiInquiryThirdPartyByStatusResponse
+			err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			logrus.Println(httpResData.ResponseCode)
+
+			if httpResData.ResponseCode == "00" {
+				for _, v := range httpResData.ResponseData {
+					name = v.FullName
+				}
+			}
+
 			result.Data = append(result.Data, &pb.ThirdParty{
-				Id:           v.Id,
-				Name:         v.Name,
-				ThirdPartyID: v.Id,
+				Id:   v.Id,
+				Name: name,
 			})
 		}
 	}
@@ -322,17 +345,7 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 		Message: "Data",
 	}
 
-	if req.TransactionID > 0 {
-		orm, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{TransactionID: req.TransactionID})
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		data, err := orm.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
+	if req.ReferenceNo != "" {
 		client := &http.Client{}
 		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
 			proxyURL, err := url.Parse("http://localhost:5100")
@@ -344,7 +357,7 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 		}
 
 		httpReqData := ApiDownloadRequest{
-			ReferenceNo: data.ReferenceNo,
+			ReferenceNo: req.ReferenceNo,
 		}
 
 		httpReqPayload, err := json.Marshal(httpReqData)
@@ -392,43 +405,105 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Data:    []*pb.Transaction{},
 	}
 
-	var data pb.TransactionORM
-	var err error
-	if req.Transaction != nil {
-		data, err = req.Transaction.ToORM(ctx)
+	client := &http.Client{}
+	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+		proxyURL, err := url.Parse("http://localhost:5100")
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
+
+		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
-	result.Pagination = setPagination(req.Page, req.Limit)
-	sort := &pb.Sort{
-		Column:    req.GetSort(),
-		Direction: req.GetDir().Enum().String(),
+	httpReqParamsOpt := ApiListTransactionRequest{
+		Page:  uint64(req.Page),
+		Limit: uint64(req.Limit),
 	}
 
-	filter := &db.ListFilter{
-		Data:   &data,
-		Filter: req.Filter,
-		Query:  req.Query,
-	}
-
-	listORM, err := s.provider.GetTransaction(ctx, filter, result.Pagination, sort)
+	httpReqParams, err := query.Values(httpReqParamsOpt)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	list := []*pb.Transaction{}
-	for _, v := range listORM {
-		transaction, err := v.ToPB(ctx)
+	logrus.Println(httpReqParams.Encode())
+
+	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiListTransactionResponse
+	httpResBody, err := ioutil.ReadAll(httpRes.Body)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	err = json.Unmarshal(httpResBody, &httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if httpResData.ResponseCode != "00" {
+		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+	}
+
+	for _, d := range httpResData.ResponseData {
+
+		mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryId})
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		list = append(list, &transaction)
-	}
+		timeLayout := "2006-01-02T15:04:05.000Z"
 
-	result.Data = list
+		createdDate, err := time.Parse(d.CreatedDate, timeLayout)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		modifiedDate, err := time.Parse(d.ModifiedDate, timeLayout)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		transactionPB := &pb.Transaction{
+			TransactionID:     d.TransactionId,
+			ThirdPartyID:      d.ThirdPartyId,
+			ThirdPartyName:    d.ThirdPartyName,
+			ReferenceNo:       d.ReferenceNo,
+			RegistrationNo:    d.RegistrationNo,
+			ApplicantName:     d.ApplicantName,
+			BeneficiaryID:     d.BeneficiaryId,
+			BeneficiaryName:   d.BeneficiaryName,
+			IssueDate:         d.IssueDate,
+			EffectiveDate:     d.EffectiveDate,
+			ExpiryDate:        d.ExpiryDate,
+			ClaimPeriod:       d.ClaimPeriod,
+			ClosingDate:       d.ClosingDate,
+			Currency:          d.Currency,
+			Amount:            d.Amount,
+			CreatedDate:       timestamppb.New(createdDate),
+			ModifiedDate:      timestamppb.New(modifiedDate),
+			Remark:            d.Remark,
+			Status:            d.Status,
+			ChannelID:         d.ChannelId,
+			ChannelName:       d.ChannelName,
+			TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			CompanyID:         mappingORM.CompanyID,
+		}
+
+		result.Data = append(result.Data, transactionPB)
+
+	}
 
 	return result, nil
 }
@@ -440,18 +515,103 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 		Message: "Data",
 	}
 
-	if req.TransactionID > 0 {
-		orm, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{TransactionID: req.TransactionID})
+	if req.ReferenceNo != "" {
+		client := &http.Client{}
+		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
+			proxyURL, err := url.Parse("http://localhost:5100")
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+		}
+
+		httpReqParamsOpt := ApiListTransactionRequest{
+			ReferenceNo: req.ReferenceNo,
+			Page:        1,
+			Limit:       1,
+		}
+
+		httpReqParams, err := query.Values(httpReqParamsOpt)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		data, err := orm.ToPB(ctx)
+		logrus.Println(httpReqParams.Encode())
+
+		httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		result.Data = &data
+		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+		httpRes, err := client.Do(httpReq)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+		defer httpRes.Body.Close()
+
+		var httpResData ApiListTransactionResponse
+		httpResBody, err := ioutil.ReadAll(httpRes.Body)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		err = json.Unmarshal(httpResBody, &httpResData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		if httpResData.ResponseCode != "00" {
+			logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+		}
+
+		d := httpResData.ResponseData[0]
+
+		mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryId})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		timeLayout := "2006-01-02T15:04:05.000Z"
+
+		createdDate, err := time.Parse(d.CreatedDate, timeLayout)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		modifiedDate, err := time.Parse(d.ModifiedDate, timeLayout)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		result.Data = &pb.Transaction{
+			TransactionID:     d.TransactionId,
+			ThirdPartyID:      d.ThirdPartyId,
+			ThirdPartyName:    d.ThirdPartyName,
+			ReferenceNo:       d.ReferenceNo,
+			RegistrationNo:    d.RegistrationNo,
+			ApplicantName:     d.ApplicantName,
+			BeneficiaryID:     d.BeneficiaryId,
+			BeneficiaryName:   d.BeneficiaryName,
+			IssueDate:         d.IssueDate,
+			EffectiveDate:     d.EffectiveDate,
+			ExpiryDate:        d.ExpiryDate,
+			ClaimPeriod:       d.ClaimPeriod,
+			ClosingDate:       d.ClosingDate,
+			Currency:          d.Currency,
+			Amount:            d.Amount,
+			CreatedDate:       timestamppb.New(createdDate),
+			ModifiedDate:      timestamppb.New(modifiedDate),
+			Remark:            d.Remark,
+			Status:            d.Status,
+			ChannelID:         d.ChannelId,
+			ChannelName:       d.ChannelName,
+			TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			CompanyID:         mappingORM.CompanyID,
+		}
 	}
 
 	return result, nil
@@ -532,10 +692,8 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		}
 
 		for _, v := range taskData {
-			httpReqParamsOpt := ApiListTransactionRequest{
-				ThirdPartyId: strconv.FormatUint(v.ThirdPartyID, 10),
-				Page:         1,
-				Limit:        100,
+			httpReqParamsOpt := ApiInquiryBenficiaryRequest{
+				ThirdPartyID: v.ThirdPartyID,
 			}
 
 			httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -545,7 +703,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			logrus.Println(httpReqParams.Encode())
 
-			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParams.Encode(), nil)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
@@ -558,7 +716,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 			defer httpRes.Body.Close()
 
-			var httpResData ApiListTransactionResponse
+			var httpResData ApiInquiryBenficiaryResponse
 			httpResBody, err := ioutil.ReadAll(httpRes.Body)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -575,59 +733,42 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 
 			for _, d := range httpResData.ResponseData {
-				transactionStatus := pb.TransactionStatus_value["MappingDigital"]
-				if v.IsAllowAllBeneficiary {
-					transactionStatus = pb.TransactionStatus_value["PendingForIssuing"]
-				}
-				t := &pb.TransactionORM{
-					Amount:          d.Amount,
-					ApplicantName:   d.ApplicantName,
-					BeneficiaryName: d.BeneficiaryName,
-					BgStatus:        pb.BgStatus_value[strings.ReplaceAll(d.Status, " ", "")],
-					BgType:          int32(d.TransactionTypeId),
-					ChannelID:       d.ChannelId,
-					ChannelName:     d.ChannelName,
-					ClaimPeriod:     d.ClaimPeriod,
-					ClosingDate:     d.ClosingDate,
-					CompanyID:       v.CompanyID,
-					CreatedByID:     me.UserID,
-					Currency:        d.Currency,
-					DocumentPath:    d.DocumentPath,
-					EffectiveDate:   d.EffectiveDate,
-					ExpiryDate:      d.ExpiryDate,
-					IssueDate:       d.IssueDate,
-					ReferenceNo:     d.ReferenceNo,
-					RegistrationNo:  d.RegistrationNo,
-					Remark:          d.Remark,
-					Status:          transactionStatus,
-					ThirdPartyID:    v.ThirdPartyID,
-					ThirdPartyName:  v.ThirdPartyName,
-					TransactionID:   d.TransactionId,
-					UpdatedByID:     me.UserID,
+
+				data := &pb.MappingORM{
+					CompanyID:     v.CompanyID,
+					ThirdPartyID:  v.ThirdPartyID,
+					BeneficiaryID: d.BeneficiaryID,
+					IsMapped:      false,
+					CreatedByID:   me.UserID,
+					UpdatedByID:   me.UserID,
 				}
 
-				transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: d.ReferenceNo})
+				if v.IsAllowAllBeneficiary {
+					data.IsMapped = true
+				}
+
+				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
 				if err != nil {
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 				}
 
-				if transactionORM.Id > 0 {
-					t.Id = transactionORM.Id
+				if mappingORM.Id > 0 {
+					data.Id = mappingORM.Id
 				}
 
-				transactionORM, err = s.provider.UpdateOrCreateTransaction(ctx, t)
+				mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 
-				transactionPB, err := transactionORM.ToPB(ctx)
+				mappingPB, err := mappingORM.ToPB(ctx)
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 
-				result.Data = append(result.Data, &transactionPB)
+				result.Data = append(result.Data, &mappingPB)
 
 			}
 		}
@@ -639,11 +780,8 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		}
 
 		for _, v := range taskData {
-			httpReqParamsOpt := ApiListTransactionRequest{
-				ThirdPartyId:    strconv.FormatUint(v.ThirdPartyID, 10),
-				BeneficiaryName: v.BeneficiaryName,
-				Page:            1,
-				Limit:           100,
+			httpReqParamsOpt := ApiInquiryBenficiaryRequest{
+				ThirdPartyID: v.ThirdPartyID,
 			}
 
 			httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -653,7 +791,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			logrus.Println(httpReqParams.Encode())
 
-			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
+			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParams.Encode(), nil)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
@@ -666,7 +804,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 			defer httpRes.Body.Close()
 
-			var httpResData ApiListTransactionResponse
+			var httpResData ApiInquiryBenficiaryResponse
 			httpResBody, err := ioutil.ReadAll(httpRes.Body)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -683,55 +821,38 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 
 			for _, d := range httpResData.ResponseData {
-				t := &pb.TransactionORM{
-					Amount:          d.Amount,
-					ApplicantName:   d.ApplicantName,
-					BeneficiaryName: d.BeneficiaryName,
-					BgStatus:        pb.BgStatus_value[strings.ReplaceAll(d.Status, " ", "")],
-					BgType:          int32(d.TransactionTypeId),
-					ChannelID:       d.ChannelId,
-					ChannelName:     d.ChannelName,
-					ClaimPeriod:     d.ClaimPeriod,
-					ClosingDate:     d.ClosingDate,
-					CompanyID:       v.CompanyID,
-					CreatedByID:     me.UserID,
-					Currency:        d.Currency,
-					DocumentPath:    d.DocumentPath,
-					EffectiveDate:   d.EffectiveDate,
-					ExpiryDate:      d.ExpiryDate,
-					IssueDate:       d.IssueDate,
-					ReferenceNo:     d.ReferenceNo,
-					RegistrationNo:  d.RegistrationNo,
-					Remark:          d.Remark,
-					Status:          pb.TransactionStatus_value["PendingForIssuing"],
-					ThirdPartyID:    v.ThirdPartyID,
-					ThirdPartyName:  v.ThirdPartyName,
-					TransactionID:   d.TransactionId,
-					UpdatedByID:     me.UserID,
+
+				data := &pb.MappingORM{
+					CompanyID:     v.CompanyID,
+					ThirdPartyID:  v.ThirdPartyID,
+					BeneficiaryID: d.BeneficiaryID,
+					IsMapped:      true,
+					CreatedByID:   me.UserID,
+					UpdatedByID:   me.UserID,
 				}
 
-				transactionORM, err := s.provider.GetTransactionDetail(ctx, &pb.TransactionORM{ReferenceNo: d.ReferenceNo})
+				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryID})
 				if err != nil {
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 				}
 
-				if transactionORM.Id > 0 {
-					t.Id = transactionORM.Id
+				if mappingORM.Id > 0 {
+					data.Id = mappingORM.Id
 				}
 
-				transactionORM, err = s.provider.UpdateOrCreateTransaction(ctx, t)
+				mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 
-				transactionPB, err := transactionORM.ToPB(ctx)
+				mappingPB, err := mappingORM.ToPB(ctx)
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 
-				result.Data = append(result.Data, &transactionPB)
+				result.Data = append(result.Data, &mappingPB)
 
 			}
 		}
