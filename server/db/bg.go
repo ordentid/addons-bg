@@ -54,7 +54,10 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 
 func (p *GormProvider) DeleteMapping(ctx context.Context, ids []string) error {
 	if len(ids) > 0 {
-		logrus.Printf("Delete Mapping: ", ids)
+		logrus.Println("----------------------")
+		logrus.Println("Deleted Mapping Data:")
+		logrus.Println(ids)
+		logrus.Println("----------------------")
 		if err := p.db_main.Where("\"id\" IN (?)", ids).Delete(&pb.MappingORM{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return status.Error(codes.NotFound, "ID Not Found")

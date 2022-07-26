@@ -772,6 +772,11 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	switch task.Type {
 	case "BG Mapping":
+
+		logrus.Println("----------------------")
+		logrus.Println("Save BG Mapping")
+		logrus.Println("----------------------")
+
 		taskData := []*pb.MappingData{}
 		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
 		if err != nil {
@@ -787,27 +792,41 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			ids := []string{}
 			for _, v := range taskDataBak {
+
+				logrus.Println("----------------------")
+				logrus.Println("Get Mapping Digital Task Data")
+				logrus.Println("----------------------")
+
 				taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: "data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10), Task: &task_pb.Task{Type: "BG Mapping Digital", CompanyID: v.CompanyID}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 
+				logrus.Println("----------------------")
+				logrus.Println("Mapping Digital Task Data:")
+				logrus.Println(taskMappingDigitalRes.Data)
+				logrus.Println("----------------------")
+
 				for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
-					taskVData := []*pb.MappingDigitalData{}
-					json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskVData)
+					taskMappingDigitalData := []*pb.MappingDigitalData{}
+					json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskMappingDigitalData)
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
+
+					logrus.Println("----------------------")
+					logrus.Println("Delete Mapping Digital Task: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
+					logrus.Println("----------------------")
 
 					_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 
-					if len(taskVData) > 0 {
+					if len(taskMappingDigitalData) > 0 {
 						mappingFilter := []string{
-							"company_id:" + strconv.FormatUint(taskVData[0].CompanyID, 10),
-							"third_party_id:" + strconv.FormatUint(taskVData[0].ThirdPartyID, 10),
+							"company_id:" + strconv.FormatUint(taskMappingDigitalData[0].CompanyID, 10),
+							"third_party_id:" + strconv.FormatUint(taskMappingDigitalData[0].ThirdPartyID, 10),
 						}
 
 						mappingListFilter := &db.ListFilter{
@@ -830,6 +849,11 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						}
 					}
 				}
+
+				logrus.Println("----------------------")
+				logrus.Println("Deleted Mapping Digital Data:")
+				logrus.Println(ids)
+				logrus.Println("----------------------")
 
 				httpReqParamsOpt := ApiInquiryBenficiaryRequest{
 					ThirdPartyID: v.ThirdPartyID,
@@ -898,6 +922,11 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 					}
 				}
 			}
+
+			logrus.Println("----------------------")
+			logrus.Println("Deleted Mapping Data:")
+			logrus.Println(ids)
+			logrus.Println("----------------------")
 
 			err = s.provider.DeleteMapping(ctx, ids)
 			if err != nil {
