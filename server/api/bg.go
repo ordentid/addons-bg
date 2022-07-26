@@ -498,6 +498,10 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		if req.Transaction.Status != "" {
 			httpReqParamsOpt.Status = req.Transaction.Status
 		}
+
+		if req.Transaction.ReferenceNo != "" {
+			httpReqParamsOpt.ReferenceNo = req.Transaction.ReferenceNo
+		}
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
