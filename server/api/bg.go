@@ -494,6 +494,10 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		if req.Transaction.ClaimPeriod > 0 {
 			httpReqParamsOpt.ClaimPeriod = strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10)
 		}
+
+		if req.Transaction.Status != "" {
+			httpReqParamsOpt.Status = req.Transaction.Status
+		}
 	}
 
 	httpReqParams, err := query.Values(httpReqParamsOpt)
@@ -556,7 +560,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			ChannelID:         d.ChannelId,
 			ChannelName:       d.ChannelName,
 			TransactionTypeID: pb.BgType(d.TransactionTypeId),
-			CompanyID:         me.CompanyID,
 		}
 
 		result.Data = append(result.Data, transactionPB)
@@ -634,11 +637,6 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 
 		d := httpResData.ResponseData[0]
 
-		mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{BeneficiaryID: d.BeneficiaryId})
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
 		result.Data = &pb.Transaction{
 			TransactionID:     d.TransactionId,
 			ThirdPartyID:      d.ThirdPartyId,
@@ -662,7 +660,6 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			ChannelID:         d.ChannelId,
 			ChannelName:       d.ChannelName,
 			TransactionTypeID: pb.BgType(d.TransactionTypeId),
-			CompanyID:         mappingORM.CompanyID,
 		}
 	}
 
