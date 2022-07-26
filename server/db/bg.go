@@ -23,6 +23,9 @@ type QueryBuilder struct {
 
 func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*pb.MappingORM, err error) {
 	query := p.db_main.Model(&pb.MappingORM{})
+	if v.Data != nil {
+		query = query.Where(v.Data)
+	}
 
 	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
 
