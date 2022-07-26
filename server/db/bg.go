@@ -52,6 +52,22 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 	return data, nil
 }
 
+func (p *GormProvider) DeleteMapping(ctx context.Context, data *pb.MappingORM) error {
+	if data.Id > 0 {
+		model := &pb.MappingORM{
+			Id: data.Id,
+		}
+		if err := p.db_main.Model(&model).Delete(&data).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return status.Error(codes.NotFound, "ID Not Found")
+			} else {
+				return status.Error(codes.Internal, "Internal Error : "+err.Error())
+			}
+		}
+	}
+	return nil
+}
+
 func (p *GormProvider) UpdateOrCreateMapping(ctx context.Context, data *pb.MappingORM) (*pb.MappingORM, error) {
 	if data.Id > 0 {
 		model := &pb.MappingORM{
