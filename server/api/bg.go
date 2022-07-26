@@ -461,15 +461,17 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
-	filterData := &pb.MappingORM{CompanyID: me.CompanyID}
+	filterData := "company_id:" + strconv.FormatUint(me.CompanyID, 10)
 
 	if req.Transaction.ThirdPartyID > 0 {
-		filterData.ThirdPartyID = req.Transaction.ThirdPartyID
+		filterData = filterData + ",third_party_id:" + strconv.FormatUint(req.Transaction.ThirdPartyID, 10)
 	}
 
 	filter := &db.ListFilter{
-		Data: filterData,
+		Filter: filterData,
 	}
+
+	logrus.Println(filter.Data)
 
 	mappingORM, err := s.provider.GetMapping(ctx, filter)
 	if err != nil {
@@ -478,7 +480,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	beneficiaryIDs := []string{}
 	for _, v := range mappingORM {
-		beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+		if !contains(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
+			beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+		}
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
@@ -487,6 +491,8 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	}
 
 	httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+
+	logrus.Println(httpReqParamsOpt.BeneficiaryId)
 
 	if req.Transaction != nil {
 		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
