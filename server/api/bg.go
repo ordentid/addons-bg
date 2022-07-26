@@ -795,7 +795,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						data.IsMapped = true
 					}
 
-					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID})
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID, CompanyID: v.CompanyID})
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -880,7 +880,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						UpdatedByID:   me.UserID,
 					}
 
-					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID})
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID, CompanyID: v.CompanyID})
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
