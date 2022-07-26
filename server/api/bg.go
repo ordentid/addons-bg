@@ -454,8 +454,14 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
+	filterData := &pb.MappingORM{CompanyID: me.CompanyID}
+
+	if req.Transaction.ThirdPartyID > 0 {
+		filterData.ThirdPartyID = req.Transaction.ThirdPartyID
+	}
+
 	filter := &db.ListFilter{
-		Data: &pb.MappingORM{CompanyID: me.CompanyID},
+		Data: filterData,
 	}
 
 	mappingORM, err := s.provider.GetMapping(ctx, filter)
@@ -487,9 +493,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			httpReqParamsOpt.BeneficiaryId = strconv.FormatUint(req.Transaction.BeneficiaryID, 10)
 		}
 
-		if req.Transaction.ThirdPartyID > 0 {
-			httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
-		}
+		// if req.Transaction.ThirdPartyID > 0 {
+		// 	httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
+		// }
 
 		if req.Transaction.ClaimPeriod > 0 {
 			httpReqParamsOpt.ClaimPeriod = strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10)
