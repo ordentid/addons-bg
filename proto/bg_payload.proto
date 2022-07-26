@@ -6,7 +6,7 @@ import "bg_core.proto";
 package bg.service.v1;
 option go_package = "./pb";
 
-// import "mwitkow/go-proto-validators/validator.proto";
+import "mwitkow/go-proto-validators/validator.proto";
 import "google/protobuf/timestamp.proto";
 import "google/api/field_behavior.proto";
 import "protoc-gen-openapiv2/options/annotations.proto";
@@ -58,6 +58,11 @@ enum FormatTemplate {
     xls = 2;
     xlsx = 3;
     pdf = 4; 
+}
+
+enum CompanyType {
+    PT = 0;
+    CV = 1;
 }
 
 message Task {
@@ -221,19 +226,28 @@ message AccountData {
 }
 
 message ApplicantData {
-    string name = 1;
-    string birthDate = 2 [
+    ApplicantType applicantType = 1;
+    string name = 2;
+    string birthDate = 3 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
             format: "date",
             pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
             example: "\"2022-07-06\""
         }
     ];
-    Gender gender = 3;
-    string address = 4;
-    string contactPerson = 5;
-    string beneficiaryName = 6;
-    string beneficiaryAddress = 7;
+    string dateEstablished = 4 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            format: "date",
+            pattern: "^[0-9]{4}-[0-9]{2}-[0-9]{2}$", 
+            example: "\"2022-07-06\""
+        }
+    ];
+    CompanyType companyType = 5;
+    Gender gender = 6;
+    string address = 7;
+    string contactPerson = 8;
+    string beneficiaryName = 9;
+    string beneficiaryAddress = 10;
 }
 
 message ProjectData {
@@ -248,14 +262,14 @@ message ProjectData {
     ];
     string nrkNumber = 4;
     string projectCurrency = 5;
-    double projectAmount = 6;
+    double projectAmount = 6 [(validator.field) = {float_gte: 0}];;
     string bgCurrency = 7;
-    double bgAmount = 8;
+    double bgAmount = 8 [(validator.field) = {float_gte: 0}];;
     string cashAccountNo = 9;
-    double cashAccountAmount = 10;
+    double cashAccountAmount = 10 [(validator.field) = {float_gte: 0}];
     string nonCashAccountNo = 11;
-    double nonCashAccountAmount = 12;
-    double counterGuaranteeAmount = 13;
+    double nonCashAccountAmount = 12 [(validator.field) = {float_gte: 0}];;
+    double counterGuaranteeAmount = 13 [(validator.field) = {float_gte: 0}];;
 }
 
 message DocumentData {
@@ -356,6 +370,7 @@ message GetTaskMappingFileRequest {
 	}];
     FormatTemplate fileFormat = 101;
 }
+
 message GetTaskMappingFileResponse {
     bool error = 1;
     uint32 code = 2;
