@@ -1136,7 +1136,7 @@
             "format": "int64"
           },
           {
-            "name": "transaction.Status",
+            "name": "transaction.status",
             "in": "query",
             "required": false,
             "type": "string"
@@ -2598,10 +2598,6 @@
         },
         "transactionTypeID": {
           "$ref": "#/definitions/v1BgType"
-        },
-        "companyID": {
-          "type": "string",
-          "format": "uint64"
         }
       }
     },
@@ -2624,7 +2620,7 @@
           "type": "integer",
           "format": "int64"
         },
-        "Status": {
+        "status": {
           "type": "string"
         },
         "referenceNo": {
