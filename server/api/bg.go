@@ -439,6 +439,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Data:    []*pb.Transaction{},
 	}
 
+	result.Pagination = &pb.PaginationResponse{
+		Limit:      req.Limit,
+		Page:       req.Page,
+		TotalRows:  0,
+		TotalPages: 0,
+	}
+
 	me, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
@@ -533,43 +540,43 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	if httpResData.ResponseCode != "00" {
 		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-	}
+		// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+	} else {
+		for _, d := range httpResData.ResponseData {
+			transactionPB := &pb.Transaction{
+				TransactionID:     d.TransactionId,
+				ThirdPartyID:      d.ThirdPartyId,
+				ThirdPartyName:    d.ThirdPartyName,
+				ReferenceNo:       d.ReferenceNo,
+				RegistrationNo:    d.RegistrationNo,
+				ApplicantName:     d.ApplicantName,
+				BeneficiaryID:     d.BeneficiaryId,
+				BeneficiaryName:   d.BeneficiaryName,
+				IssueDate:         d.IssueDate,
+				EffectiveDate:     d.EffectiveDate,
+				ExpiryDate:        d.ExpiryDate,
+				ClaimPeriod:       d.ClaimPeriod,
+				ClosingDate:       d.ClosingDate,
+				Currency:          d.Currency,
+				Amount:            d.Amount,
+				CreatedDate:       d.CreatedDate,
+				ModifiedDate:      d.ModifiedDate,
+				Remark:            d.Remark,
+				Status:            d.Status,
+				ChannelID:         d.ChannelId,
+				ChannelName:       d.ChannelName,
+				TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			}
 
-	for _, d := range httpResData.ResponseData {
-		transactionPB := &pb.Transaction{
-			TransactionID:     d.TransactionId,
-			ThirdPartyID:      d.ThirdPartyId,
-			ThirdPartyName:    d.ThirdPartyName,
-			ReferenceNo:       d.ReferenceNo,
-			RegistrationNo:    d.RegistrationNo,
-			ApplicantName:     d.ApplicantName,
-			BeneficiaryID:     d.BeneficiaryId,
-			BeneficiaryName:   d.BeneficiaryName,
-			IssueDate:         d.IssueDate,
-			EffectiveDate:     d.EffectiveDate,
-			ExpiryDate:        d.ExpiryDate,
-			ClaimPeriod:       d.ClaimPeriod,
-			ClosingDate:       d.ClosingDate,
-			Currency:          d.Currency,
-			Amount:            d.Amount,
-			CreatedDate:       d.CreatedDate,
-			ModifiedDate:      d.ModifiedDate,
-			Remark:            d.Remark,
-			Status:            d.Status,
-			ChannelID:         d.ChannelId,
-			ChannelName:       d.ChannelName,
-			TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			result.Data = append(result.Data, transactionPB)
 		}
 
-		result.Data = append(result.Data, transactionPB)
-	}
-
-	result.Pagination = &pb.PaginationResponse{
-		Limit:      int32(httpResData.Pagination.Limit),
-		Page:       int32(httpResData.Pagination.Page),
-		TotalRows:  int64(httpResData.Pagination.TotalRecord),
-		TotalPages: int32(httpResData.Pagination.TotalPage),
+		result.Pagination = &pb.PaginationResponse{
+			Limit:      int32(httpResData.Pagination.Limit),
+			Page:       int32(httpResData.Pagination.Page),
+			TotalRows:  int64(httpResData.Pagination.TotalRecord),
+			TotalPages: int32(httpResData.Pagination.TotalPage),
+		}
 	}
 
 	return result, nil
