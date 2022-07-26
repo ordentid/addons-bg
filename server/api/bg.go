@@ -784,6 +784,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
+			ids := []string{}
 			for _, v := range taskDataBak {
 				httpReqParamsOpt := ApiInquiryBenficiaryRequest{
 					ThirdPartyID: v.ThirdPartyID,
@@ -846,10 +847,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						data.Id = mappingORM.Id
 					}
 
-					err = s.provider.DeleteMapping(ctx, data)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
+					ids = append(ids, strconv.FormatUint(data.Id, 10))
 				} else {
 					for _, d := range httpResData.ResponseData {
 						data := &pb.MappingORM{
@@ -876,12 +874,14 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 							data.Id = mappingORM.Id
 						}
 
-						err = s.provider.DeleteMapping(ctx, data)
-						if err != nil {
-							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-						}
+						ids = append(ids, strconv.FormatUint(data.Id, 10))
 					}
 				}
+			}
+
+			err = s.provider.DeleteMapping(ctx, ids)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 		}
 
@@ -1012,6 +1012,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
+			ids := []string{}
 			for _, v := range taskDataBak {
 				data := &pb.MappingORM{
 					CompanyID:     v.CompanyID,
@@ -1033,10 +1034,12 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 					data.Id = mappingORM.Id
 				}
 
-				err = s.provider.DeleteMapping(ctx, data)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
+				ids = append(ids, strconv.FormatUint(data.Id, 10))
+			}
+
+			err = s.provider.DeleteMapping(ctx, ids)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 		}
 
