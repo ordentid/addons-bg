@@ -500,9 +500,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			httpReqParamsOpt.BeneficiaryId = strconv.FormatUint(req.Transaction.BeneficiaryID, 10)
 		}
 
-		// if req.Transaction.ThirdPartyID > 0 {
-		// 	httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
-		// }
+		if req.Transaction.ThirdPartyID > 0 {
+			httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
+		}
 
 		if req.Transaction.ClaimPeriod > 0 {
 			httpReqParamsOpt.ClaimPeriod = strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10)
