@@ -7,6 +7,7 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
@@ -158,6 +159,21 @@ func (this *ApplicantData) Validate() error {
 	return nil
 }
 func (this *ProjectData) Validate() error {
+	if !(this.ProjectAmount >= 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ProjectAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.ProjectAmount))
+	}
+	if !(this.BgAmount >= 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("BgAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.BgAmount))
+	}
+	if !(this.CashAccountAmount >= 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("CashAccountAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.CashAccountAmount))
+	}
+	if !(this.NonCashAccountAmount >= 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("NonCashAccountAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.NonCashAccountAmount))
+	}
+	if !(this.CounterGuaranteeAmount >= 0) {
+		return github_com_mwitkow_go_proto_validators.FieldError("CounterGuaranteeAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.CounterGuaranteeAmount))
+	}
 	return nil
 }
 func (this *DocumentData) Validate() error {
