@@ -57,7 +57,7 @@ func (p *GormProvider) DeleteMapping(ctx context.Context, data *pb.MappingORM) e
 		model := &pb.MappingORM{
 			Id: data.Id,
 		}
-		if err := p.db_main.Model(&model).Delete(&data).Error; err != nil {
+		if err := p.db_main.Where(&model).Delete(&pb.MappingORM{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return status.Error(codes.NotFound, "ID Not Found")
 			} else {
