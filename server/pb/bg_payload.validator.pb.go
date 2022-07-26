@@ -362,6 +362,11 @@ func (this *GetTransactionAttachmentResponse) Validate() error {
 	return nil
 }
 func (this *GetTransactionFileRequest) Validate() error {
+	if this.Transaction != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Transaction); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Transaction", err)
+		}
+	}
 	return nil
 }
 func (this *GetTransactionFileResponse) Validate() error {
