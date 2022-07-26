@@ -439,6 +439,11 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Data:    []*pb.Transaction{},
 	}
 
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
 		proxyURL, err := url.Parse("http://localhost:5100")
@@ -447,11 +452,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		}
 
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
 	}
 
 	filter := &db.ListFilter{
@@ -479,12 +479,12 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
 			httpReqParamsOpt.StartDate = req.Transaction.StartDate
 			httpReqParamsOpt.EndDate = req.Transaction.EndDate
+		} else {
+			return nil, status.Errorf(codes.InvalidArgument, "Start Date and End Date is Required")
 		}
 
 		if req.Transaction.BeneficiaryID > 0 {
 			httpReqParamsOpt.BeneficiaryId = strconv.FormatUint(req.Transaction.BeneficiaryID, 10)
-		} else {
-			httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
 		}
 
 		if req.Transaction.ThirdPartyID > 0 {
@@ -556,6 +556,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			ChannelID:         d.ChannelId,
 			ChannelName:       d.ChannelName,
 			TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			CompanyID:         me.CompanyID,
 		}
 
 		result.Data = append(result.Data, transactionPB)

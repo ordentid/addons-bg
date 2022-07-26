@@ -205,7 +205,6 @@ service ApiService {
             get: "/api/bg/transaction/data"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            security: {} // Disable security key
             tags: ["Transaction"]
             summary: "Transaction List"
             description: "This API for transaction list"
@@ -217,7 +216,6 @@ service ApiService {
             get: "/api/bg/transaction/data/{referenceNo}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            security: {} // Disable security key
             tags: ["Transaction"]
             summary: "Transaction Detail"
             description: "This API for transaction detail"

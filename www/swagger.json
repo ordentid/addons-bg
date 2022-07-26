@@ -1250,8 +1250,7 @@
         ],
         "tags": [
           "Transaction"
-        ],
-        "security": []
+        ]
       },
       "post": {
         "summary": "Create Transaction",
@@ -1403,8 +1402,7 @@
         ],
         "tags": [
           "Transaction"
-        ],
-        "security": []
+        ]
       }
     },
     "/api/bg/transaction/data/{transactionID}": {

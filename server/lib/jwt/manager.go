@@ -105,6 +105,7 @@ func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string) (*CurrentUser, error) {
 
 	md, ok := metadata.FromIncomingContext(ctx)
+	logrus.Println(md)
 	if ok {
 		values := md["authorization"]
 		if len(values) > 0 {
@@ -114,7 +115,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 				accessToken = split[1]
 			}
 		}
-
 	}
 
 	if accessToken == "" {
