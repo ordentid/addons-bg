@@ -184,11 +184,13 @@ message TaskIssuingData {
 
 message IssuingData {
     uint64 step = 1;
-    PublishingData publishing = 2;
-    AccountData account = 3;
-    ApplicantData applicant = 4;
-    ProjectData project = 5;
-    DocumentData document = 6;
+    string referenceNo = 2;
+    string registrationNo = 3;
+    PublishingData publishing = 4;
+    AccountData account = 5;
+    ApplicantData applicant = 6;
+    ProjectData project = 7;
+    DocumentData document = 8;
 }
 
 message PublishingData {

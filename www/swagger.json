@@ -2326,6 +2326,12 @@
           "type": "string",
           "format": "uint64"
         },
+        "referenceNo": {
+          "type": "string"
+        },
+        "registrationNo": {
+          "type": "string"
+        },
         "publishing": {
           "$ref": "#/definitions/v1PublishingData"
         },
