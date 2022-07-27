@@ -508,6 +508,8 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	logrus.Println(strings.Join(beneficiaryIDs, ","))
 	logrus.Println("---------------------------")
 
+	httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+
 	if req.Transaction != nil {
 		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
 			httpReqParamsOpt.StartDate = req.Transaction.StartDate
