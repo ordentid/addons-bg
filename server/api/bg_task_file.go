@@ -993,3 +993,329 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 		Extensions:  nil,
 	}, nil
 }
+
+/// Unfinished Endpoint
+
+func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingFileRequest) (*httpbody.HttpBody, error) {
+	result := &httpbody.HttpBody{}
+
+	reqPB := &pb.GetTaskIssuingRequest{
+		Limit:  req.Limit,
+		Page:   req.Page,
+		Sort:   req.Sort,
+		Dir:    req.Dir,
+		Filter: req.Filter,
+		Query:  req.Query,
+	}
+
+	resPB, err := s.GetTaskIssuing(ctx, reqPB)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "%v", err)
+	}
+
+	file := GetTaskIssuingFileGenerator(resPB)
+	if req.FileFormat.String() == "pdf" {
+		return file.TaskIssuingToPDFv2(ctx)
+	}
+	if req.FileFormat.String() == "csv" {
+		return file.TaskIssuingToCsv(ctx)
+	}
+
+	if req.FileFormat.String() == "xls" {
+		return file.TaskIssuingToXls(ctx)
+	}
+
+	return result, nil
+
+}
+
+type TaskIssuingFile struct {
+	res *pb.GetTaskIssuingResponse
+}
+
+func GetTaskIssuingFileGenerator(res *pb.GetTaskIssuingResponse) *TaskIssuingFile {
+	return &TaskIssuingFile{res: res}
+}
+
+func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.HttpBody, error) {
+	const (
+		colCount = 3
+		colWd    = 60.0
+		marginH  = 10.0
+		lineHt   = 5.5
+		cellGap  = 1.0
+	)
+	type cellType struct {
+		str  string
+		list [][]byte
+		ht   float64
+	}
+
+	pdf := gofpdf.New("L", "mm", "Letter", "")
+
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Status"}
+	widths := []float64{8, 30, 30, 30, 30, 30, 30, 30}
+	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
+
+	var (
+		cellList [8]cellType
+		cell     cellType
+	)
+
+	pdf.AddPage()
+	_, pageh := pdf.GetPageSize()
+
+	pdf.SetFont("Times", "B", 9.5)
+	pdf.SetFillColor(240, 240, 240)
+	pdf.SetX(marginH)
+	for i, header := range fields {
+		pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+	}
+	pdf.Ln(-1)
+
+	pdf.SetFont("Times", "", 9.5)
+	pdf.SetFillColor(255, 255, 255)
+
+	y := pdf.GetY()
+	x := marginH
+
+	for index, v := range file.res.Data {
+
+		// curYear, _, _ := time.Now().Date()
+		// dateCreated := ""
+		// dateModified := ""
+
+		// err := v.Task.CreatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		// err = v.Task.UpdatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		status := v.Task.Status
+
+		maxHt := lineHt
+		vals := []string{
+			fmt.Sprintf("%d", index+1),
+			// string(v.Company.CompanyName),
+			// // strconv.FormatUint(uint64(len(v.Data)), 10),
+			// dateCreated,
+			// dateModified,
+			// status,
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			status,
+		}
+		// Cell height calculation loop
+		for colJ := 0; colJ < len(vals); colJ++ {
+			cell.str = vals[colJ]
+			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
+			cell.ht = float64(len(cell.list)) * lineHt
+			if cell.ht > maxHt {
+				maxHt = cell.ht
+			}
+			cellList[colJ] = cell
+		}
+
+		if y >= pageh-((marginH*2)+maxHt+lineHt) {
+			pdf.AddPage()
+			x, y = pdf.GetXY()
+		}
+
+		// Cell render loop
+		x = marginH
+		for colJ := 0; colJ < len(vals); colJ++ {
+			pdf.Rect(x, y, widths[colJ], maxHt+cellGap+cellGap, "D")
+			cell = cellList[colJ]
+			cellY := y + cellGap + (maxHt-cell.ht)/2
+			for splitJ := 0; splitJ < len(cell.list); splitJ++ {
+				pdf.SetXY(x, cellY)
+				pdf.CellFormat(widths[colJ], lineHt, string(cell.list[splitJ]), "", 0,
+					align[colJ], false, 0, "")
+				cellY += lineHt
+
+			}
+			x += widths[colJ]
+		}
+		y += maxHt + cellGap + cellGap
+
+		if y >= pageh-((marginH*2)+lineHt) {
+			pdf.AddPage()
+			x, y = pdf.GetXY()
+		}
+
+	}
+
+	var buf bytes.Buffer
+	var err error
+
+	err = pdf.Output(&buf)
+	if err == nil {
+		logrus.Println("Length of buffer: %d\n", buf.Len())
+		// return nil, status.Errorf(codes.Internal, "Server error")
+	} else {
+		logrus.Errorf("Error generating PDF: %s\n", err)
+		return nil, status.Errorf(codes.Internal, "Server error")
+	}
+
+	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.pdf\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
+
+	return &httpbody.HttpBody{
+		ContentType: "application/pdf",
+		Data:        buf.Bytes(),
+		Extensions:  nil,
+	}, nil
+}
+
+func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.HttpBody, error) {
+	var buf bytes.Buffer
+
+	w := csv.NewWriter(&buf)
+
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Status"}
+
+	_ = w.Write(fields)
+
+	for index, v := range file.res.Data {
+
+		// curYear, _, _ := time.Now().Date()
+		// dateCreated := ""
+		// dateModified := ""
+
+		// err := v.Task.CreatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		// err = v.Task.UpdatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		status := v.Task.Status
+		row := []string{
+			fmt.Sprintf("%d", index+1),
+			// string(v.Company.CompanyName),
+			// // strconv.FormatUint(uint64(len(v.Data)), 10),
+			// dateCreated,
+			// dateModified,
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			"Test",
+			status,
+		}
+		_ = w.Write(row)
+	}
+
+	w.Flush()
+	err := w.Error()
+	if err != nil {
+		return nil, err
+	}
+
+	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.csv\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
+
+	return &httpbody.HttpBody{
+		ContentType: "application/csv",
+		Data:        buf.Bytes(),
+		Extensions:  nil,
+	}, nil
+
+}
+
+func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.HttpBody, error) {
+	f := excelize.NewFile()
+	sheet := f.NewSheet("Sheet1")
+
+	_ = f.SetCellValue("Sheet1", "A1", "No")
+	_ = f.SetCellValue("Sheet1", "B1", "Reference Number")
+	_ = f.SetCellValue("Sheet1", "C1", "Registration Number")
+	_ = f.SetCellValue("Sheet1", "D1", "Applicant Name")
+	_ = f.SetCellValue("Sheet1", "E1", "Beneficiary Name")
+	_ = f.SetCellValue("Sheet1", "F1", "BG Type")
+	_ = f.SetCellValue("Sheet1", "G1", "Amount")
+	_ = f.SetCellValue("Sheet1", "H1", "Status")
+
+	for k, v := range file.res.Data {
+
+		// curYear, _, _ := time.Now().Date()
+		// dateCreated := ""
+		// dateModified := ""
+
+		// err := v.Task.CreatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		// err = v.Task.UpdatedAt.CheckValid()
+		// if err == nil {
+		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
+		// 	yearDiff := curYear - year
+		// 	if yearDiff < 10 && yearDiff > -10 {
+		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+		// 	}
+		// }
+
+		status := v.Task.Status
+		rowNumber := k + 2
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), status)
+
+	}
+
+	f.SetActiveSheet(sheet)
+	buf, err := f.WriteToBuffer()
+	if err != nil {
+		return nil, err
+	}
+
+	_ = grpc.SetHeader(ctx, metadata.Pairs("file-download", ""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Disposition", "attachment; filename=\"BG.xlsx\""))
+	_ = grpc.SetHeader(ctx, metadata.Pairs("Content-Length", fmt.Sprintf("%v", buf.Len())))
+
+	return &httpbody.HttpBody{
+		ContentType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+		Data:        buf.Bytes(),
+		Extensions:  nil,
+	}, nil
+}

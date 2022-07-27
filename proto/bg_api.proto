@@ -268,6 +268,17 @@ service ApiService {
         };
     };
 
+    rpc GetTaskIssuingFile(GetTaskIssuingFileRequest) returns (google.api.HttpBody) {
+        option (google.api.http) = {
+            get: "/api/bg/issuing/task/template/{fileFormat}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "BG Issuing Export"
+            description: "This API for BG Issuing export"
+        };
+    };
+
     rpc CreateTaskIssuing(CreateTaskIssuingRequest) returns (CreateTaskIssuingResponse) {
         option (google.api.http) = {
             post: "/api/bg/issuing/task"

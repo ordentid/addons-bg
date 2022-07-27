@@ -43,6 +43,7 @@ type ApiServiceClient interface {
 	UpdateTransaction(ctx context.Context, in *UpdateTransactionRequest, opts ...grpc.CallOption) (*UpdateTransactionResponse, error)
 	GetTaskIssuing(ctx context.Context, in *GetTaskIssuingRequest, opts ...grpc.CallOption) (*GetTaskIssuingResponse, error)
 	GetTaskIssuingDetail(ctx context.Context, in *GetTaskIssuingDetailRequest, opts ...grpc.CallOption) (*GetTaskIssuingDetailResponse, error)
+	GetTaskIssuingFile(ctx context.Context, in *GetTaskIssuingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	CreateTaskIssuing(ctx context.Context, in *CreateTaskIssuingRequest, opts ...grpc.CallOption) (*CreateTaskIssuingResponse, error)
 }
 
@@ -234,6 +235,15 @@ func (c *apiServiceClient) GetTaskIssuingDetail(ctx context.Context, in *GetTask
 	return out, nil
 }
 
+func (c *apiServiceClient) GetTaskIssuingFile(ctx context.Context, in *GetTaskIssuingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
+	out := new(httpbody.HttpBody)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskIssuingFile", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *apiServiceClient) CreateTaskIssuing(ctx context.Context, in *CreateTaskIssuingRequest, opts ...grpc.CallOption) (*CreateTaskIssuingResponse, error) {
 	out := new(CreateTaskIssuingResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/CreateTaskIssuing", in, out, opts...)
@@ -267,6 +277,7 @@ type ApiServiceServer interface {
 	UpdateTransaction(context.Context, *UpdateTransactionRequest) (*UpdateTransactionResponse, error)
 	GetTaskIssuing(context.Context, *GetTaskIssuingRequest) (*GetTaskIssuingResponse, error)
 	GetTaskIssuingDetail(context.Context, *GetTaskIssuingDetailRequest) (*GetTaskIssuingDetailResponse, error)
+	GetTaskIssuingFile(context.Context, *GetTaskIssuingFileRequest) (*httpbody.HttpBody, error)
 	CreateTaskIssuing(context.Context, *CreateTaskIssuingRequest) (*CreateTaskIssuingResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
@@ -334,6 +345,9 @@ func (UnimplementedApiServiceServer) GetTaskIssuing(context.Context, *GetTaskIss
 }
 func (UnimplementedApiServiceServer) GetTaskIssuingDetail(context.Context, *GetTaskIssuingDetailRequest) (*GetTaskIssuingDetailResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskIssuingDetail not implemented")
+}
+func (UnimplementedApiServiceServer) GetTaskIssuingFile(context.Context, *GetTaskIssuingFileRequest) (*httpbody.HttpBody, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTaskIssuingFile not implemented")
 }
 func (UnimplementedApiServiceServer) CreateTaskIssuing(context.Context, *CreateTaskIssuingRequest) (*CreateTaskIssuingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskIssuing not implemented")
@@ -711,6 +725,24 @@ func _ApiService_GetTaskIssuingDetail_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_GetTaskIssuingFile_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTaskIssuingFileRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetTaskIssuingFile(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetTaskIssuingFile",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetTaskIssuingFile(ctx, req.(*GetTaskIssuingFileRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _ApiService_CreateTaskIssuing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(CreateTaskIssuingRequest)
 	if err := dec(in); err != nil {
@@ -815,6 +847,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetTaskIssuingDetail",
 			Handler:    _ApiService_GetTaskIssuingDetail_Handler,
+		},
+		{
+			MethodName: "GetTaskIssuingFile",
+			Handler:    _ApiService_GetTaskIssuingFile_Handler,
 		},
 		{
 			MethodName: "CreateTaskIssuing",

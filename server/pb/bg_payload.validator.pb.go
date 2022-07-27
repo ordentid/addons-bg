@@ -475,3 +475,9 @@ func (this *CreateTaskIssuingResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetTaskIssuingFileRequest) Validate() error {
+	return nil
+}
+func (this *GetTaskIssuingFileResponse) Validate() error {
+	return nil
+}
