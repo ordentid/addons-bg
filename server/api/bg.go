@@ -478,10 +478,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	logrus.Println(filter.Filter)
 	logrus.Println("---------------------------")
 
-	logrus.Println("---------------------------")
-	logrus.Println(filter.Data)
-	logrus.Println("---------------------------")
-
 	mappingORM, err := s.provider.GetMapping(ctx, filter)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -491,7 +487,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	for _, v := range mappingORM {
 		res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			if !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 		}
 
 		for _, d := range res.Data {
@@ -507,7 +505,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	}
 
 	logrus.Println("---------------------------")
-	logrus.Println(httpReqParamsOpt.BeneficiaryId)
+	logrus.Println(strings.Join(beneficiaryIDs, ","))
 	logrus.Println("---------------------------")
 
 	if req.Transaction != nil {
