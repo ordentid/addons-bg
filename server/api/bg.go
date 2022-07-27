@@ -750,27 +750,17 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	task := &pb.Task{
-		TaskID:             taskRes.Data.GetTaskID(),
-		Type:               taskRes.Data.GetType(),
-		Status:             taskRes.Data.GetStatus().String(),
-		Step:               taskRes.Data.GetStep().String(),
-		FeatureID:          taskRes.Data.GetFeatureID(),
-		LastApprovedByID:   taskRes.Data.GetLastApprovedByID(),
-		LastRejectedByID:   taskRes.Data.GetLastRejectedByID(),
-		LastApprovedByName: taskRes.Data.GetLastApprovedByName(),
-		LastRejectedByName: taskRes.Data.GetLastRejectedByName(),
-		CreatedByName:      taskRes.Data.GetCreatedByName(),
-		UpdatedByName:      taskRes.Data.GetUpdatedByName(),
-		Reasons:            taskRes.Data.GetReasons(),
-		Comment:            taskRes.Data.GetComment(),
-		CompanyID:          taskRes.Data.GetCompanyID(),
-		HoldingID:          taskRes.Data.GetHoldingID(),
-		CreatedAt:          taskRes.Data.GetCreatedAt(),
-		UpdatedAt:          taskRes.Data.GetUpdatedAt(),
-	}
+	logrus.Println("----------------------")
+	logrus.Println("Data")
+	logrus.Println(taskRes.Data.Data)
+	logrus.Println("----------------------")
 
-	switch task.Type {
+	logrus.Println("----------------------")
+	logrus.Println("Data Backup")
+	logrus.Println(taskRes.Data.DataBak)
+	logrus.Println("----------------------")
+
+	switch taskRes.Data.Type {
 	case "BG Mapping":
 
 		logrus.Println("----------------------")
