@@ -86,28 +86,6 @@ service ApiService {
         };
     };
 
-    rpc GetMapping(GetMappingRequest) returns (GetMappingResponse) {
-        option (google.api.http) = {
-            get: "/api/bg/mapping/data"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["BG Mapping"]
-            summary: "BG Mapping List"
-            description: "This API for BG Mapping list"
-        };
-    };
-
-    rpc DeleteMapping(DeleteMappingRequest) returns (DeleteMappingResponse) {
-        option (google.api.http) = {
-            post: "/api/bg/mapping/delete"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["BG Mapping"]
-            summary: "Delete BG Mapping"
-            description: "This API for delete BG Mapping"
-        };
-    };
-
     rpc GetTaskMapping(GetTaskMappingRequest) returns (GetTaskMappingResponse) {
         option (google.api.http) = {
             get: "/api/bg/mapping/task"
@@ -253,18 +231,6 @@ service ApiService {
             tags: ["Transaction"]
             summary: "Create Transaction"
             description: "This API for create transaction"
-        };
-    };
-
-    rpc UpdateTransaction(UpdateTransactionRequest) returns (UpdateTransactionResponse) {
-        option (google.api.http) = {
-            post: "/api/bg/transaction/data/{transactionID}"
-            body: "*"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Transaction"]
-            summary: "Update Transaction"
-            description: "This API for update transaction"
         };
     };
 

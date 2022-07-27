@@ -794,132 +794,6 @@
         ]
       }
     },
-    "/api/bg/mapping/data": {
-      "get": {
-        "summary": "BG Mapping List",
-        "description": "This API for BG Mapping list",
-        "operationId": "ApiService_GetMapping",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1GetMappingResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "data.id",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.companyID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.thirdPartyID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.beneficiaryID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.isMapped",
-            "in": "query",
-            "required": false,
-            "type": "boolean"
-          },
-          {
-            "name": "data.createdByID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.updatedByID",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "data.createdAt",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "data.updatedAt",
-            "in": "query",
-            "required": false,
-            "type": "string",
-            "format": "date-time"
-          },
-          {
-            "name": "filter",
-            "description": "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement =\u003e Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key:\u003e=value' =\u003e 'key \u003e= value' \n - 'key:\u003c=value' =\u003e 'key \u003c= value' \n - 'key1:\u003e=value1,key2:\u003c=value2' =\u003e 'key1 \u003e= value1 AND key2 \u003c= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          },
-          {
-            "name": "query",
-            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
-            "in": "query",
-            "required": false,
-            "type": "string"
-          }
-        ],
-        "tags": [
-          "BG Mapping"
-        ]
-      }
-    },
-    "/api/bg/mapping/delete": {
-      "post": {
-        "summary": "Delete BG Mapping",
-        "description": "This API for delete BG Mapping",
-        "operationId": "ApiService_DeleteMapping",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1DeleteMappingResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "tags": [
-          "BG Mapping"
-        ]
-      }
-    },
     "/api/bg/mapping/task": {
       "get": {
         "summary": "BG Mapping List",
@@ -1737,52 +1611,6 @@
           "Transaction"
         ]
       }
-    },
-    "/api/bg/transaction/data/{transactionID}": {
-      "post": {
-        "summary": "Update Transaction",
-        "description": "This API for update transaction",
-        "operationId": "ApiService_UpdateTransaction",
-        "responses": {
-          "200": {
-            "description": "A successful response.",
-            "schema": {
-              "$ref": "#/definitions/v1UpdateTransactionResponse"
-            }
-          },
-          "default": {
-            "description": "An unexpected error response.",
-            "schema": {
-              "$ref": "#/definitions/rpcStatus"
-            }
-          }
-        },
-        "parameters": [
-          {
-            "name": "transactionID",
-            "in": "path",
-            "required": true,
-            "type": "string",
-            "format": "uint64"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "required": true,
-            "schema": {
-              "type": "object",
-              "properties": {
-                "data": {
-                  "$ref": "#/definitions/v1Transaction"
-                }
-              }
-            }
-          }
-        ],
-        "tags": [
-          "Transaction"
-        ]
-      }
     }
   },
   "definitions": {
@@ -2118,8 +1946,9 @@
     "v1CreateTransactionRequest": {
       "type": "object",
       "properties": {
-        "data": {
-          "$ref": "#/definitions/v1Mapping"
+        "taskID": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -2137,22 +1966,10 @@
           "type": "string"
         },
         "data": {
-          "$ref": "#/definitions/v1Mapping"
-        }
-      }
-    },
-    "v1DeleteMappingResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "boolean"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Mapping"
+          }
         }
       }
     },
@@ -2244,27 +2061,6 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1BeneficiaryName"
-          }
-        }
-      }
-    },
-    "v1GetMappingResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "boolean"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
-        },
-        "data": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/v1Mapping"
           }
         }
       }
@@ -3030,24 +2826,6 @@
         },
         "channelName": {
           "type": "string"
-        }
-      }
-    },
-    "v1UpdateTransactionResponse": {
-      "type": "object",
-      "properties": {
-        "error": {
-          "type": "boolean"
-        },
-        "code": {
-          "type": "integer",
-          "format": "int64"
-        },
-        "message": {
-          "type": "string"
-        },
-        "data": {
-          "$ref": "#/definitions/v1Transaction"
         }
       }
     }

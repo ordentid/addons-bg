@@ -371,33 +371,7 @@ message GetTaskMappingFileRequest {
 	}];
     FormatTemplate fileFormat = 101;
 }
-
 message GetTaskMappingFileResponse {
-    bool error = 1;
-    uint32 code = 2;
-    string message = 3;
-}
-
-message GetMappingRequest {
-    Mapping data = 1;
-    string filter = 2 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-		description: "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement => Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key:>=value' => 'key >= value' \n - 'key:<=value' => 'key <= value' \n - 'key1:>=value1,key2:<=value2' => 'key1 >= value1 AND key2 <= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
-	}];
-    string query = 3 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-		description: "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement => Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
-	}];
-}
-message GetMappingResponse {
-    bool error = 1;
-    uint32 code = 2;
-    string message = 3;
-    repeated Mapping data = 4;
-}
-
-message DeleteMappingRequest {
-    repeated uint64 mappingIDs = 1;
-}
-message DeleteMappingResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
@@ -616,24 +590,13 @@ message GetTransactionDetailResponse {
 }
 
 message CreateTransactionRequest {
-    Mapping data = 1;
+    uint64 taskID = 1;
 }
 message CreateTransactionResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    Mapping data = 4;
-}
-
-message UpdateTransactionRequest {
-    uint64 transactionID = 1;
-    Transaction data = 2;
-}
-message UpdateTransactionResponse {
-    bool error = 1;
-    uint32 code = 2;
-    string message = 3;
-    Transaction data = 4;
+    repeated Mapping data = 4;
 }
 
 message GetTaskIssuingRequest {

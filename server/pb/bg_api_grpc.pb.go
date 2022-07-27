@@ -28,8 +28,6 @@ type ApiServiceClient interface {
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
 	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
-	GetMapping(ctx context.Context, in *GetMappingRequest, opts ...grpc.CallOption) (*GetMappingResponse, error)
-	DeleteMapping(ctx context.Context, in *DeleteMappingRequest, opts ...grpc.CallOption) (*DeleteMappingResponse, error)
 	GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error)
 	CreateTaskMapping(ctx context.Context, in *CreateTaskMappingRequest, opts ...grpc.CallOption) (*CreateTaskMappingResponse, error)
@@ -42,7 +40,6 @@ type ApiServiceClient interface {
 	GetTransaction(ctx context.Context, in *GetTransactionRequest, opts ...grpc.CallOption) (*GetTransactionResponse, error)
 	GetTransactionDetail(ctx context.Context, in *GetTransactionDetailRequest, opts ...grpc.CallOption) (*GetTransactionDetailResponse, error)
 	CreateTransaction(ctx context.Context, in *CreateTransactionRequest, opts ...grpc.CallOption) (*CreateTransactionResponse, error)
-	UpdateTransaction(ctx context.Context, in *UpdateTransactionRequest, opts ...grpc.CallOption) (*UpdateTransactionResponse, error)
 	GetTaskIssuing(ctx context.Context, in *GetTaskIssuingRequest, opts ...grpc.CallOption) (*GetTaskIssuingResponse, error)
 	GetTaskIssuingDetail(ctx context.Context, in *GetTaskIssuingDetailRequest, opts ...grpc.CallOption) (*GetTaskIssuingDetailResponse, error)
 	GetTaskIssuingFile(ctx context.Context, in *GetTaskIssuingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
@@ -96,24 +93,6 @@ func (c *apiServiceClient) GetThirdParty(ctx context.Context, in *GetThirdPartyR
 func (c *apiServiceClient) GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error) {
 	out := new(httpbody.HttpBody)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskMappingFile", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *apiServiceClient) GetMapping(ctx context.Context, in *GetMappingRequest, opts ...grpc.CallOption) (*GetMappingResponse, error) {
-	out := new(GetMappingResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetMapping", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *apiServiceClient) DeleteMapping(ctx context.Context, in *DeleteMappingRequest, opts ...grpc.CallOption) (*DeleteMappingResponse, error) {
-	out := new(DeleteMappingResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/DeleteMapping", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -228,15 +207,6 @@ func (c *apiServiceClient) CreateTransaction(ctx context.Context, in *CreateTran
 	return out, nil
 }
 
-func (c *apiServiceClient) UpdateTransaction(ctx context.Context, in *UpdateTransactionRequest, opts ...grpc.CallOption) (*UpdateTransactionResponse, error) {
-	out := new(UpdateTransactionResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/UpdateTransaction", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *apiServiceClient) GetTaskIssuing(ctx context.Context, in *GetTaskIssuingRequest, opts ...grpc.CallOption) (*GetTaskIssuingResponse, error) {
 	out := new(GetTaskIssuingResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetTaskIssuing", in, out, opts...)
@@ -282,8 +252,6 @@ type ApiServiceServer interface {
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
 	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error)
-	GetMapping(context.Context, *GetMappingRequest) (*GetMappingResponse, error)
-	DeleteMapping(context.Context, *DeleteMappingRequest) (*DeleteMappingResponse, error)
 	GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error)
 	CreateTaskMapping(context.Context, *CreateTaskMappingRequest) (*CreateTaskMappingResponse, error)
@@ -296,7 +264,6 @@ type ApiServiceServer interface {
 	GetTransaction(context.Context, *GetTransactionRequest) (*GetTransactionResponse, error)
 	GetTransactionDetail(context.Context, *GetTransactionDetailRequest) (*GetTransactionDetailResponse, error)
 	CreateTransaction(context.Context, *CreateTransactionRequest) (*CreateTransactionResponse, error)
-	UpdateTransaction(context.Context, *UpdateTransactionRequest) (*UpdateTransactionResponse, error)
 	GetTaskIssuing(context.Context, *GetTaskIssuingRequest) (*GetTaskIssuingResponse, error)
 	GetTaskIssuingDetail(context.Context, *GetTaskIssuingDetailRequest) (*GetTaskIssuingDetailResponse, error)
 	GetTaskIssuingFile(context.Context, *GetTaskIssuingFileRequest) (*httpbody.HttpBody, error)
@@ -322,12 +289,6 @@ func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPar
 }
 func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFile not implemented")
-}
-func (UnimplementedApiServiceServer) GetMapping(context.Context, *GetMappingRequest) (*GetMappingResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetMapping not implemented")
-}
-func (UnimplementedApiServiceServer) DeleteMapping(context.Context, *DeleteMappingRequest) (*DeleteMappingResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method DeleteMapping not implemented")
 }
 func (UnimplementedApiServiceServer) GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMapping not implemented")
@@ -364,9 +325,6 @@ func (UnimplementedApiServiceServer) GetTransactionDetail(context.Context, *GetT
 }
 func (UnimplementedApiServiceServer) CreateTransaction(context.Context, *CreateTransactionRequest) (*CreateTransactionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTransaction not implemented")
-}
-func (UnimplementedApiServiceServer) UpdateTransaction(context.Context, *UpdateTransactionRequest) (*UpdateTransactionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UpdateTransaction not implemented")
 }
 func (UnimplementedApiServiceServer) GetTaskIssuing(context.Context, *GetTaskIssuingRequest) (*GetTaskIssuingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskIssuing not implemented")
@@ -479,42 +437,6 @@ func _ApiService_GetTaskMappingFile_Handler(srv interface{}, ctx context.Context
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).GetTaskMappingFile(ctx, req.(*GetTaskMappingFileRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ApiService_GetMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(GetMappingRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ApiServiceServer).GetMapping(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/GetMapping",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).GetMapping(ctx, req.(*GetMappingRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _ApiService_DeleteMapping_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(DeleteMappingRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ApiServiceServer).DeleteMapping(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/DeleteMapping",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).DeleteMapping(ctx, req.(*DeleteMappingRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -735,24 +657,6 @@ func _ApiService_CreateTransaction_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_UpdateTransaction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateTransactionRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ApiServiceServer).UpdateTransaction(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/UpdateTransaction",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).UpdateTransaction(ctx, req.(*UpdateTransactionRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _ApiService_GetTaskIssuing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetTaskIssuingRequest)
 	if err := dec(in); err != nil {
@@ -853,14 +757,6 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ApiService_GetTaskMappingFile_Handler,
 		},
 		{
-			MethodName: "GetMapping",
-			Handler:    _ApiService_GetMapping_Handler,
-		},
-		{
-			MethodName: "DeleteMapping",
-			Handler:    _ApiService_DeleteMapping_Handler,
-		},
-		{
 			MethodName: "GetTaskMapping",
 			Handler:    _ApiService_GetTaskMapping_Handler,
 		},
@@ -907,10 +803,6 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CreateTransaction",
 			Handler:    _ApiService_CreateTransaction_Handler,
-		},
-		{
-			MethodName: "UpdateTransaction",
-			Handler:    _ApiService_UpdateTransaction_Handler,
 		},
 		{
 			MethodName: "GetTaskIssuing",
