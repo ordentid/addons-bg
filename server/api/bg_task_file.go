@@ -1055,7 +1055,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
 	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Status"}
-	widths := []float64{8, 30, 30, 30, 30, 30, 30, 30}
+	widths := []float64{8, 40, 40, 35, 35, 30, 30, 30}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
 	var (
@@ -1082,46 +1082,36 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	for index, v := range file.res.Data {
 
-		// curYear, _, _ := time.Now().Date()
-		// dateCreated := ""
-		// dateModified := ""
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
 
-		// err := v.Task.CreatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
+		bgType := bgTypeStrings[v.Data.Publishing.BgType.Number()]
 
-		// err = v.Task.UpdatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
+		ac := accounting.Accounting{Symbol: v.Data.Project.BgCurrency, Precision: 2}
+		bgAmount := ac.FormatMoney(v.Data.Project.BgAmount)
 
 		status := v.Task.Status
 
 		maxHt := lineHt
 		vals := []string{
 			fmt.Sprintf("%d", index+1),
-			// string(v.Company.CompanyName),
-			// // strconv.FormatUint(uint64(len(v.Data)), 10),
-			// dateCreated,
-			// dateModified,
-			// status,
 			"Test",
 			"Test",
-			"Test",
-			"Test",
-			"Test",
-			"Test",
+			v.Data.Applicant.Name,
+			v.Data.Applicant.BeneficiaryName,
+			bgType,
+			bgAmount,
 			status,
 		}
+
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
 			cell.str = vals[colJ]
@@ -1196,41 +1186,30 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 
 	for index, v := range file.res.Data {
 
-		// curYear, _, _ := time.Now().Date()
-		// dateCreated := ""
-		// dateModified := ""
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
 
-		// err := v.Task.CreatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
-
-		// err = v.Task.UpdatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
-
+		bgType := bgTypeStrings[v.Data.Publishing.BgType.Number()]
+		ac := accounting.Accounting{Symbol: v.Data.Project.BgCurrency, Precision: 2}
+		bgAmount := ac.FormatMoney(v.Data.Project.BgAmount)
 		status := v.Task.Status
+
 		row := []string{
 			fmt.Sprintf("%d", index+1),
-			// string(v.Company.CompanyName),
-			// // strconv.FormatUint(uint64(len(v.Data)), 10),
-			// dateCreated,
-			// dateModified,
 			"Test",
 			"Test",
-			"Test",
-			"Test",
-			"Test",
-			"Test",
+			v.Data.Applicant.Name,
+			v.Data.Applicant.BeneficiaryName,
+			bgType,
+			bgAmount,
 			status,
 		}
 		_ = w.Write(row)
@@ -1269,39 +1248,31 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 
 	for k, v := range file.res.Data {
 
-		// curYear, _, _ := time.Now().Date()
-		// dateCreated := ""
-		// dateModified := ""
+		bgTypeStrings := []string{
+			"Bid Bond",
+			"Advance Payment",
+			"Performance Bond",
+			"Goverment Payment Guarantee",
+			"Maintenance Bond",
+			"Procurement Bond",
+			"Transaction Risk Bond",
+			"Customs Bond",
+		}
 
-		// err := v.Task.CreatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.CreatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
-
-		// err = v.Task.UpdatedAt.CheckValid()
-		// if err == nil {
-		// 	year, _, _ := v.Task.UpdatedAt.AsTime().Date()
-		// 	yearDiff := curYear - year
-		// 	if yearDiff < 10 && yearDiff > -10 {
-		// 		dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
-		// 	}
-		// }
-
+		bgType := bgTypeStrings[v.Data.Publishing.BgType.Number()]
+		ac := accounting.Accounting{Symbol: v.Data.Project.BgCurrency, Precision: 2}
+		bgAmount := ac.FormatMoney(v.Data.Project.BgAmount)
 		status := v.Task.Status
+
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), "Test")
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), "Test")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), "Test")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), "Test")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), "Test")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), v.Data.Applicant.Name)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), v.Data.Applicant.BeneficiaryName)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), bgType)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), bgAmount)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), status)
-
 	}
 
 	f.SetActiveSheet(sheet)

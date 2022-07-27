@@ -979,7 +979,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		Filter:      req.GetFilter(),
 		Query:       req.GetQuery(),
 		CustomOrder: customOrder,
-		In:          me.TaskCompanyFilter,
+		In:          me.CompanyIDs,
 	}
 
 	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
