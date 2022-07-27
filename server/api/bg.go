@@ -166,15 +166,6 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		Data:    []*pb.BeneficiaryName{},
 	}
 
-	httpReqData := ApiInquiryBenficiaryRequest{
-		ThirdPartyID: req.ThirdPartyID,
-	}
-
-	httpReqParam, err := query.Values(httpReqData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
 		proxyURL, err := url.Parse("http://localhost:5100")
@@ -183,6 +174,15 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		}
 
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
+	}
+
+	httpReqData := ApiInquiryBenficiaryRequest{
+		ThirdPartyID: req.ThirdPartyID,
+	}
+
+	httpReqParam, err := query.Values(httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
@@ -489,18 +489,21 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	beneficiaryIDs := []string{}
 	for _, v := range mappingORM {
-		if !contains(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
-			beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+		res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		for _, d := range res.Data {
+			if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
+				beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
+			}
 		}
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
 		Page:  uint64(req.Page),
 		Limit: uint64(req.Limit),
-	}
-
-	if !contains(beneficiaryIDs, "10101010") {
-		httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
 	}
 
 	logrus.Println("---------------------------")
@@ -807,10 +810,10 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 				logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
 				logrus.Println("----------------------")
 
-				// _, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
-				// if err != nil {
-				// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				// }
+				_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
 
 				if len(taskMappingDigitalData) > 0 {
 					mappingFilter := []string{
