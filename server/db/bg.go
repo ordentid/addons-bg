@@ -23,6 +23,9 @@ type QueryBuilder struct {
 
 func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*pb.MappingORM, err error) {
 	query := p.db_main.Model(&pb.MappingORM{})
+	if v.Data != nil {
+		query = query.Where(v.Data)
+	}
 
 	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
 
@@ -47,6 +50,23 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 		}
 	}
 	return data, nil
+}
+
+func (p *GormProvider) DeleteMapping(ctx context.Context, ids []string) error {
+	if len(ids) > 0 {
+		logrus.Println("----------------------")
+		logrus.Println("Deleted Mapping Data:")
+		logrus.Println(ids)
+		logrus.Println("----------------------")
+		if err := p.db_main.Where("\"id\" IN (?)", ids).Delete(&pb.MappingORM{}).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return status.Error(codes.NotFound, "ID Not Found")
+			} else {
+				return status.Error(codes.Internal, "Internal Error : "+err.Error())
+			}
+		}
+	}
+	return nil
 }
 
 func (p *GormProvider) UpdateOrCreateMapping(ctx context.Context, data *pb.MappingORM) (*pb.MappingORM, error) {

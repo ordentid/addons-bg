@@ -439,6 +439,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Data:    []*pb.Transaction{},
 	}
 
+	result.Pagination = &pb.PaginationResponse{
+		Limit:      req.Limit,
+		Page:       req.Page,
+		TotalRows:  0,
+		TotalPages: 0,
+	}
+
 	me, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
@@ -454,9 +461,26 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
-	filter := &db.ListFilter{
-		Data: &pb.MappingORM{CompanyID: me.CompanyID},
+	filterData := []string{
+		"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+		"is_mapped:true",
 	}
+
+	if req.Transaction.ThirdPartyID > 0 {
+		filterData = append(filterData, "third_party_id:"+strconv.FormatUint(req.Transaction.ThirdPartyID, 10))
+	}
+
+	filter := &db.ListFilter{
+		Filter: strings.Join(filterData, ","),
+	}
+
+	logrus.Println("---------------------------")
+	logrus.Println(filter.Filter)
+	logrus.Println("---------------------------")
+
+	logrus.Println("---------------------------")
+	logrus.Println(filter.Data)
+	logrus.Println("---------------------------")
 
 	mappingORM, err := s.provider.GetMapping(ctx, filter)
 	if err != nil {
@@ -465,7 +489,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	beneficiaryIDs := []string{}
 	for _, v := range mappingORM {
-		beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+		if !contains(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
+			beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+		}
 	}
 
 	httpReqParamsOpt := ApiListTransactionRequest{
@@ -473,7 +499,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Limit: uint64(req.Limit),
 	}
 
-	httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+	if !contains(beneficiaryIDs, "10101010") {
+		httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
+	}
+
+	logrus.Println("---------------------------")
+	logrus.Println(httpReqParamsOpt.BeneficiaryId)
+	logrus.Println("---------------------------")
 
 	if req.Transaction != nil {
 		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
@@ -509,7 +541,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	logrus.Println("---------------------------")
 	logrus.Println(httpReqParams.Encode())
+	logrus.Println("---------------------------")
 
 	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
@@ -537,43 +571,43 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	if httpResData.ResponseCode != "00" {
 		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-	}
+		// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+	} else {
+		for _, d := range httpResData.ResponseData {
+			transactionPB := &pb.Transaction{
+				TransactionID:     d.TransactionId,
+				ThirdPartyID:      d.ThirdPartyId,
+				ThirdPartyName:    d.ThirdPartyName,
+				ReferenceNo:       d.ReferenceNo,
+				RegistrationNo:    d.RegistrationNo,
+				ApplicantName:     d.ApplicantName,
+				BeneficiaryID:     d.BeneficiaryId,
+				BeneficiaryName:   d.BeneficiaryName,
+				IssueDate:         d.IssueDate,
+				EffectiveDate:     d.EffectiveDate,
+				ExpiryDate:        d.ExpiryDate,
+				ClaimPeriod:       d.ClaimPeriod,
+				ClosingDate:       d.ClosingDate,
+				Currency:          d.Currency,
+				Amount:            d.Amount,
+				CreatedDate:       d.CreatedDate,
+				ModifiedDate:      d.ModifiedDate,
+				Remark:            d.Remark,
+				Status:            d.Status,
+				ChannelID:         d.ChannelId,
+				ChannelName:       d.ChannelName,
+				TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			}
 
-	for _, d := range httpResData.ResponseData {
-		transactionPB := &pb.Transaction{
-			TransactionID:     d.TransactionId,
-			ThirdPartyID:      d.ThirdPartyId,
-			ThirdPartyName:    d.ThirdPartyName,
-			ReferenceNo:       d.ReferenceNo,
-			RegistrationNo:    d.RegistrationNo,
-			ApplicantName:     d.ApplicantName,
-			BeneficiaryID:     d.BeneficiaryId,
-			BeneficiaryName:   d.BeneficiaryName,
-			IssueDate:         d.IssueDate,
-			EffectiveDate:     d.EffectiveDate,
-			ExpiryDate:        d.ExpiryDate,
-			ClaimPeriod:       d.ClaimPeriod,
-			ClosingDate:       d.ClosingDate,
-			Currency:          d.Currency,
-			Amount:            d.Amount,
-			CreatedDate:       d.CreatedDate,
-			ModifiedDate:      d.ModifiedDate,
-			Remark:            d.Remark,
-			Status:            d.Status,
-			ChannelID:         d.ChannelId,
-			ChannelName:       d.ChannelName,
-			TransactionTypeID: pb.BgType(d.TransactionTypeId),
+			result.Data = append(result.Data, transactionPB)
 		}
 
-		result.Data = append(result.Data, transactionPB)
-	}
-
-	result.Pagination = &pb.PaginationResponse{
-		Limit:      int32(httpResData.Pagination.Limit),
-		Page:       int32(httpResData.Pagination.Page),
-		TotalRows:  int64(httpResData.Pagination.TotalRecord),
-		TotalPages: int32(httpResData.Pagination.TotalPage),
+		result.Pagination = &pb.PaginationResponse{
+			Limit:      int32(httpResData.Pagination.Limit),
+			Page:       int32(httpResData.Pagination.Page),
+			TotalRows:  int64(httpResData.Pagination.TotalRecord),
+			TotalPages: int32(httpResData.Pagination.TotalPage),
+		}
 	}
 
 	return result, nil
@@ -738,10 +772,166 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	switch task.Type {
 	case "BG Mapping":
+
+		logrus.Println("----------------------")
+		logrus.Println("Save BG Mapping")
+		logrus.Println("----------------------")
+
 		taskData := []*pb.MappingData{}
 		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		if taskRes.Data.DataBak != "" && taskRes.Data.DataBak != "{}" {
+			taskDataBak := []*pb.MappingData{}
+			json.Unmarshal([]byte(taskRes.Data.GetDataBak()), &taskDataBak)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			ids := []string{}
+			for _, v := range taskDataBak {
+
+				logrus.Println("----------------------")
+				logrus.Println("Get Mapping Digital Task Data")
+				logrus.Println("----------------------")
+
+				taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: "data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10), Task: &task_pb.Task{Type: "BG Mapping Digital", CompanyID: v.CompanyID}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				logrus.Println("----------------------")
+				logrus.Println("Mapping Digital Task Data:")
+				logrus.Println(taskMappingDigitalRes.Data)
+				logrus.Println("----------------------")
+
+				for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
+					taskMappingDigitalData := []*pb.MappingDigitalData{}
+					json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskMappingDigitalData)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					logrus.Println("----------------------")
+					logrus.Println("Delete Mapping Digital Task: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
+					logrus.Println("----------------------")
+
+					_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					if len(taskMappingDigitalData) > 0 {
+						mappingFilter := []string{
+							"company_id:" + strconv.FormatUint(taskMappingDigitalData[0].CompanyID, 10),
+							"third_party_id:" + strconv.FormatUint(taskMappingDigitalData[0].ThirdPartyID, 10),
+						}
+
+						mappingListFilter := &db.ListFilter{
+							Filter: strings.Join(mappingFilter, ","),
+						}
+
+						mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+						if err != nil {
+							if !errors.Is(err, gorm.ErrRecordNotFound) {
+								return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+							}
+						}
+
+						for _, mappingORM := range mappingORMs {
+							if mappingORM.Id > 0 {
+								if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+									ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+								}
+							}
+						}
+					}
+				}
+
+				logrus.Println("----------------------")
+				logrus.Println("Deleted Mapping Digital Data:")
+				logrus.Println(ids)
+				logrus.Println("----------------------")
+
+				httpReqParamsOpt := ApiInquiryBenficiaryRequest{
+					ThirdPartyID: v.ThirdPartyID,
+				}
+
+				httpReqParams, err := query.Values(httpReqParamsOpt)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				logrus.Println(httpReqParams.Encode())
+
+				httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParams.Encode(), nil)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+				httpRes, err := client.Do(httpReq)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+				defer httpRes.Body.Close()
+
+				var httpResData ApiInquiryBenficiaryResponse
+				httpResBody, err := ioutil.ReadAll(httpRes.Body)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				err = json.Unmarshal(httpResBody, &httpResData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				if httpResData.ResponseCode != "00" {
+					logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+					if err != nil {
+						if !errors.Is(err, gorm.ErrRecordNotFound) {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+					}
+
+					if mappingORM.Id > 0 {
+						if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+							ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+						}
+					}
+				} else {
+					for _, d := range httpResData.ResponseData {
+						mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID, CompanyID: v.CompanyID})
+						if err != nil {
+							if !errors.Is(err, gorm.ErrRecordNotFound) {
+								return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+							}
+						}
+
+						if mappingORM.Id > 0 {
+							if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+								ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+							}
+						}
+
+					}
+				}
+			}
+
+			logrus.Println("----------------------")
+			logrus.Println("Deleted Mapping Data:")
+			logrus.Println(ids)
+			logrus.Println("----------------------")
+
+			err = s.provider.DeleteMapping(ctx, ids)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 		}
 
 		for _, v := range taskData {
@@ -782,10 +972,43 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			if httpResData.ResponseCode != "00" {
 				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-				// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
+				data := &pb.MappingORM{
+					CompanyID:     v.CompanyID,
+					ThirdPartyID:  v.ThirdPartyID,
+					BeneficiaryID: 10101010,
+					IsMapped:      false,
+					CreatedByID:   me.UserID,
+					UpdatedByID:   me.UserID,
+				}
+
+				if v.IsAllowAllBeneficiary {
+					data.IsMapped = true
+				}
+
+				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if mappingORM.Id > 0 {
+					data.Id = mappingORM.Id
+				}
+
+				mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				mappingPB, err := mappingORM.ToPB(ctx)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				result.Data = append(result.Data, &mappingPB)
 			} else {
 				for _, d := range httpResData.ResponseData {
-
 					data := &pb.MappingORM{
 						CompanyID:     v.CompanyID,
 						ThirdPartyID:  v.ThirdPartyID,
@@ -821,10 +1044,8 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 					}
 
 					result.Data = append(result.Data, &mappingPB)
-
 				}
 			}
-
 		}
 	case "BG Mapping Digital":
 		taskData := []*pb.MappingDigitalData{}
@@ -833,83 +1054,78 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		for _, v := range taskData {
-			httpReqParamsOpt := ApiInquiryBenficiaryRequest{
-				ThirdPartyID: v.ThirdPartyID,
-			}
-
-			httpReqParams, err := query.Values(httpReqParamsOpt)
+		if taskRes.Data.DataBak != "" && taskRes.Data.DataBak != "{}" {
+			taskDataBak := []*pb.MappingDigitalData{}
+			json.Unmarshal([]byte(taskRes.Data.GetDataBak()), &taskData)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			logrus.Println(httpReqParams.Encode())
+			ids := []string{}
+			for _, v := range taskDataBak {
+				data := &pb.MappingORM{
+					CompanyID:     v.CompanyID,
+					ThirdPartyID:  v.ThirdPartyID,
+					BeneficiaryID: v.BeneficiaryId,
+					IsMapped:      true,
+					CreatedByID:   me.UserID,
+					UpdatedByID:   me.UserID,
+				}
 
-			httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParams.Encode(), nil)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-			httpRes, err := client.Do(httpReq)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-			defer httpRes.Body.Close()
-
-			var httpResData ApiInquiryBenficiaryResponse
-			httpResBody, err := ioutil.ReadAll(httpRes.Body)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			err = json.Unmarshal(httpResBody, &httpResData)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			if httpResData.ResponseCode != "00" {
-				logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-				// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-			} else {
-				for _, d := range httpResData.ResponseData {
-
-					data := &pb.MappingORM{
-						CompanyID:     v.CompanyID,
-						ThirdPartyID:  v.ThirdPartyID,
-						BeneficiaryID: d.BeneficiaryID,
-						IsMapped:      true,
-						CreatedByID:   me.UserID,
-						UpdatedByID:   me.UserID,
-					}
-
-					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: d.BeneficiaryID, CompanyID: v.CompanyID})
-					if err != nil {
-						if !errors.Is(err, gorm.ErrRecordNotFound) {
-							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-						}
-					}
-
-					if mappingORM.Id > 0 {
-						data.Id = mappingORM.Id
-					}
-
-					mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
-					if err != nil {
+				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
+				}
 
-					mappingPB, err := mappingORM.ToPB(ctx)
-					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
+				if mappingORM.Id > 0 {
+					data.Id = mappingORM.Id
+				}
 
-					result.Data = append(result.Data, &mappingPB)
-
+				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
 				}
 			}
 
+			err = s.provider.DeleteMapping(ctx, ids)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+		}
+
+		for _, v := range taskData {
+			data := &pb.MappingORM{
+				CompanyID:     v.CompanyID,
+				ThirdPartyID:  v.ThirdPartyID,
+				BeneficiaryID: v.BeneficiaryId,
+				IsMapped:      true,
+				CreatedByID:   me.UserID,
+				UpdatedByID:   me.UserID,
+			}
+
+			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			if mappingORM.Id > 0 {
+				data.Id = mappingORM.Id
+			}
+
+			mappingORM, err = s.provider.UpdateOrCreateMapping(ctx, data)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			mappingPB, err := mappingORM.ToPB(ctx)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			result.Data = append(result.Data, &mappingPB)
 		}
 	}
 

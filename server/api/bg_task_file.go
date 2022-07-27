@@ -661,12 +661,13 @@ func (s *Server) GetTransactionFile(ctx context.Context, req *pb.GetTransactionF
 	result := &httpbody.HttpBody{}
 
 	reqPB := &pb.GetTransactionRequest{
-		Limit:  req.Limit,
-		Page:   req.Page,
-		Sort:   req.Sort,
-		Dir:    req.Dir,
-		Filter: req.Filter,
-		Query:  req.Query,
+		Transaction: req.Transaction,
+		Limit:       req.Limit,
+		Page:        req.Page,
+		Sort:        req.Sort,
+		Dir:         req.Dir,
+		Filter:      req.Filter,
+		Query:       req.Query,
 	}
 
 	resPB, err := s.GetTransaction(ctx, reqPB)
