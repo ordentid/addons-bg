@@ -485,16 +485,22 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	beneficiaryIDs := []string{}
 	for _, v := range mappingORM {
-		res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
-		if err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		if v.BeneficiaryID == 10101010 {
+			res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
 			}
-		}
 
-		for _, d := range res.Data {
-			if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
-				beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
+			for _, d := range res.Data {
+				if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
+					beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
+				}
+			}
+		} else {
+			if !contains(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
+				beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
 			}
 		}
 	}

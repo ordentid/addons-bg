@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Wed Jul 27 15:53:01 2022
+# Make data base, printed on Wed Jul 27 18:06:45 2022
 
 # Variables
 
@@ -39,7 +38,6 @@ DOCKERCMD = docker
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
 # makefile (from `Makefile', line 3)
- 
 DOCKER_CONTAINER_NAME = addons-bg-service
 # environment
 __CFBundleIdentifier = com.microsoft.VSCode
@@ -162,7 +160,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 39688
+VSCODE_PID = 64849
 # variable set hash-table stats:
 # Load=75/1024=7%, Rehash=0, Collisions=2/107=2%
 
@@ -206,7 +204,6 @@ proto-gen:
 	--proto_path=./proto/libs \
 	--plugin=$(go env GOPATH)/bin/protoc-gen-go.exe \
 	--plugin=$(go env GOPATH)/bin/protoc-gen-govalidators.exe \
- 
 	--go_out=./server/pb --go_opt paths=source_relative \
 	--govalidators_out=./server
 	protoc --proto_path=./proto ./proto/bg_api.proto \
@@ -284,6 +281,7 @@ vet:
 	
 
 default: depend
+ 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -403,6 +401,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Jul 27 15:53:01 2022
+# Finished Make data base on Wed Jul 27 18:06:45 2022
 
  
