@@ -1214,9 +1214,43 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 		for _, v := range taskData {
 
-			var mappingORM *pb.MappingORM
+			mappingFilter := []string{
+				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+				"third_party_id:" + strconv.FormatUint(v.ThirdPartyID, 10),
+			}
 
-			mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+			mappingListFilter := &db.ListFilter{
+				Filter: strings.Join(mappingFilter, ","),
+			}
+
+			mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			byID := uint64(0)
+
+			for _, mappingORM := range mappingORMs {
+				if mappingORM.Id > 0 {
+					byID = mappingORM.CreatedByID
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
+				}
+			}
+
+			data := &pb.MappingORM{
+				CompanyID:     v.CompanyID,
+				ThirdPartyID:  v.ThirdPartyID,
+				BeneficiaryID: 10101010,
+				IsMapped:      false,
+				CreatedByID:   byID,
+				UpdatedByID:   byID,
+			}
+
+			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
 			if err != nil {
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1224,22 +1258,12 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 			}
 
 			if mappingORM.Id > 0 {
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
-				}
+				data.Id = mappingORM.Id
 			}
 
-			mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+			_, err = s.provider.UpdateOrCreateMapping(ctx, data)
 			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-			}
-
-			if mappingORM.Id > 0 {
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
-				}
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
 		}
