@@ -758,90 +758,99 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 		for _, v := range taskDataBak {
 
-			logrus.Println("----------------------")
-			logrus.Println("Get Mapping Digital Task Data")
-			logrus.Println(v)
-			logrus.Println("----------------------")
+			for _, check := range taskData {
 
-			filter := []string{
-				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
-				"data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10),
-			}
+				if check.ThirdPartyID != v.ThirdPartyID {
 
-			taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
-			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-			}
+					logrus.Println("----------------------")
+					logrus.Println("Get Mapping Digital Task Data")
+					logrus.Println(v)
+					logrus.Println("----------------------")
 
-			logrus.Println("----------------------")
-			logrus.Println("Mapping Digital Task Response:")
-			logrus.Println(taskMappingDigitalRes.Data)
-			logrus.Println("----------------------")
-
-			for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
-
-				taskMappingDigitalData := []*pb.MappingDigitalData{}
-				json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskMappingDigitalData)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				logrus.Println("----------------------")
-				logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
-				logrus.Println("----------------------")
-
-				_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				if len(taskMappingDigitalData) > 0 {
-					mappingFilter := []string{
-						"company_id:" + strconv.FormatUint(taskMappingDigitalData[0].CompanyID, 10),
-						"third_party_id:" + strconv.FormatUint(taskMappingDigitalData[0].ThirdPartyID, 10),
+					filter := []string{
+						"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+						"data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10),
 					}
 
-					mappingListFilter := &db.ListFilter{
-						Filter: strings.Join(mappingFilter, ","),
-					}
-
-					mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+					taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
 					if err != nil {
 						if !errors.Is(err, gorm.ErrRecordNotFound) {
 							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 						}
 					}
 
-					for _, mappingORM := range mappingORMs {
-						if mappingORM.Id > 0 {
-							if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-								ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					logrus.Println("----------------------")
+					logrus.Println("Mapping Digital Task Response:")
+					logrus.Println(taskMappingDigitalRes.Data)
+					logrus.Println("----------------------")
+
+					for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
+
+						taskMappingDigitalData := []*pb.MappingDigitalData{}
+						json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskMappingDigitalData)
+						if err != nil {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+
+						logrus.Println("----------------------")
+						logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
+						logrus.Println("----------------------")
+
+						_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
+						if err != nil {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+
+						if len(taskMappingDigitalData) > 0 {
+							mappingFilter := []string{
+								"company_id:" + strconv.FormatUint(taskMappingDigitalData[0].CompanyID, 10),
+								"third_party_id:" + strconv.FormatUint(taskMappingDigitalData[0].ThirdPartyID, 10),
+							}
+
+							mappingListFilter := &db.ListFilter{
+								Filter: strings.Join(mappingFilter, ","),
+							}
+
+							mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+							if err != nil {
+								if !errors.Is(err, gorm.ErrRecordNotFound) {
+									return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+								}
+							}
+
+							for _, mappingORM := range mappingORMs {
+								if mappingORM.Id > 0 {
+									if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+										ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+									}
+								}
 							}
 						}
+
 					}
+
+					logrus.Println("----------------------")
+					logrus.Println("To Delete Mapping Digital Data:")
+					logrus.Println(ids)
+					logrus.Println("----------------------")
+
+					mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+					if err != nil {
+						if !errors.Is(err, gorm.ErrRecordNotFound) {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+					}
+
+					if mappingORM.Id > 0 {
+						if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+							ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+						}
+					}
+
 				}
 
 			}
 
-			logrus.Println("----------------------")
-			logrus.Println("To Delete Mapping Digital Data:")
-			logrus.Println(ids)
-			logrus.Println("----------------------")
-
-			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
-			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-			}
-
-			if mappingORM.Id > 0 {
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
-				}
-			}
 		}
 
 		logrus.Println("----------------------")
