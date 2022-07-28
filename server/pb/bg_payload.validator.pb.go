@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
+	_ "google.golang.org/protobuf/types/known/timestamppb"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -407,6 +407,34 @@ func (this *GetTransactionDetailResponse) Validate() error {
 	return nil
 }
 func (this *CreateTransactionRequest) Validate() error {
+	for _, item := range this.MappingData {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingData", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDataBackup {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDataBackup", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDigitalData {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDigitalData", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDigitalDataBackup {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDigitalDataBackup", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *CreateTransactionResponse) Validate() error {
@@ -420,6 +448,34 @@ func (this *CreateTransactionResponse) Validate() error {
 	return nil
 }
 func (this *DeleteTransactionRequest) Validate() error {
+	for _, item := range this.MappingData {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingData", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDataBackup {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDataBackup", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDigitalData {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDigitalData", err)
+			}
+		}
+	}
+	for _, item := range this.MappingDigitalDataBackup {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("MappingDigitalDataBackup", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *DeleteTransactionResponse) Validate() error {

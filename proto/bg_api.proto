@@ -224,7 +224,7 @@ service ApiService {
 
     rpc CreateTransaction(CreateTransactionRequest) returns (CreateTransactionResponse) {
         option (google.api.http) = {
-            post: "/api/bg/transaction/data"
+            post: "/api/bg/transaction/data/create"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
@@ -236,7 +236,7 @@ service ApiService {
 
     rpc DeleteTransaction(DeleteTransactionRequest) returns (DeleteTransactionResponse) {
         option (google.api.http) = {
-            delete: "/api/bg/transaction/data/{taskID}"
+            post: "/api/bg/transaction/data/delete"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["Transaction"]

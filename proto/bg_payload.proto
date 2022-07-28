@@ -590,7 +590,11 @@ message GetTransactionDetailResponse {
 }
 
 message CreateTransactionRequest {
-    uint64 taskID = 1;
+    string type = 1;
+    repeated MappingData mappingData = 2;
+    repeated MappingData mappingDataBackup = 3;
+    repeated MappingDigitalData mappingDigitalData = 4;
+    repeated MappingDigitalData mappingDigitalDataBackup = 5;
 }
 message CreateTransactionResponse {
     bool error = 1;
@@ -600,7 +604,11 @@ message CreateTransactionResponse {
 }
 
 message DeleteTransactionRequest {
-    uint64 taskID = 1;
+    string type = 1;
+    repeated MappingData mappingData = 2;
+    repeated MappingData mappingDataBackup = 3;
+    repeated MappingDigitalData mappingDigitalData = 4;
+    repeated MappingDigitalData mappingDigitalDataBackup = 5;
 }
 message DeleteTransactionResponse {
     bool error = 1;

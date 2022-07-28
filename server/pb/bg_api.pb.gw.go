@@ -939,25 +939,19 @@ func local_request_ApiService_CreateTransaction_0(ctx context.Context, marshaler
 
 }
 
+var (
+	filter_ApiService_DeleteTransaction_0 = &utilities.DoubleArray{Encoding: map[string]int{}, Base: []int(nil), Check: []int(nil)}
+)
+
 func request_ApiService_DeleteTransaction_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq DeleteTransactionRequest
 	var metadata runtime.ServerMetadata
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["taskID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "taskID")
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	protoReq.TaskID, err = runtime.Uint64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "taskID", err)
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_DeleteTransaction_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := client.DeleteTransaction(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -969,21 +963,11 @@ func local_request_ApiService_DeleteTransaction_0(ctx context.Context, marshaler
 	var protoReq DeleteTransactionRequest
 	var metadata runtime.ServerMetadata
 
-	var (
-		val string
-		ok  bool
-		err error
-		_   = err
-	)
-
-	val, ok = pathParams["taskID"]
-	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "taskID")
+	if err := req.ParseForm(); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
-
-	protoReq.TaskID, err = runtime.Uint64(val)
-	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "taskID", err)
+	if err := runtime.PopulateQueryParameters(&protoReq, req.Form, filter_ApiService_DeleteTransaction_0); err != nil {
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
 	msg, err := server.DeleteTransaction(ctx, &protoReq)
@@ -1683,7 +1667,7 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/CreateTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/CreateTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -1700,13 +1684,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("DELETE", pattern_ApiService_DeleteTransaction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_DeleteTransaction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/DeleteTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/{taskID}"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/DeleteTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2243,7 +2227,7 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/CreateTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/CreateTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/create"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2259,11 +2243,11 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("DELETE", pattern_ApiService_DeleteTransaction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_DeleteTransaction_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/DeleteTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/{taskID}"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/DeleteTransaction", runtime.WithHTTPPathPattern("/api/bg/transaction/data/delete"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2419,9 +2403,9 @@ var (
 
 	pattern_ApiService_GetTransactionDetail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "transaction", "data", "referenceNo"}, ""))
 
-	pattern_ApiService_CreateTransaction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "transaction", "data"}, ""))
+	pattern_ApiService_CreateTransaction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "bg", "transaction", "data", "create"}, ""))
 
-	pattern_ApiService_DeleteTransaction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "transaction", "data", "taskID"}, ""))
+	pattern_ApiService_DeleteTransaction_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4}, []string{"api", "bg", "transaction", "data", "delete"}, ""))
 
 	pattern_ApiService_GetTaskIssuing_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "bg", "issuing", "task"}, ""))
 
