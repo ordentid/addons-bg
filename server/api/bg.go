@@ -155,6 +155,73 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		Data:    []*pb.ApplicantName{},
 	}
 
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	taskFilter := &task_pb.Task{
+		Type: "BG Issuing",
+	}
+
+	filter := []string{
+		"data.publishing.thirdPartyID:" + strconv.FormatUint(req.ThirdPartyID, 10),
+	}
+
+	dataReq := &task_pb.ListTaskRequest{
+		Task:   taskFilter,
+		Filter: strings.Join(filter, ","),
+		In:     me.CompanyIDs,
+	}
+
+	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	names := []string{}
+
+	for _, v := range dataList.Data {
+
+		taskData := pb.IssuingData{}
+		json.Unmarshal([]byte(v.Data), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		if !contains(names, taskData.Applicant.Name) {
+			names = append(names, taskData.Applicant.Name)
+		}
+
+	}
+
+	for _, v := range names {
+
+		result.Data = append(result.Data, &pb.ApplicantName{
+			Name: v,
+		})
+
+	}
+
 	return result, nil
 }
 

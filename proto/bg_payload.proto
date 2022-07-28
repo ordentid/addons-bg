@@ -313,7 +313,6 @@ message GetBeneficiaryNameResponse {
 
 message ApplicantName {
     string name = 1;
-    uint64 total = 2;
 }
 message GetApplicantNameRequest {
     uint64 thirdPartyID = 1;
