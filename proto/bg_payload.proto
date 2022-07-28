@@ -278,7 +278,7 @@ message DocumentData {
     string tender = 2;
     string sp = 3;
     string bg = 4;
-    repeated string other = 5;
+    string other = 5;
 }
 
 message ApiPaginationResponse {
