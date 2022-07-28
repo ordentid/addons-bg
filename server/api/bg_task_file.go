@@ -716,7 +716,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
 	fields := []string{"No", "Reference Number", "Registration Number", "Third Party", "Applicant", "Beneficiary", "Date Issued", "Effective Date", "Maturity Date", "Claim Period", "BG Type", "Amount", "BG Status"}
-	widths := []float64{8, 30, 35, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20}
+	widths := []float64{8, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TC"}
 
 	var (
@@ -796,6 +796,9 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+maxHt+lineHt) {
 			pdf.AddPage()
+			for i, header := range fields {
+				pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+			}
 			x, y = pdf.GetXY()
 		}
 
