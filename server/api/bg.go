@@ -758,17 +758,21 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 		for _, v := range taskDataBak {
 
-			needDelete := false
+			needDelete := true
 
 			for _, check := range taskData {
 
-				if check.ThirdPartyID != v.ThirdPartyID {
+				if check.ThirdPartyID == v.ThirdPartyID {
 
-					needDelete = true
+					needDelete = false
+					logrus.Println("Break at: " + strconv.FormatUint(check.ThirdPartyID, 10))
+					break
 
 				}
 
 			}
+
+			logrus.Println(needDelete)
 
 			if needDelete {
 
