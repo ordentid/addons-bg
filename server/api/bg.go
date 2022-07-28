@@ -915,19 +915,19 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 				logrus.Println(ids)
 				logrus.Println("----------------------")
 
-				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
-				if err != nil {
-					if !errors.Is(err, gorm.ErrRecordNotFound) {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-				}
+			}
 
-				if mappingORM.Id > 0 {
-					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
-					}
+			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
+			}
 
+			if mappingORM.Id > 0 {
+				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+				}
 			}
 
 		}
@@ -991,31 +991,27 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 		for _, v := range taskDataBak {
 
-			var mappingORM *pb.MappingORM
+			mappingFilter := []string{
+				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+				"third_party_id:" + strconv.FormatUint(v.ThirdPartyID, 10),
+			}
 
-			mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+			mappingListFilter := &db.ListFilter{
+				Filter: strings.Join(mappingFilter, ","),
+			}
+
+			mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
 			if err != nil {
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
 			}
 
-			if mappingORM.Id > 0 {
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
-				}
-			}
-
-			mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
-			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-			}
-
-			if mappingORM.Id > 0 {
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+			for _, mappingORM := range mappingORMs {
+				if mappingORM.Id > 0 {
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
 				}
 			}
 
