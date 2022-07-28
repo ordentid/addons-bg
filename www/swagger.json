@@ -1611,6 +1611,39 @@
           "Transaction"
         ]
       }
+    },
+    "/api/bg/transaction/data/{taskID}": {
+      "delete": {
+        "summary": "Create Transaction",
+        "description": "This API for create transaction",
+        "operationId": "ApiService_DeleteTransaction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1DeleteTransactionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          }
+        ],
+        "tags": [
+          "Transaction"
+        ]
+      }
     }
   },
   "definitions": {
@@ -1953,6 +1986,27 @@
       }
     },
     "v1CreateTransactionResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Mapping"
+          }
+        }
+      }
+    },
+    "v1DeleteTransactionResponse": {
       "type": "object",
       "properties": {
         "error": {

@@ -234,6 +234,17 @@ service ApiService {
         };
     };
 
+    rpc DeleteTransaction(DeleteTransactionRequest) returns (DeleteTransactionResponse) {
+        option (google.api.http) = {
+            delete: "/api/bg/transaction/data/{taskID}"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Transaction"]
+            summary: "Create Transaction"
+            description: "This API for create transaction"
+        };
+    };
+
     rpc GetTaskIssuing(GetTaskIssuingRequest) returns (GetTaskIssuingResponse) {
         option (google.api.http) = {
             get: "/api/bg/issuing/task"

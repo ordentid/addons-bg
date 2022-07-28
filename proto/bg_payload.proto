@@ -599,6 +599,16 @@ message CreateTransactionResponse {
     repeated Mapping data = 4;
 }
 
+message DeleteTransactionRequest {
+    uint64 taskID = 1;
+}
+message DeleteTransactionResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated Mapping data = 4;
+}
+
 message GetTaskIssuingRequest {
     TaskStatus status = 1;
     TaskStep step = 2;

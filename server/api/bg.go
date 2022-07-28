@@ -938,16 +938,9 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			for _, v := range taskDataBak {
 
-				data := &pb.MappingORM{
-					CompanyID:     v.CompanyID,
-					ThirdPartyID:  v.ThirdPartyID,
-					BeneficiaryID: v.BeneficiaryId,
-					IsMapped:      true,
-					CreatedByID:   me.UserID,
-					UpdatedByID:   me.UserID,
-				}
+				var mappingORM *pb.MappingORM
 
-				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+				mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
 				if err != nil {
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -955,11 +948,22 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 				}
 
 				if mappingORM.Id > 0 {
-					data.Id = mappingORM.Id
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
 				}
 
-				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
-					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+				mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if mappingORM.Id > 0 {
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
 				}
 
 			}
@@ -1004,6 +1008,234 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 
 			result.Data = append(result.Data, &mappingPB)
+
+		}
+
+	}
+
+	return result, nil
+}
+
+func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactionRequest) (*pb.DeleteTransactionResponse, error) {
+	result := &pb.DeleteTransactionResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	// me, err := s.manager.GetMeFromJWT(ctx, "")
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("----------------------")
+	logrus.Println("Data")
+	logrus.Println(taskRes.Data.Data)
+	logrus.Println("----------------------")
+
+	logrus.Println("----------------------")
+	logrus.Println("Data Backup")
+	logrus.Println(taskRes.Data.DataBak)
+	logrus.Println("----------------------")
+
+	switch taskRes.Data.Type {
+	case "BG Mapping":
+
+		logrus.Println("----------------------")
+		logrus.Println("Save BG Mapping")
+		logrus.Println("----------------------")
+
+		taskData := []*pb.MappingData{}
+		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		taskDataBak := []*pb.MappingData{}
+		json.Unmarshal([]byte(taskRes.Data.GetDataBak()), &taskDataBak)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		ids := []string{}
+
+		for _, v := range taskDataBak {
+
+			logrus.Println("----------------------")
+			logrus.Println("Get Mapping Digital Task Data")
+			logrus.Println(v)
+			logrus.Println("----------------------")
+
+			filter := []string{
+				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+				"data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10),
+			}
+
+			taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			logrus.Println("----------------------")
+			logrus.Println("Mapping Digital Task Response:")
+			logrus.Println(taskMappingDigitalRes.Data)
+			logrus.Println("----------------------")
+
+			for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
+
+				taskMappingDigitalData := []*pb.MappingDigitalData{}
+				json.Unmarshal([]byte(taskMappingDigitalResData.GetData()), &taskMappingDigitalData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				logrus.Println("----------------------")
+				logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
+				logrus.Println("----------------------")
+
+				_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				if len(taskMappingDigitalData) > 0 {
+					mappingFilter := []string{
+						"company_id:" + strconv.FormatUint(taskMappingDigitalData[0].CompanyID, 10),
+						"third_party_id:" + strconv.FormatUint(taskMappingDigitalData[0].ThirdPartyID, 10),
+					}
+
+					mappingListFilter := &db.ListFilter{
+						Filter: strings.Join(mappingFilter, ","),
+					}
+
+					mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+					if err != nil {
+						if !errors.Is(err, gorm.ErrRecordNotFound) {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+					}
+
+					for _, mappingORM := range mappingORMs {
+						if mappingORM.Id > 0 {
+							if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+								ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+							}
+						}
+					}
+				}
+
+			}
+
+			logrus.Println("----------------------")
+			logrus.Println("To Delete Mapping Digital Data:")
+			logrus.Println(ids)
+			logrus.Println("----------------------")
+
+			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			if mappingORM.Id > 0 {
+				if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+					ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+				}
+			}
+
+		}
+
+		logrus.Println("----------------------")
+		logrus.Println("To Delete Mapping Data:")
+		logrus.Println(ids)
+		logrus.Println("----------------------")
+
+		err = s.provider.DeleteMapping(ctx, ids)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+	case "BG Mapping Digital":
+
+		taskData := []*pb.MappingDigitalData{}
+		json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		if taskRes.Data.DataBak != "" && taskRes.Data.DataBak != "{}" {
+
+			taskDataBak := []*pb.MappingDigitalData{}
+			json.Unmarshal([]byte(taskRes.Data.GetDataBak()), &taskDataBak)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			ids := []string{}
+
+			for _, v := range taskDataBak {
+
+				var mappingORM *pb.MappingORM
+
+				mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if mappingORM.Id > 0 {
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
+				}
+
+				mappingORM, err = s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
+				if err != nil {
+					if !errors.Is(err, gorm.ErrRecordNotFound) {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+				}
+
+				if mappingORM.Id > 0 {
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
+				}
+
+			}
+
+			err = s.provider.DeleteMapping(ctx, ids)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 
 		}
 
