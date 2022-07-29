@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"strconv"
-	"strings"
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
@@ -17,45 +15,45 @@ import (
 )
 
 type ApiTransaction struct {
-	TransactionId     uint64  `json:"transaction_id,string"`
-	ThirdPartyId      uint64  `json:"third_party_id,string"`
-	ThirdPartyName    string  `json:"third_party_name"`
-	ReferenceNo       string  `json:"reference_no"`
-	RegistrationNo    string  `json:"registration_no"`
-	ApplicantName     string  `json:"applicant_name"`
-	BeneficiaryId     uint64  `json:"beneficiary_id,string"`
-	BeneficiaryName   string  `json:"beneficiary_name"`
-	IssueDate         string  `json:"issue_date"`
-	EffectiveDate     string  `json:"effective_date"`
-	ExpiryDate        string  `json:"expiry_date"`
-	ClaimPeriod       uint32  `json:"claim_period,string"`
-	ClosingDate       string  `json:"closing_date"`
+	TransactionId     uint64  `json:"transactionId,string"`
+	ThirdPartyId      uint64  `json:"thirdPartyId,string"`
+	ThirdPartyName    string  `json:"thirdPartyName"`
+	ReferenceNo       string  `json:"referenceNo"`
+	RegistrationNo    string  `json:"registrationNo"`
+	ApplicantName     string  `json:"applicantName"`
+	BeneficiaryId     uint64  `json:"beneficiaryId,string"`
+	BeneficiaryName   string  `json:"beneficiaryName"`
+	IssueDate         string  `json:"issueDate"`
+	EffectiveDate     string  `json:"effectiveDate"`
+	ExpiryDate        string  `json:"expiryDate"`
+	ClaimPeriod       uint32  `json:"claimPeriod,string"`
+	ClosingDate       string  `json:"closingDate"`
 	Currency          string  `json:"currency"`
 	Amount            float64 `json:"amount,string"`
-	CreatedDate       string  `json:"created_date"`
-	ModifiedDate      string  `json:"modified_date"`
+	CreatedDate       string  `json:"createdDate"`
+	ModifiedDate      string  `json:"modifiedDate"`
 	Remark            string  `json:"remark"`
 	Status            string  `json:"status"`
-	ChannelId         uint64  `json:"channel_id,string"`
-	ChannelName       string  `json:"channel_name"`
-	TransactionTypeId uint64  `json:"transaction_type_id,string"`
-	DocumentPath      string  `json:"document_path"`
+	ChannelId         uint64  `json:"channelId,string"`
+	ChannelName       string  `json:"channelName"`
+	TransactionTypeId uint64  `json:"transactionTypeId,string"`
+	DocumentPath      string  `json:"documentPath"`
 }
 
 type ApiInquiryThirdParty struct {
-	ThirdPartyID uint64 `json:"third_party_id,string"`
+	ThirdPartyID uint64 `json:"thirdPartyId,string"`
 	Cif          string `json:"cif"`
-	FullName     string `json:"fullname"`
+	FullName     string `json:"fullName"`
 	Status       string `json:"status"`
 }
 
 type ApiBeneficiary struct {
-	BeneficiaryID uint64 `json:"beneficiary_id,string"`
-	ThirdPartyID  uint64 `json:"third_party_id,string"`
+	BeneficiaryID uint64 `json:"beneficiaryId,string"`
+	ThirdPartyID  uint64 `json:"thirdPartyId,string"`
 	Cif           string `json:"cif"`
 	FullName      string `json:"fullname"`
-	CreatedDate   string `json:"created_date"`
-	ModifiedDate  string `json:"modified_date"`
+	CreatedDate   string `json:"createdDate"`
+	ModifiedDate  string `json:"modifiedDate"`
 	Status        string `json:"status"`
 }
 
@@ -66,25 +64,25 @@ type UrlObject struct {
 type ApiPaginationResponse struct {
 	Page        uint64 `json:"page,string"`
 	Limit       uint64 `json:"limit,string"`
-	TotalRecord uint64 `json:"total_record,string"`
-	TotalPage   uint32 `json:"total_page"`
+	TotalRecord uint64 `json:"totalRecord,string"`
+	TotalPage   uint32 `json:"totalPage"`
 }
 
 type ApiListTransactionRequest struct {
-	StartDate             string `url:"start_date"`
-	EndDate               string `url:"end_date"`
+	StartDate             string `url:"startDate"`
+	EndDate               string `url:"endDate"`
 	Branch                string `url:"branch"`
-	ApplicantName         string `url:"applicant_name"`
-	ClaimPeriod           string `url:"claim_period"`
+	ApplicantName         string `url:"applicantName"`
+	ClaimPeriod           string `url:"claimPeriod"`
 	Status                string `url:"status"`
-	ReferenceNo           string `url:"reference_no"`
-	EventPeriod           string `url:"event_period"`
-	BeneficiaryId         string `url:"beneficiary_id,string"`
-	BeneficiaryName       string `url:"beneficiary_name"`
-	ThirdPartyId          uint64 `url:"third_party_id,string"`
-	ThirdPartyName        string `url:"third_party_name"`
-	ChannelId             uint64 `url:"channel_id"`
-	ChannelName           string `url:"channel_name"`
+	ReferenceNo           string `url:"referenceNo"`
+	EventPeriod           string `url:"eventPeriod"`
+	BeneficiaryId         string `url:"beneficiaryId,string"`
+	BeneficiaryName       string `url:"beneficiaryName"`
+	ThirdPartyId          uint64 `url:"thirdPartyId,string"`
+	ThirdPartyName        string `url:"thirdPartyName"`
+	ChannelId             uint64 `url:"channelId"`
+	ChannelName           string `url:"channelName"`
 	ApplicationCustomerId string `url:"applicant_customer_id"`
 	BeneficiaryCustomerId string `url:"beneficiary_customer_id"`
 	Page                  uint64 `url:"page,string"`
@@ -103,9 +101,9 @@ type ApiInquiryThirdPartyByIDRequest struct {
 }
 
 type ApiInquiryThirdPartyByIDResponse struct {
-	ResponseCode    string                `json:"code"`
-	ResponseMessage string                `json:"message"`
-	ResponseData    *ApiInquiryThirdParty `json:"data"`
+	ResponseCode    string                `json:"responseCode"`
+	ResponseMessage string                `json:"responseMessage"`
+	ResponseData    *ApiInquiryThirdParty `json:"responseData"`
 }
 
 type ApiInquiryThirdPartyByStatusRequest struct {
@@ -113,9 +111,9 @@ type ApiInquiryThirdPartyByStatusRequest struct {
 }
 
 type ApiInquiryThirdPartyByStatusResponse struct {
-	ResponseCode    string                  `json:"code"`
-	ResponseMessage string                  `json:"message"`
-	ResponseData    []*ApiInquiryThirdParty `json:"data"`
+	ResponseCode    string                  `json:"responseCode"`
+	ResponseMessage string                  `json:"responseMessage"`
+	ResponseData    []*ApiInquiryThirdParty `json:"responseData"`
 }
 
 type ApiDownloadRequest struct {
@@ -123,21 +121,21 @@ type ApiDownloadRequest struct {
 }
 
 type ApiDownloadResponse struct {
-	ResponseCode    string      `json:"code"`
-	ResponseMessage string      `json:"message"`
-	ResponseData    []UrlObject `json:"data"`
+	ResponseCode    string      `json:"responseCode"`
+	ResponseMessage string      `json:"responseMessage"`
+	ResponseData    []UrlObject `json:"responseData"`
 }
 
 type ApiInquiryBenficiaryRequest struct {
 	Cif          string `url:"cif"`
 	Fullname     string `url:"fullname"`
-	ThirdPartyID uint64 `url:"third_party_id"`
+	ThirdPartyID uint64 `url:"thirdPartyId"`
 }
 
 type ApiInquiryBenficiaryResponse struct {
-	ResponseCode    string            `json:"code"`
-	ResponseMessage string            `json:"message"`
-	ResponseData    []*ApiBeneficiary `json:"data"`
+	ResponseCode    string            `json:"responseCode"`
+	ResponseMessage string            `json:"responseMessage"`
+	ResponseData    []*ApiBeneficiary `json:"responseData"`
 }
 
 type ApiBgIssuingRequest struct {
@@ -221,7 +219,7 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "https://tfapi.dev.bri.co.id/portalbg-api")+"/partnership/beneficiary?"+httpReqParam.Encode(), nil)
+	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -249,12 +247,12 @@ func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdParty
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReqParam, err := query.Values(req)
+	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "https://tfapi.dev.bri.co.id/portalbg-api")+"/partnership/inquiry"+httpReqParam.Encode(), nil)
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -283,7 +281,12 @@ func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByID
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "https://tfapi.dev.bri.co.id/portalbg-api")+"/partnership/inquiry/"+strconv.FormatUint(req.ThirdPartyID, 10), nil)
+	httpReqPayload, err := json.Marshal(req)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -312,9 +315,12 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReqPayload := strings.NewReader("reference_no=" + req.ReferenceNo)
+	httpReqPayload, err := json.Marshal(req)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
 
-	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "https://tfapi.dev.bri.co.id/portalbg-api")+"/digitaldocument/byreference", httpReqPayload)
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -352,7 +358,7 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 	logrus.Println(httpReqParams.Encode())
 	logrus.Println("---------------------------")
 
-	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "https://tfapi.dev.bri.co.id/portalbg-api")+"/channel/monitoring/transaction?"+httpReqParams.Encode(), nil)
+	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
