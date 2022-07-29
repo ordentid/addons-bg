@@ -138,51 +138,99 @@ type ApiInquiryBenficiaryResponse struct {
 	ResponseData    []*ApiBeneficiary `json:"responseData"`
 }
 
+// type ApiBgIssuingRequest struct {
+// 	AccountNo              string  `json:"account_no"`
+// 	ApplicantName          string  `json:"applicant_name"`
+// 	ApplicantAddress       string  `json:"applicant_address"`
+// 	IsIndividu             uint64  `json:"is_individu,string"`
+// 	NIK                    string  `json:"nik"`
+// 	BirthDate              string  `json:"birth_date"`
+// 	Gender                 string  `json:"gender"`
+// 	NPWPNo                 string  `json:"npwp_no"`
+// 	DateEstablished        string  `json:"tanggal_berdiri"`
+// 	CompanyType            string  `json:"company_type"`
+// 	IsPlafond              string  `json:"is_plafond"`
+// 	TransactionType        string  `json:"transaction_type"`
+// 	IsEndOfYearBg          string  `json:"is_bg_akhir_tahun"`
+// 	NRK                    string  `json:"nrk"`
+// 	ProjectName            string  `json:"project_name"`
+// 	ThirdPartyId           uint64  `json:"third_party_id,string"`
+// 	BeneficiaryName        string  `json:"beneficiary_name"`
+// 	ProjectAmount          float64 `json:"project_amount,string"`
+// 	ContractNo             string  `json:"contract_no"`
+// 	ContractDate           string  `json:"contract_date"`
+// 	Currency               string  `json:"currency"`
+// 	Amount                 float64 `json:"amount,string"`
+// 	EffectiveDate          string  `json:"effective_date"`
+// 	MaturityDate           string  `json:"maturity_date"`
+// 	ClaimPeriod            uint64  `json:"claim_periode,string"`
+// 	IssuingBranch          string  `json:"issuing_branch"`
+// 	BranchPrinter          string  `json:"pencetak_branch"`
+// 	ContraGuarantee        string  `json:"contra_guarantee"`
+// 	InsuranceLimitId       string  `json:"insurance_limit_id"`
+// 	SP3No                  string  `json:"sp3_no"`
+// 	HoldAccountNo          string  `json:"hold_account_no"`
+// 	HoldAccountAmount      float64 `json:"hold_account_amount,string"`
+// 	ConsumerLimitId        string  `json:"consumer_limit_id"`
+// 	ConsumerLimitAmount    string  `json:"consumer_limit_amount"`
+// 	ApplicantContactPerson string  `json:"applicant_contact_person"`
+// 	ApplicantPhoneNumber   string  `json:"applicant_phone_number"`
+// 	ApplicantEmail         string  `json:"applicant_email"`
+// 	ChannelId              string  `json:"channel_id"`
+// 	ApplicantCustomerId    string  `json:"applicant_customer_id"`
+// 	BeneficiaryCustomerId  string  `json:"beneficiary_customer_id"`
+// 	LegalDocument          string  `json:"document_legalitas"`
+// 	ContractDocument       string  `json:"document_contract"`
+// 	Sp3Document            string  `json:"document_sp3"`
+// 	OthersDocument         string  `json:"document_others"`
+// }
+
 type ApiBgIssuingRequest struct {
-	AccountNo              string  `json:"account_no"`
-	ApplicantName          string  `json:"applicant_name"`
-	ApplicantAddress       string  `json:"applicant_address"`
-	IsIndividu             uint64  `json:"is_individu,string"`
+	AccountNo              string  `json:"accountNumber"`
+	ApplicantName          string  `json:"applicantName"`
+	ApplicantAddress       string  `json:"applicantAddress"`
+	IsIndividu             uint64  `json:"isIndividu,string"`
 	NIK                    string  `json:"nik"`
-	BirthDate              string  `json:"birth_date"`
+	BirthDate              string  `json:"birthDate"`
 	Gender                 string  `json:"gender"`
-	NPWPNo                 string  `json:"npwp_no"`
-	DateEstablished        string  `json:"tanggal_berdiri"`
-	CompanyType            string  `json:"company_type"`
-	IsPlafond              string  `json:"is_plafond"`
-	TransactionType        string  `json:"transaction_type"`
-	IsEndOfYearBg          string  `json:"is_bg_akhir_tahun"`
+	NPWPNo                 string  `json:"npwp"`
+	DateEstablished        string  `json:"tanggalBerdiri"`
+	CompanyType            string  `json:"companyType"`
+	IsPlafond              uint64  `json:"isPlafond,string"`
+	TransactionType        string  `json:"transactionType"`
+	TransactionTypeDesc    string  `json:"transactionTypeDesc"`
+	IsEndOfYearBg          string  `json:"isBGAkhirTahun"`
 	NRK                    string  `json:"nrk"`
-	ProjectName            string  `json:"project_name"`
-	ThirdPartyId           uint64  `json:"third_party_id,string"`
-	BeneficiaryName        string  `json:"beneficiary_name"`
-	ProjectAmount          float64 `json:"project_amount,string"`
-	ContractNo             string  `json:"contract_no"`
-	ContractDate           string  `json:"contract_date"`
+	ProjectName            string  `json:"projectName"`
+	ThirdPartyId           uint64  `json:"thirdPartyId,string"`
+	BeneficiaryName        string  `json:"beneficiaryName"`
+	ProjectAmount          float64 `json:"projectAmount,string"`
+	ContractNo             string  `json:"contractNo"`
+	ContractDate           string  `json:"contractDate"`
 	Currency               string  `json:"currency"`
 	Amount                 float64 `json:"amount,string"`
-	EffectiveDate          string  `json:"effective_date"`
-	MaturityDate           string  `json:"maturity_date"`
-	ClaimPeriod            uint64  `json:"claim_periode,string"`
-	IssuingBranch          string  `json:"issuing_branch"`
-	BranchPrinter          string  `json:"pencetak_branch"`
-	ContraGuarantee        string  `json:"contra_guarantee"`
-	InsuranceLimitId       string  `json:"insurance_limit_id"`
-	SP3No                  string  `json:"sp3_no"`
-	HoldAccountNo          string  `json:"hold_account_no"`
-	HoldAccountAmount      float64 `json:"hold_account_amount,string"`
-	ConsumerLimitId        string  `json:"consumer_limit_id"`
-	ConsumerLimitAmount    string  `json:"consumer_limit_amount"`
-	ApplicantContactPerson string  `json:"applicant_contact_person"`
-	ApplicantPhoneNumber   string  `json:"applicant_phone_number"`
-	ApplicantEmail         string  `json:"applicant_email"`
-	ChannelId              string  `json:"channel_id"`
-	ApplicantCustomerId    string  `json:"applicant_customer_id"`
-	BeneficiaryCustomerId  string  `json:"beneficiary_customer_id"`
-	LegalDocument          string  `json:"document_legalitas"`
-	ContractDocument       string  `json:"document_contract"`
-	Sp3Document            string  `json:"document_sp3"`
-	OthersDocument         string  `json:"document_others"`
+	EffectiveDate          string  `json:"effectiveDate"`
+	MaturityDate           string  `json:"maturityDate"`
+	ClaimPeriod            uint64  `json:"claimPeriod,string"`
+	IssuingBranch          string  `json:"issuingBranch"`
+	BranchPrinter          string  `json:"pencetakBranch"`
+	ContraGuarantee        string  `json:"contraGuarantee"`
+	InsuranceLimitId       string  `json:"insuranceLimitId"`
+	SP3No                  string  `json:"sp3No"`
+	HoldAccountNo          string  `json:"holdAccountNo"`
+	HoldAccountAmount      float64 `json:"holdAccountAmount,string"`
+	ConsumerLimitId        string  `json:"customerLimitId"`
+	ConsumerLimitAmount    string  `json:"customerLimitAmount"`
+	ApplicantContactPerson string  `json:"applicantContactPerson"`
+	ApplicantPhoneNumber   string  `json:"applicantPhoneNumber"`
+	ApplicantEmail         string  `json:"applicantEmail"`
+	ChannelId              string  `json:"channelId"`
+	ApplicantCustomerId    string  `json:"applicantCustomerId"`
+	BeneficiaryCustomerId  string  `json:"beneficiaryCustomerId"`
+	LegalDocument          string  `json:"documentLegalitas"`
+	ContractDocument       string  `json:"documentContract"`
+	Sp3Document            string  `json:"documentSp3"`
+	OthersDocument         string  `json:"documentOthers"`
 }
 
 type ApiBgIssuingResponse struct {
@@ -398,7 +446,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 		NPWPNo:                 "Test",
 		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
 		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
-		IsPlafond:              "0",
+		IsPlafond:              0,
 		TransactionType:        req.Data.Publishing.GetBgType().String(),
 		IsEndOfYearBg:          "0",
 		NRK:                    req.Data.Project.GetNrkNumber(),
