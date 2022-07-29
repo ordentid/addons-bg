@@ -712,6 +712,35 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 		}
 
+		for _, v := range taskData {
+
+			mappingFilter := []string{
+				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+				"third_party_id:" + strconv.FormatUint(v.ThirdPartyID, 10),
+				"beneficiary_id:10101010",
+			}
+
+			mappingListFilter := &db.ListFilter{
+				Filter: strings.Join(mappingFilter, ","),
+			}
+
+			mappingORMs, err := s.provider.GetMapping(ctx, mappingListFilter)
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			for _, mappingORM := range mappingORMs {
+				if mappingORM.Id > 0 {
+					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
+						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
+					}
+				}
+			}
+
+		}
+
 		err = s.provider.DeleteMapping(ctx, ids)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
