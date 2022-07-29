@@ -296,5 +296,16 @@ service ApiService {
             description: "This API for update or create BG Issuing"
         };
     };
-    
+
+    rpc CreateIssuing(CreateIssuingRequest) returns (CreateIssuingResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/issuing/create"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Create BG Issuing to Portal"
+            description: "This API for create BG Issuing to Portal"
+        };
+    }
 }

@@ -143,6 +143,63 @@ type ApiBeneficiary struct {
 	Status        string `json:"status"`
 }
 
+type ApiBgIssuingRequest struct {
+	AccountNo              string `json:"account_no"`
+	ApplicantName          string `json:"applicant_name"`
+	ApplicantAddress       string `json:"applicant_address"`
+	IsIndividu             string `json:"is_individu"`
+	NIK                    string `json:"nik"`
+	BirthDate              string `json:"birth_date"`
+	Gender                 string `json:"gender"`
+	NPWPNo                 string `json:"npwp_no"`
+	DateEstablished        string `json:"tanggal_berdiri"`
+	CompanyType            string `json:"company_type"`
+	IsPlafond              string `json:"is_plafond"`
+	TransactionType        string `json:"transaction_type"`
+	IsEndOfYearBg          string `json:"is_bg_akhir_tahun"`
+	NRK                    string `json:"nrk"`
+	ProjectName            string `json:"project_name"`
+	ThirdPartyId           string `json:"third_party_id"`
+	BeneficiaryName        string `json:"beneficiary_name"`
+	ProjectAmount          string `json:"project_amount"`
+	ContractNo             string `json:"contract_no"`
+	ContractDate           string `json:"contract_date"`
+	Currency               string `json:"currency"`
+	Amount                 string `json:"amount"`
+	EffectiveDate          string `json:"effective_date"`
+	MaturityDate           string `json:"maturity_date"`
+	ClaimPeriod            string `json:"claim_periode"`
+	IssuingBranch          string `json:"issuing_branch"`
+	BranchPrinter          string `json:"pencetak_branch"`
+	ContraGuarantee        string `json:"contra_guarantee"`
+	InsuranceLimitId       string `json:"insurance_limit_id"`
+	SP3No                  string `json:"sp3_no"`
+	HoldAccountNo          string `json:"hold_account_no"`
+	HoldAccountAmount      string `json:"hold_account_amount"`
+	ConsumerLimitId        string `json:"consumer_limit_id"`
+	ConsumerLimitAmount    string `json:"consumer_limit_amount"`
+	ApplicantContactPerson string `json:"applicant_contact_person"`
+	ApplicantPhoneNumber   string `json:"applicant_phone_number"`
+	ApplicantEmail         string `json:"applicant_email"`
+	ChannelId              string `json:"channel_id"`
+	ApplicantCustomerId    string `json:"applicant_customer_id"`
+	BeneficiaryCustomerId  string `json:"beneficiary_customer_id"`
+	LegalDocument          string `json:"document_legalitas"`
+	ContractDocument       string `json:"document_contract"`
+	Sp3Document            string `json:"document_sp3"`
+	OthersDocument         string `json:"document_others"`
+}
+
+type ApiBgIssuingResponse struct {
+	ResponseCode    string           `json:"responseCode"`
+	ResponseMessage string           `json:"responseMessage"`
+	Data            ApiBgIssuingData `json:"data"`
+}
+
+type ApiBgIssuingData struct {
+	RegistrationNo string `json:"registration_no"`
+}
+
 type UrlObject struct {
 	Url string `json:"url"`
 }
@@ -1273,6 +1330,99 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
+	}
+
+	return result, nil
+}
+
+func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest) (*pb.CreateIssuingResponse, error) {
+	result := &pb.CreateIssuingResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	httpReqData := ApiBgIssuingRequest{
+		AccountNo:              req.Data.Account.GetAccountNumber(),
+		ApplicantName:          req.Data.Applicant.GetName(),
+		ApplicantAddress:       req.Data.Applicant.GetAddress(),
+		IsIndividu:             string(req.Data.Applicant.GetApplicantType().Number()),
+		NIK:                    "Test",
+		BirthDate:              req.Data.Applicant.GetBirthDate(),
+		Gender:                 req.Data.Applicant.GetGender().String(),
+		NPWPNo:                 "Test",
+		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
+		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
+		IsPlafond:              "0",
+		TransactionType:        req.Data.Publishing.GetBgType().String(),
+		IsEndOfYearBg:          "0",
+		NRK:                    req.Data.Project.GetNrkNumber(),
+		ProjectName:            req.Data.Project.GetName(),
+		ThirdPartyId:           strconv.FormatUint(req.Data.Publishing.GetThirdPartyID(), 10),
+		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
+		ProjectAmount:          strconv.FormatFloat(req.Data.Project.GetProjectAmount(), 'f', 10, 64),
+		ContractNo:             req.Data.Project.GetContractNumber(),
+		ContractDate:           req.Data.Project.GetProjectDate(),
+		Currency:               req.Data.Project.GetBgCurrency(),
+		Amount:                 strconv.FormatFloat(req.Data.Project.GetBgAmount(), 'f', 10, 64),
+		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
+		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
+		ClaimPeriod:            strconv.FormatUint(req.Data.Publishing.GetClaimPeriod(), 10),
+		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
+		BranchPrinter:          "Test",
+		ContraGuarantee:        "Test",
+		InsuranceLimitId:       "Test",
+		SP3No:                  "Test",
+		HoldAccountNo:          "Test",
+		HoldAccountAmount:      "0",
+		ConsumerLimitId:        "Test",
+		ConsumerLimitAmount:    "0",
+		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
+		ApplicantPhoneNumber:   "Test",
+		ApplicantEmail:         "Test",
+		ChannelId:              "Test",
+		ApplicantCustomerId:    "Test",
+		BeneficiaryCustomerId:  "Test",
+		LegalDocument:          req.Data.Document.GetBusinessLegal(),
+		ContractDocument:       req.Data.Document.GetBg(),
+		Sp3Document:            req.Data.Document.GetSp(),
+		OthersDocument:         req.Data.Document.GetOther(),
+	}
+
+	httpReqPayload, err := json.Marshal(httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/applyBG", bytes.NewBuffer(httpReqPayload))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Content-Type", "application/json")
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	client := &http.Client{}
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiBgIssuingResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println(httpResData.ResponseCode)
+
+	if httpResData.ResponseCode == "00" {
+		result.Data = &pb.IssuingPortal{
+			RegistrationNo: httpResData.Data.RegistrationNo,
+		}
+	} else {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	return result, nil

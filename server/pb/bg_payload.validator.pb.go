@@ -103,6 +103,9 @@ func (this *MappingDigitalData) Validate() error {
 func (this *Beneficiary) Validate() error {
 	return nil
 }
+func (this *IssuingPortal) Validate() error {
+	return nil
+}
 func (this *TaskIssuingData) Validate() error {
 	if this.Task != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {
@@ -537,5 +540,21 @@ func (this *GetTaskIssuingFileRequest) Validate() error {
 	return nil
 }
 func (this *GetTaskIssuingFileResponse) Validate() error {
+	return nil
+}
+func (this *CreateIssuingRequest) Validate() error {
+	if this.Data != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+		}
+	}
+	return nil
+}
+func (this *CreateIssuingResponse) Validate() error {
+	if this.Data != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+		}
+	}
 	return nil
 }
