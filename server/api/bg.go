@@ -193,7 +193,7 @@ type ApiBgIssuingRequest struct {
 type ApiBgIssuingResponse struct {
 	ResponseCode    string           `json:"responseCode"`
 	ResponseMessage string           `json:"responseMessage"`
-	Data            ApiBgIssuingData `json:"data"`
+	Data            ApiBgIssuingData `json:"responseData"`
 }
 
 type ApiBgIssuingData struct {
