@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
@@ -140,50 +139,50 @@ type ApiInquiryBenficiaryResponse struct {
 }
 
 type ApiBgIssuingRequest struct {
-	AccountNo              string `json:"account_no"`
-	ApplicantName          string `json:"applicant_name"`
-	ApplicantAddress       string `json:"applicant_address"`
-	IsIndividu             string `json:"is_individu"`
-	NIK                    string `json:"nik"`
-	BirthDate              string `json:"birth_date"`
-	Gender                 string `json:"gender"`
-	NPWPNo                 string `json:"npwp_no"`
-	DateEstablished        string `json:"tanggal_berdiri"`
-	CompanyType            string `json:"company_type"`
-	IsPlafond              string `json:"is_plafond"`
-	TransactionType        string `json:"transaction_type"`
-	IsEndOfYearBg          string `json:"is_bg_akhir_tahun"`
-	NRK                    string `json:"nrk"`
-	ProjectName            string `json:"project_name"`
-	ThirdPartyId           string `json:"third_party_id"`
-	BeneficiaryName        string `json:"beneficiary_name"`
-	ProjectAmount          string `json:"project_amount"`
-	ContractNo             string `json:"contract_no"`
-	ContractDate           string `json:"contract_date"`
-	Currency               string `json:"currency"`
-	Amount                 string `json:"amount"`
-	EffectiveDate          string `json:"effective_date"`
-	MaturityDate           string `json:"maturity_date"`
-	ClaimPeriod            string `json:"claim_periode"`
-	IssuingBranch          string `json:"issuing_branch"`
-	BranchPrinter          string `json:"pencetak_branch"`
-	ContraGuarantee        string `json:"contra_guarantee"`
-	InsuranceLimitId       string `json:"insurance_limit_id"`
-	SP3No                  string `json:"sp3_no"`
-	HoldAccountNo          string `json:"hold_account_no"`
-	HoldAccountAmount      string `json:"hold_account_amount"`
-	ConsumerLimitId        string `json:"consumer_limit_id"`
-	ConsumerLimitAmount    string `json:"consumer_limit_amount"`
-	ApplicantContactPerson string `json:"applicant_contact_person"`
-	ApplicantPhoneNumber   string `json:"applicant_phone_number"`
-	ApplicantEmail         string `json:"applicant_email"`
-	ChannelId              string `json:"channel_id"`
-	ApplicantCustomerId    string `json:"applicant_customer_id"`
-	BeneficiaryCustomerId  string `json:"beneficiary_customer_id"`
-	LegalDocument          string `json:"document_legalitas"`
-	ContractDocument       string `json:"document_contract"`
-	Sp3Document            string `json:"document_sp3"`
-	OthersDocument         string `json:"document_others"`
+	AccountNo              string  `json:"account_no"`
+	ApplicantName          string  `json:"applicant_name"`
+	ApplicantAddress       string  `json:"applicant_address"`
+	IsIndividu             uint64  `json:"is_individu,string"`
+	NIK                    string  `json:"nik"`
+	BirthDate              string  `json:"birth_date"`
+	Gender                 string  `json:"gender"`
+	NPWPNo                 string  `json:"npwp_no"`
+	DateEstablished        string  `json:"tanggal_berdiri"`
+	CompanyType            string  `json:"company_type"`
+	IsPlafond              string  `json:"is_plafond"`
+	TransactionType        string  `json:"transaction_type"`
+	IsEndOfYearBg          string  `json:"is_bg_akhir_tahun"`
+	NRK                    string  `json:"nrk"`
+	ProjectName            string  `json:"project_name"`
+	ThirdPartyId           uint64  `json:"third_party_id,string"`
+	BeneficiaryName        string  `json:"beneficiary_name"`
+	ProjectAmount          float64 `json:"project_amount,string"`
+	ContractNo             string  `json:"contract_no"`
+	ContractDate           string  `json:"contract_date"`
+	Currency               string  `json:"currency"`
+	Amount                 float64 `json:"amount,string"`
+	EffectiveDate          string  `json:"effective_date"`
+	MaturityDate           string  `json:"maturity_date"`
+	ClaimPeriod            uint64  `json:"claim_periode,string"`
+	IssuingBranch          string  `json:"issuing_branch"`
+	BranchPrinter          string  `json:"pencetak_branch"`
+	ContraGuarantee        string  `json:"contra_guarantee"`
+	InsuranceLimitId       string  `json:"insurance_limit_id"`
+	SP3No                  string  `json:"sp3_no"`
+	HoldAccountNo          string  `json:"hold_account_no"`
+	HoldAccountAmount      float64 `json:"hold_account_amount,string"`
+	ConsumerLimitId        string  `json:"consumer_limit_id"`
+	ConsumerLimitAmount    string  `json:"consumer_limit_amount"`
+	ApplicantContactPerson string  `json:"applicant_contact_person"`
+	ApplicantPhoneNumber   string  `json:"applicant_phone_number"`
+	ApplicantEmail         string  `json:"applicant_email"`
+	ChannelId              string  `json:"channel_id"`
+	ApplicantCustomerId    string  `json:"applicant_customer_id"`
+	BeneficiaryCustomerId  string  `json:"beneficiary_customer_id"`
+	LegalDocument          string  `json:"document_legalitas"`
+	ContractDocument       string  `json:"document_contract"`
+	Sp3Document            string  `json:"document_sp3"`
+	OthersDocument         string  `json:"document_others"`
 }
 
 type ApiBgIssuingResponse struct {
@@ -392,7 +391,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
 		ApplicantAddress:       req.Data.Applicant.GetAddress(),
-		IsIndividu:             string(req.Data.Applicant.GetApplicantType().Number()),
+		IsIndividu:             uint64(req.Data.Applicant.GetApplicantType().Number()),
 		NIK:                    "Test",
 		BirthDate:              req.Data.Applicant.GetBirthDate(),
 		Gender:                 req.Data.Applicant.GetGender().String(),
@@ -404,23 +403,23 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 		IsEndOfYearBg:          "0",
 		NRK:                    req.Data.Project.GetNrkNumber(),
 		ProjectName:            req.Data.Project.GetName(),
-		ThirdPartyId:           strconv.FormatUint(req.Data.Publishing.GetThirdPartyID(), 10),
+		ThirdPartyId:           req.Data.Publishing.GetThirdPartyID(),
 		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
-		ProjectAmount:          strconv.FormatFloat(req.Data.Project.GetProjectAmount(), 'f', 10, 64),
+		ProjectAmount:          req.Data.Project.GetProjectAmount(),
 		ContractNo:             req.Data.Project.GetContractNumber(),
 		ContractDate:           req.Data.Project.GetProjectDate(),
 		Currency:               req.Data.Project.GetBgCurrency(),
-		Amount:                 strconv.FormatFloat(req.Data.Project.GetBgAmount(), 'f', 10, 64),
+		Amount:                 req.Data.Project.GetBgAmount(),
 		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
 		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
-		ClaimPeriod:            strconv.FormatUint(req.Data.Publishing.GetClaimPeriod(), 10),
+		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
 		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
 		BranchPrinter:          "Test",
 		ContraGuarantee:        "Test",
 		InsuranceLimitId:       "Test",
 		SP3No:                  "Test",
 		HoldAccountNo:          "Test",
-		HoldAccountAmount:      "0",
+		HoldAccountAmount:      0.0,
 		ConsumerLimitId:        "Test",
 		ConsumerLimitAmount:    "0",
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
@@ -440,7 +439,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq, err := http.NewRequest("POST", "https://tfapi.dev.bri.co.id/portalbg-api/channel/issue/apply", bytes.NewBuffer(httpReqPayload))
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/applyBG", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
