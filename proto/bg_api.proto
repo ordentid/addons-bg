@@ -297,7 +297,7 @@ service ApiService {
         };
     };
 
-    rpc CreateIssuing(CreateIssuingRequest) returns (CreateIssuingResponse) {
+    rpc ApiCreateIssuing(ApiCreateIssuingRequest) returns (ApiCreateIssuingResponse) {
         option (google.api.http) = {
             post: "/api/bg/issuing/create"
             body: "*"

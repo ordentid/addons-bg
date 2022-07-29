@@ -705,12 +705,12 @@ message GetTaskIssuingFileResponse {
     string message = 3;
 }
 
-message CreateIssuingRequest {
+message ApiCreateIssuingRequest {
     uint64 taskID = 1;
     IssuingData data = 2;
 }
 
-message CreateIssuingResponse {
+message ApiCreateIssuingResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;

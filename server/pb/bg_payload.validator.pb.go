@@ -542,7 +542,7 @@ func (this *GetTaskIssuingFileRequest) Validate() error {
 func (this *GetTaskIssuingFileResponse) Validate() error {
 	return nil
 }
-func (this *CreateIssuingRequest) Validate() error {
+func (this *ApiCreateIssuingRequest) Validate() error {
 	if this.Data != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
@@ -550,7 +550,7 @@ func (this *CreateIssuingRequest) Validate() error {
 	}
 	return nil
 }
-func (this *CreateIssuingResponse) Validate() error {
+func (this *ApiCreateIssuingResponse) Validate() error {
 	if this.Data != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
 			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)

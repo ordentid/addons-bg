@@ -1,6 +1,7 @@
 package api
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -8,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 
+	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -186,9 +188,9 @@ type ApiBgIssuingRequest struct {
 }
 
 type ApiBgIssuingResponse struct {
-	ResponseCode    string           `json:"responseCode"`
-	ResponseMessage string           `json:"responseMessage"`
-	Data            ApiBgIssuingData `json:"responseData"`
+	ResponseCode    string           `json:"code"`
+	ResponseMessage string           `json:"message"`
+	Data            ApiBgIssuingData `json:"data"`
 }
 
 type ApiBgIssuingData struct {
@@ -370,4 +372,97 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 	}
 
 	return &httpResData, nil
+}
+
+func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingRequest) (*pb.ApiCreateIssuingResponse, error) {
+	result := &pb.ApiCreateIssuingResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	httpReqData := ApiBgIssuingRequest{
+		AccountNo:              req.Data.Account.GetAccountNumber(),
+		ApplicantName:          req.Data.Applicant.GetName(),
+		ApplicantAddress:       req.Data.Applicant.GetAddress(),
+		IsIndividu:             string(req.Data.Applicant.GetApplicantType().Number()),
+		NIK:                    "Test",
+		BirthDate:              req.Data.Applicant.GetBirthDate(),
+		Gender:                 req.Data.Applicant.GetGender().String(),
+		NPWPNo:                 "Test",
+		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
+		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
+		IsPlafond:              "0",
+		TransactionType:        req.Data.Publishing.GetBgType().String(),
+		IsEndOfYearBg:          "0",
+		NRK:                    req.Data.Project.GetNrkNumber(),
+		ProjectName:            req.Data.Project.GetName(),
+		ThirdPartyId:           strconv.FormatUint(req.Data.Publishing.GetThirdPartyID(), 10),
+		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
+		ProjectAmount:          strconv.FormatFloat(req.Data.Project.GetProjectAmount(), 'f', 10, 64),
+		ContractNo:             req.Data.Project.GetContractNumber(),
+		ContractDate:           req.Data.Project.GetProjectDate(),
+		Currency:               req.Data.Project.GetBgCurrency(),
+		Amount:                 strconv.FormatFloat(req.Data.Project.GetBgAmount(), 'f', 10, 64),
+		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
+		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
+		ClaimPeriod:            strconv.FormatUint(req.Data.Publishing.GetClaimPeriod(), 10),
+		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
+		BranchPrinter:          "Test",
+		ContraGuarantee:        "Test",
+		InsuranceLimitId:       "Test",
+		SP3No:                  "Test",
+		HoldAccountNo:          "Test",
+		HoldAccountAmount:      "0",
+		ConsumerLimitId:        "Test",
+		ConsumerLimitAmount:    "0",
+		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
+		ApplicantPhoneNumber:   "Test",
+		ApplicantEmail:         "Test",
+		ChannelId:              "Test",
+		ApplicantCustomerId:    "Test",
+		BeneficiaryCustomerId:  "Test",
+		LegalDocument:          req.Data.Document.GetBusinessLegal(),
+		ContractDocument:       req.Data.Document.GetBg(),
+		Sp3Document:            req.Data.Document.GetSp(),
+		OthersDocument:         req.Data.Document.GetOther(),
+	}
+
+	httpReqPayload, err := json.Marshal(httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", "https://tfapi.dev.bri.co.id/portalbg-api/channel/issue/apply", bytes.NewBuffer(httpReqPayload))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
+
+	client := &http.Client{}
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiBgIssuingResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println(httpResData.ResponseCode)
+
+	if httpResData.ResponseCode == "00" {
+		result.Data = &pb.IssuingPortal{
+			RegistrationNo: httpResData.Data.RegistrationNo,
+		}
+	} else {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	return result, nil
 }
