@@ -445,7 +445,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	client := &http.Client{}
