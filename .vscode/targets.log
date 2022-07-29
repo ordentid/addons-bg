@@ -6,8 +6,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
 
-# Make data base, printed on Thu Jul 28 22:01:07 2022
+# Make data base, printed on Fri Jul 29 12:52:00 2022
 
 # Variables
 
@@ -15,10 +16,6 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
-# environment
-ELECTRON_NO_ATTACH_CONSOLE = 1
-# environment
-LC_CTYPE = UTF-8
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
@@ -48,7 +45,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/thefirstrefresh
+VSCODE_CWD = /
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -57,8 +54,6 @@ PATH = /Users/farizrachmanyusuf/.amplify/bin:/usr/local/sbin:/usr/local/bin:/usr
 LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
 GOPATH = /Users/farizrachmanyusuf/go
-# environment
-LaunchInstanceID = 5E09CF3C-6580-406C-8118-8A5064C7A51B
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # default
@@ -77,8 +72,8 @@ GOMODCACHE = /Users/farizrachmanyusuf/go/pkg/mod
 HOME = /Users/farizrachmanyusuf
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
-# environment
-VSCODE_CLI = 1
+# makefile (from `Makefile', line 12)
+BINARY = addons-bg-service
 # environment
 VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Code/CachedData/3b889b090b5ad5793f524b5d1d39fda662b96a2a
 # environment
@@ -98,7 +93,7 @@ MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-SHLVL = 3
+SHLVL = 1
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -108,8 +103,6 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
-TERM_SESSION_ID = CFBA127C-939F-4FE7-8FE2-99C3B7704B56
-# environment
 LESS = -R
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
@@ -117,8 +110,6 @@ LESS = -R
 MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
 # makefile (from `Makefile', line 5)
 DOCKER_BUILD_ARGS = 
-# environment
-TERM_PROGRAM = Apple_Terminal
 # default
 .VARIABLES := 
 # environment
@@ -138,9 +129,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-TERM_PROGRAM_VERSION = 445
-# environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.26188257.26188263.F64098E1-3D3E-4920-8013-92F29FD9470A
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.26188257.26188263
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -155,18 +144,12 @@ COMMAND_MODE = unix2003
 MAKEFILES := 
 # automatic
 <F = $(notdir $<)
-# makefile (from `Makefile', line 12)
-BINARY = addons-bg-service
 # environment
 PAGER = less
 # environment
 LC_ALL = C
 # makefile (from `Makefile', line 9)
 BUILD_VERSION = 0.1.0
-# environment
-SECURITYSESSIONID = 186a4
-# environment
-P9K_TTY = old
 # automatic
 ^F = $(notdir $^)
 # default
@@ -178,13 +161,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-TERM = xterm-256color
-# environment
-_P9K_TTY = /dev/ttys000
-# environment
-VSCODE_PID = 74726
+VSCODE_PID = 4940
 # variable set hash-table stats:
-# Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
+# Load=75/1024=7%, Rehash=0, Collisions=2/107=2%
 
 # Pattern-specific Variable Values
 
@@ -287,7 +266,6 @@ build:
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 31):
 	@echo "Executing go build"
- 
 	go build -v -buildmode=pie -ldflags "-X main.version=$(BUILD_VERSION)" -o app ./server/
 	@echo "Binary ready"
 	
@@ -313,6 +291,7 @@ generate:
 #  Modification time never checked.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 46):
+ 
 	go generate ./...
 	
 
@@ -423,6 +402,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Thu Jul 28 22:01:07 2022
+# Finished Make data base on Fri Jul 29 12:52:00 2022
 
  

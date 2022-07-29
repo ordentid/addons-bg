@@ -5,16 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strconv"
 	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -22,187 +19,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
-
-type ApiPaginationResponse struct {
-	Page        uint64 `json:"page,string"`
-	Limit       uint64 `json:"limit,string"`
-	TotalRecord uint64 `json:"totalRecord,string"`
-	TotalPage   uint32 `json:"totalPage"`
-}
-
-type ApiListTransactionRequest struct {
-	StartDate             string `url:"startDate"`
-	EndDate               string `url:"endDate"`
-	Branch                string `url:"branch"`
-	ApplicantName         string `url:"applicationName"`
-	ClaimPeriod           string `url:"claimPeriod"`
-	Status                string `url:"status"`
-	ReferenceNo           string `url:"referenceNo"`
-	EventPeriod           string `url:"eventPeriod"`
-	BeneficiaryId         string `url:"beneficiaryId,string"`
-	BeneficiaryName       string `url:"beneficiaryName"`
-	ThirdPartyId          uint64 `url:"thirdPartyId,string"`
-	ThirdPartyName        string `url:"thirdPartyName"`
-	ChannelId             uint64 `url:"channel_id"`
-	ChannelName           string `url:"channel_name"`
-	ApplicationCustomerId string `url:"applicant_customer_id"`
-	BeneficiaryCustomerId string `url:"beneficiary_customer_id"`
-	Page                  uint64 `url:"page,string"`
-	Limit                 uint64 `url:"limit,string"`
-}
-
-type ApiListTransactionResponse struct {
-	ResponseCode    string                `json:"responseCode"`
-	ResponseMessage string                `json:"responseMessage"`
-	Pagination      ApiPaginationResponse `json:"pagination"`
-	ResponseData    []*ApiTransaction     `json:"responseData"`
-}
-
-type ApiTransaction struct {
-	TransactionId     uint64  `json:"transactionId,string"`
-	ThirdPartyId      uint64  `json:"thirdPartyId,string"`
-	ThirdPartyName    string  `json:"thirdPartyName"`
-	ReferenceNo       string  `json:"referenceNo"`
-	RegistrationNo    string  `json:"registrationNo"`
-	ApplicantName     string  `json:"applicantName"`
-	BeneficiaryId     uint64  `json:"beneficiaryId,string"`
-	BeneficiaryName   string  `json:"beneficiaryName"`
-	IssueDate         string  `json:"issueDate"`
-	EffectiveDate     string  `json:"effectiveDate"`
-	ExpiryDate        string  `json:"expiryDate"`
-	ClaimPeriod       uint32  `json:"claimPeriod,string"`
-	ClosingDate       string  `json:"closingDate"`
-	Currency          string  `json:"currency"`
-	Amount            float64 `json:"amount,string"`
-	CreatedDate       string  `json:"createdDate"`
-	ModifiedDate      string  `json:"modifiedDate"`
-	Remark            string  `json:"remark"`
-	Status            string  `json:"status"`
-	ChannelId         uint64  `json:"channelId,string"`
-	ChannelName       string  `json:"channelName"`
-	TransactionTypeId uint64  `json:"transactionTypeId,string"`
-	DocumentPath      string  `json:"documentPath"`
-}
-
-type ApiInquiryThirdPartyByIDRequest struct {
-	ThirdPartyID uint64 `json:"thirdPartyId,string"`
-}
-
-type ApiInquiryThirdPartyByIDResponse struct {
-	ResponseCode    string                `json:"responseCode"`
-	ResponseMessage string                `json:"responseMessage"`
-	ResponseData    *ApiInquiryThirdParty `json:"responseData"`
-}
-
-type ApiInquiryThirdParty struct {
-	ThirdPartyID uint64 `json:"thirdPartyId,string"`
-	Cif          string `json:"cif"`
-	FullName     string `json:"fullName"`
-	Status       string `json:"status"`
-}
-
-type ApiInquiryThirdPartyByStatusRequest struct {
-	Status string `json:"status"`
-}
-
-type ApiInquiryThirdPartyByStatusResponse struct {
-	ResponseCode    string                  `json:"responseCode"`
-	ResponseMessage string                  `json:"responseMessage"`
-	ResponseData    []*ApiInquiryThirdParty `json:"responseData"`
-}
-
-type ApiDownloadRequest struct {
-	ReferenceNo string `json:"referenceNo"`
-}
-
-type ApiDownloadResponse struct {
-	ResponseCode    string      `json:"responseCode"`
-	ResponseMessage string      `json:"responseMessage"`
-	ResponseData    []UrlObject `json:"responseData"`
-}
-
-type ApiInquiryBenficiaryRequest struct {
-	Cif          string `url:"cif"`
-	Fullname     string `url:"fullname"`
-	ThirdPartyID uint64 `url:"thirdPartyId"`
-}
-
-type ApiInquiryBenficiaryResponse struct {
-	ResponseCode    string            `json:"responseCode"`
-	ResponseMessage string            `json:"responseMessage"`
-	ResponseData    []*ApiBeneficiary `json:"responseData"`
-}
-
-type ApiBeneficiary struct {
-	BeneficiaryID uint64 `json:"beneficiaryId,string"`
-	ThirdPartyID  uint64 `json:"thirdPartyId,string"`
-	Cif           string `json:"cif"`
-	FullName      string `json:"fullName"`
-	CreatedDate   string `json:"createdDate"`
-	ModifiedDate  string `json:"modifiedDate"`
-	Status        string `json:"status"`
-}
-
-type ApiBgIssuingRequest struct {
-	AccountNo              string `json:"account_no"`
-	ApplicantName          string `json:"applicant_name"`
-	ApplicantAddress       string `json:"applicant_address"`
-	IsIndividu             string `json:"is_individu"`
-	NIK                    string `json:"nik"`
-	BirthDate              string `json:"birth_date"`
-	Gender                 string `json:"gender"`
-	NPWPNo                 string `json:"npwp_no"`
-	DateEstablished        string `json:"tanggal_berdiri"`
-	CompanyType            string `json:"company_type"`
-	IsPlafond              string `json:"is_plafond"`
-	TransactionType        string `json:"transaction_type"`
-	IsEndOfYearBg          string `json:"is_bg_akhir_tahun"`
-	NRK                    string `json:"nrk"`
-	ProjectName            string `json:"project_name"`
-	ThirdPartyId           string `json:"third_party_id"`
-	BeneficiaryName        string `json:"beneficiary_name"`
-	ProjectAmount          string `json:"project_amount"`
-	ContractNo             string `json:"contract_no"`
-	ContractDate           string `json:"contract_date"`
-	Currency               string `json:"currency"`
-	Amount                 string `json:"amount"`
-	EffectiveDate          string `json:"effective_date"`
-	MaturityDate           string `json:"maturity_date"`
-	ClaimPeriod            string `json:"claim_periode"`
-	IssuingBranch          string `json:"issuing_branch"`
-	BranchPrinter          string `json:"pencetak_branch"`
-	ContraGuarantee        string `json:"contra_guarantee"`
-	InsuranceLimitId       string `json:"insurance_limit_id"`
-	SP3No                  string `json:"sp3_no"`
-	HoldAccountNo          string `json:"hold_account_no"`
-	HoldAccountAmount      string `json:"hold_account_amount"`
-	ConsumerLimitId        string `json:"consumer_limit_id"`
-	ConsumerLimitAmount    string `json:"consumer_limit_amount"`
-	ApplicantContactPerson string `json:"applicant_contact_person"`
-	ApplicantPhoneNumber   string `json:"applicant_phone_number"`
-	ApplicantEmail         string `json:"applicant_email"`
-	ChannelId              string `json:"channel_id"`
-	ApplicantCustomerId    string `json:"applicant_customer_id"`
-	BeneficiaryCustomerId  string `json:"beneficiary_customer_id"`
-	LegalDocument          string `json:"document_legalitas"`
-	ContractDocument       string `json:"document_contract"`
-	Sp3Document            string `json:"document_sp3"`
-	OthersDocument         string `json:"document_others"`
-}
-
-type ApiBgIssuingResponse struct {
-	ResponseCode    string           `json:"responseCode"`
-	ResponseMessage string           `json:"responseMessage"`
-	Data            ApiBgIssuingData `json:"responseData"`
-}
-
-type ApiBgIssuingData struct {
-	RegistrationNo string `json:"registration_no"`
-}
-
-type UrlObject struct {
-	Url string `json:"url"`
-}
 
 func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameRequest) (*pb.GetApplicantNameResponse, error) {
 	result := &pb.GetApplicantNameResponse{
@@ -290,46 +106,17 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		Data:    []*pb.BeneficiaryName{},
 	}
 
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-
-	httpReqData := ApiInquiryBenficiaryRequest{
+	apiReq := &ApiInquiryBenficiaryRequest{
 		ThirdPartyID: req.ThirdPartyID,
 	}
 
-	httpReqParam, err := query.Values(httpReqData)
+	res, err := ApiInquiryBeneficiary(ctx, apiReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-	httpRes, err := client.Do(httpReq)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-	defer httpRes.Body.Close()
-
-	var httpResData ApiInquiryBenficiaryResponse
-	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	if httpResData.ResponseCode == "00" {
-		for _, v := range httpResData.ResponseData {
+	if res.ResponseCode == "00" {
+		for _, v := range res.ResponseData {
 			result.Data = append(result.Data, &pb.BeneficiaryName{
 				BeneficiaryId: v.BeneficiaryID,
 				ThirdPartyId:  v.ThirdPartyID,
@@ -356,77 +143,40 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, err
 	}
 
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-
 	if me.UserType == "ba" {
-		httpReqData := ApiInquiryThirdPartyByStatusRequest{
+
+		apiReq := &ApiInquiryThirdPartyByStatusRequest{
 			Status: "Active",
 		}
 
-		httpReqPayload, err := json.Marshal(httpReqData)
+		res, err := ApiInquiryThirdPartyByStatus(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		httpReq.Header.Add("Content-Type", "application/json")
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
-
-		var httpResData ApiInquiryThirdPartyByStatusResponse
-		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		logrus.Println(httpResData.ResponseCode)
-
-		if httpResData.ResponseCode == "00" {
-			for _, v := range httpResData.ResponseData {
+		if res.ResponseCode == "00" {
+			for _, v := range res.ResponseData {
 				result.Data = append(result.Data, &pb.ThirdParty{
 					Id:   v.ThirdPartyID,
 					Name: v.FullName,
 				})
 			}
 		}
+
 	} else {
-		logrus.Println(req.Type)
 
 		filter := &db.ListFilter{}
 
-		filter.Filter = "company_id:" + strconv.FormatUint(me.CompanyID, 10)
-
-		filterMapped := ""
+		filterMapped := []string{
+			"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+		}
 		if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
-			filterMapped = ",is_mapped:false"
+			filterMapped = append(filterMapped, "is_mapped:false")
 		} else if req.Type == *pb.ThirdPartyType_IsMapped.Enum() {
-			filterMapped = ",is_mapped:true"
+			filterMapped = append(filterMapped, "is_mapped:true")
 		}
 
-		filter.Filter = filter.Filter + filterMapped
-
-		logrus.Println("------------------------")
-		logrus.Println(me.CompanyID)
-		logrus.Println("------------------------")
-		logrus.Println(filter.Filter)
-		logrus.Println("------------------------")
+		filter.Filter = strings.Join(filterMapped, ",")
 
 		thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 		if err != nil {
@@ -444,6 +194,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		}
 
 		for _, v := range ids {
+
 			id, err := strconv.ParseUint(v, 10, 64)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -451,46 +202,26 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 
 			name := ""
 
-			httpReqData := ApiInquiryThirdPartyByIDRequest{
+			apiReq := &ApiInquiryThirdPartyByIDRequest{
 				ThirdPartyID: id,
 			}
 
-			httpReqPayload, err := json.Marshal(httpReqData)
+			res, err := ApiInquiryThirdPartyByID(ctx, apiReq)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			httpReq.Header.Add("Content-Type", "application/json")
-			httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-			httpRes, err := client.Do(httpReq)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-			defer httpRes.Body.Close()
-
-			var httpResData ApiInquiryThirdPartyByIDResponse
-			err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			logrus.Println(httpResData.ResponseCode)
-
-			if httpResData.ResponseCode == "00" {
-				name = httpResData.ResponseData.FullName
+			if res.ResponseCode == "00" {
+				name = res.ResponseData.FullName
 			}
 
 			result.Data = append(result.Data, &pb.ThirdParty{
 				Id:   id,
 				Name: name,
 			})
+
 		}
+
 	}
 
 	return result, nil
@@ -504,52 +235,24 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 	}
 
 	if req.ReferenceNo != "" {
-		client := &http.Client{}
-		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-			proxyURL, err := url.Parse("http://localhost:5100")
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
 
-			client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-		}
-
-		httpReqData := ApiDownloadRequest{
+		apiReq := &ApiDownloadRequest{
 			ReferenceNo: req.ReferenceNo,
 		}
 
-		httpReqPayload, err := json.Marshal(httpReqData)
+		res, err := ApiDownload(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		httpReq, err := http.NewRequest("POST", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		if res.ResponseCode != "00" {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
-		httpReq.Header.Add("Content-Type", "application/json")
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
-
-		var httpResData ApiDownloadResponse
-		err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		for _, v := range res.ResponseData {
+			result.Data = append(result.Data, v.Url)
 		}
 
-		if httpResData.ResponseCode != "00" {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-		} else {
-			for _, v := range httpResData.ResponseData {
-				result.Data = append(result.Data, v.Url)
-			}
-		}
 	}
 
 	return result, nil
@@ -573,16 +276,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	me, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
-	}
-
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
 	filterData := []string{
@@ -669,44 +362,21 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		}
 	}
 
-	httpReqParams, err := query.Values(httpReqParamsOpt)
+	apiReq := &httpReqParamsOpt
+
+	res, err := ApiListTransaction(ctx, apiReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println("---------------------------")
-	logrus.Println(httpReqParams.Encode())
-	logrus.Println("---------------------------")
+	if res.ResponseCode != "00" {
 
-	httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+		logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
 
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-	httpRes, err := client.Do(httpReq)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-	defer httpRes.Body.Close()
-
-	var httpResData ApiListTransactionResponse
-	httpResBody, err := ioutil.ReadAll(httpRes.Body)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	err = json.Unmarshal(httpResBody, &httpResData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	if httpResData.ResponseCode != "00" {
-		logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-		// return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
 	} else {
-		for _, d := range httpResData.ResponseData {
+
+		for _, d := range res.ResponseData {
+
 			transactionPB := &pb.Transaction{
 				TransactionID:     d.TransactionId,
 				ThirdPartyID:      d.ThirdPartyId,
@@ -733,14 +403,16 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 			}
 
 			result.Data = append(result.Data, transactionPB)
+
 		}
 
 		result.Pagination = &pb.PaginationResponse{
-			Limit:      int32(httpResData.Pagination.Limit),
-			Page:       int32(httpResData.Pagination.Page),
-			TotalRows:  int64(httpResData.Pagination.TotalRecord),
-			TotalPages: int32(httpResData.Pagination.TotalPage),
+			Limit:      int32(res.Pagination.Limit),
+			Page:       int32(res.Pagination.Page),
+			TotalRows:  int64(res.Pagination.TotalRecord),
+			TotalPages: int32(res.Pagination.TotalPage),
 		}
+
 	}
 
 	return result, nil
@@ -754,15 +426,6 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 	}
 
 	if req.ReferenceNo != "" {
-		client := &http.Client{}
-		if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-			proxyURL, err := url.Parse("http://localhost:5100")
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-
-			client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-		}
 
 		httpReqParamsOpt := ApiListTransactionRequest{
 			ReferenceNo: req.ReferenceNo,
@@ -770,43 +433,19 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			Limit:       1,
 		}
 
-		httpReqParams, err := query.Values(httpReqParamsOpt)
+		apiReq := &httpReqParamsOpt
+
+		res, err := ApiListTransaction(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		logrus.Println(httpReqParams.Encode())
-
-		httpReq, err := http.NewRequest("GET", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0/listTransaction?"+httpReqParams.Encode(), nil)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		if res.ResponseCode != "00" {
+			logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
-		httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
-
-		httpRes, err := client.Do(httpReq)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-		defer httpRes.Body.Close()
-
-		var httpResData ApiListTransactionResponse
-		httpResBody, err := ioutil.ReadAll(httpRes.Body)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		err = json.Unmarshal(httpResBody, &httpResData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		if httpResData.ResponseCode != "00" {
-			logrus.Error("Failed To Transfer Data : ", httpResData.ResponseMessage)
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", httpResData.ResponseMessage)
-		}
-
-		d := httpResData.ResponseData[0]
+		d := res.ResponseData[0]
 
 		result.Data = &pb.Transaction{
 			TransactionID:     d.TransactionId,
@@ -832,6 +471,7 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 			ChannelName:       d.ChannelName,
 			TransactionTypeID: pb.BgType(d.TransactionTypeId),
 		}
+
 	}
 
 	return result, nil
@@ -1127,10 +767,10 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		Message: "Data",
 	}
 
-	// me, err := s.manager.GetMeFromJWT(ctx, "")
-	// if err != nil {
-	// 	return nil, err
-	// }
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
@@ -1287,40 +927,12 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 				}
 			}
 
-			byID := uint64(0)
-
 			for _, mappingORM := range mappingORMs {
 				if mappingORM.Id > 0 {
-					byID = mappingORM.CreatedByID
 					if !contains(ids, strconv.FormatUint(mappingORM.Id, 10)) {
 						ids = append(ids, strconv.FormatUint(mappingORM.Id, 10))
 					}
 				}
-			}
-
-			data := &pb.MappingORM{
-				CompanyID:     v.CompanyID,
-				ThirdPartyID:  v.ThirdPartyID,
-				BeneficiaryID: 10101010,
-				IsMapped:      false,
-				CreatedByID:   byID,
-				UpdatedByID:   byID,
-			}
-
-			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
-			if err != nil {
-				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-			}
-
-			if mappingORM.Id > 0 {
-				data.Id = mappingORM.Id
-			}
-
-			_, err = s.provider.UpdateOrCreateMapping(ctx, data)
-			if err != nil {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
 		}
@@ -1328,6 +940,64 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		err = s.provider.DeleteMapping(ctx, ids)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		for _, v := range taskData {
+
+			filter := []string{
+				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
+			}
+
+			taskMappingRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
+			if err != nil {
+				if !errors.Is(err, gorm.ErrRecordNotFound) {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+			}
+
+			for _, d := range taskMappingRes.Data {
+
+				taskMappingData := []*pb.MappingData{}
+				json.Unmarshal([]byte(d.GetData()), &taskMappingData)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
+				for _, dd := range taskMappingData {
+
+					if v.ThirdPartyID == dd.ThirdPartyID {
+
+						data := &pb.MappingORM{
+							CompanyID:     v.CompanyID,
+							ThirdPartyID:  v.ThirdPartyID,
+							BeneficiaryID: 10101010,
+							IsMapped:      dd.IsAllowAllBeneficiary,
+							CreatedByID:   me.UserID,
+							UpdatedByID:   me.UserID,
+						}
+
+						mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
+						if err != nil {
+							if !errors.Is(err, gorm.ErrRecordNotFound) {
+								return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+							}
+						}
+
+						if mappingORM.Id > 0 {
+							data.Id = mappingORM.Id
+						}
+
+						_, err = s.provider.UpdateOrCreateMapping(ctx, data)
+						if err != nil {
+							return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						}
+
+					}
+
+				}
+
+			}
+
 		}
 
 	}
