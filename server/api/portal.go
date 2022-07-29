@@ -90,10 +90,10 @@ type ApiListTransactionRequest struct {
 }
 
 type ApiListTransactionResponse struct {
-	ResponseCode    string                `json:"code"`
-	ResponseMessage string                `json:"message"`
+	ResponseCode    string                `json:"responseCode"`
+	ResponseMessage string                `json:"responseMessage"`
 	Pagination      ApiPaginationResponse `json:"pagination"`
-	ResponseData    []*ApiTransaction     `json:"data"`
+	ResponseData    []*ApiTransaction     `json:"responseData"`
 }
 
 type ApiInquiryThirdPartyByIDRequest struct {
