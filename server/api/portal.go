@@ -138,6 +138,63 @@ type ApiInquiryBenficiaryResponse struct {
 	ResponseData    []*ApiBeneficiary `json:"data"`
 }
 
+type ApiBgIssuingRequest struct {
+	AccountNo              string `json:"account_no"`
+	ApplicantName          string `json:"applicant_name"`
+	ApplicantAddress       string `json:"applicant_address"`
+	IsIndividu             string `json:"is_individu"`
+	NIK                    string `json:"nik"`
+	BirthDate              string `json:"birth_date"`
+	Gender                 string `json:"gender"`
+	NPWPNo                 string `json:"npwp_no"`
+	DateEstablished        string `json:"tanggal_berdiri"`
+	CompanyType            string `json:"company_type"`
+	IsPlafond              string `json:"is_plafond"`
+	TransactionType        string `json:"transaction_type"`
+	IsEndOfYearBg          string `json:"is_bg_akhir_tahun"`
+	NRK                    string `json:"nrk"`
+	ProjectName            string `json:"project_name"`
+	ThirdPartyId           string `json:"third_party_id"`
+	BeneficiaryName        string `json:"beneficiary_name"`
+	ProjectAmount          string `json:"project_amount"`
+	ContractNo             string `json:"contract_no"`
+	ContractDate           string `json:"contract_date"`
+	Currency               string `json:"currency"`
+	Amount                 string `json:"amount"`
+	EffectiveDate          string `json:"effective_date"`
+	MaturityDate           string `json:"maturity_date"`
+	ClaimPeriod            string `json:"claim_periode"`
+	IssuingBranch          string `json:"issuing_branch"`
+	BranchPrinter          string `json:"pencetak_branch"`
+	ContraGuarantee        string `json:"contra_guarantee"`
+	InsuranceLimitId       string `json:"insurance_limit_id"`
+	SP3No                  string `json:"sp3_no"`
+	HoldAccountNo          string `json:"hold_account_no"`
+	HoldAccountAmount      string `json:"hold_account_amount"`
+	ConsumerLimitId        string `json:"consumer_limit_id"`
+	ConsumerLimitAmount    string `json:"consumer_limit_amount"`
+	ApplicantContactPerson string `json:"applicant_contact_person"`
+	ApplicantPhoneNumber   string `json:"applicant_phone_number"`
+	ApplicantEmail         string `json:"applicant_email"`
+	ChannelId              string `json:"channel_id"`
+	ApplicantCustomerId    string `json:"applicant_customer_id"`
+	BeneficiaryCustomerId  string `json:"beneficiary_customer_id"`
+	LegalDocument          string `json:"document_legalitas"`
+	ContractDocument       string `json:"document_contract"`
+	Sp3Document            string `json:"document_sp3"`
+	OthersDocument         string `json:"document_others"`
+}
+
+type ApiBgIssuingResponse struct {
+	ResponseCode    string           `json:"responseCode"`
+	ResponseMessage string           `json:"responseMessage"`
+	Data            ApiBgIssuingData `json:"responseData"`
+}
+
+type ApiBgIssuingData struct {
+	RegistrationNo string `json:"registration_no"`
+}
+
 func GetHttpClient(ctx context.Context) (*http.Client, error) {
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
