@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -104,6 +105,11 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		Data:    []*pb.BeneficiaryName{},
 	}
 
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
 	apiReq := &ApiInquiryBenficiaryRequest{
 		ThirdPartyID: req.ThirdPartyID,
 	}
@@ -113,15 +119,82 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	var beneficiaryDataList []*pb.BeneficiaryName
+
 	if res.ResponseCode == "00" {
 		for _, v := range res.ResponseData {
-			result.Data = append(result.Data, &pb.BeneficiaryName{
+			beneficiaryDataList = append(result.Data, &pb.BeneficiaryName{
 				BeneficiaryId: v.BeneficiaryID,
 				ThirdPartyId:  v.ThirdPartyID,
 				Cif:           v.Cif,
 				Fullname:      v.FullName,
 				Status:        v.Status,
 			})
+		}
+	}
+
+	if me.UserType != "ba" {
+		var opts []grpc.DialOption
+		opts = append(opts, grpc.WithInsecure())
+
+		md, ok := metadata.FromIncomingContext(ctx)
+		if ok {
+			ctx = metadata.NewOutgoingContext(context.Background(), md)
+		}
+		var header, trailer metadata.MD
+
+		taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+		if err != nil {
+			logrus.Errorln("Failed connect to Task Service: %v", err)
+			return nil, status.Errorf(codes.Internal, "Error Internal")
+		}
+		taskConn.Connect()
+		defer taskConn.Close()
+
+		taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+		filter := &task_pb.Task{
+			Type:      "BG Mapping Digital",
+			CompanyID: me.CompanyID,
+		}
+
+		filterThirdParty := fmt.Sprintf("data:@>[{\"thirdPartyID\": %d}]", req.GetThirdPartyID())
+
+		dataReq := &task_pb.ListTaskRequest{
+			Task:   filter,
+			Filter: filterThirdParty,
+		}
+
+		dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		taskMappingDigitalData := []*pb.MappingDigitalData{}
+		json.Unmarshal([]byte(dataList.Data[0].GetData()), &taskMappingDigitalData)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		var beneficiaryIdList []string
+
+		for _, v := range taskMappingDigitalData {
+			beneficiaryIdList = append(beneficiaryIdList, fmt.Sprint(v.BeneficiaryId))
+		}
+
+		// logrus.Println("RESPONSE LIST", beneficiaryDataList, taskMappingDigitalData)
+
+		for _, v := range beneficiaryDataList {
+			// logrus.Println("RESPONSE", beneficiaryIdList, v.GetBeneficiaryId())
+			if contains(beneficiaryIdList, fmt.Sprint(v.GetBeneficiaryId())) {
+				logrus.Printf("TRUE")
+				result.Data = append(result.Data, &pb.BeneficiaryName{
+					BeneficiaryId: v.BeneficiaryId,
+					ThirdPartyId:  v.ThirdPartyId,
+					Fullname:      v.Fullname,
+					Status:        v.Status,
+				})
+			}
 		}
 	}
 

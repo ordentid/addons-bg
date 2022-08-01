@@ -258,6 +258,9 @@ message ApplicantData {
     string contactPerson = 8;
     string beneficiaryName = 9;
     string beneficiaryAddress = 10;
+    string NPWPNo = 11;
+    string PhoneNumber = 12;
+    string Email = 13;
 }
 
 message ProjectData {

@@ -287,7 +287,7 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -426,7 +426,7 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {

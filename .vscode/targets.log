@@ -6,10 +6,11 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
-# Make data base, printed on Mon Aug  1 09:16:48 2022
+# Make data base, printed on Mon Aug  1 17:54:17 2022
 
 # Variables
 
+ 
 # environment
 LC_ALL = C
 # environment
@@ -104,8 +105,6 @@ MAKE = $(MAKE_COMMAND)
 PATH = /home/septian/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/bin/remote-cli:/home/septian/.local/bin:/home/septian/.nvm/versions/node/v16.16.0/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:/mnt/c/Windows/system32:/mnt/c/Windows:/mnt/c/Windows/System32/Wbem:/mnt/c/Windows/System32/WindowsPowerShell/v1.0/:/mnt/c/Windows/System32/OpenSSH/:/mnt/c/Users/Septian/AppData/Local/Microsoft/WindowsApps:/mnt/c/Users/Septian/AppData/Local/Programs/Microsoft VS Code/bin:/snap/bin:/home/septian/go/bin:/home/septian/.local/bin:/usr/local/go/bin
 # default
 MAKEFILES := 
-# environment
-MOTD_SHOWN = update-motd
 # automatic
 ^F = $(notdir $^)
 # environment
@@ -145,7 +144,7 @@ DOCKERCMD = docker
 # environment
 _ = /home/septian/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/node
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-af8986e8-0367-4dfb-8b7b-4bceeff9c313.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-df803254-8dc6-4696-a594-caf8109d5c8b.sock
 # environment
 NVM_CD_FLAGS = 
 # environment
@@ -171,7 +170,7 @@ WSL_DISTRO_NAME = Ubuntu-22.04
 # default
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # variable set hash-table stats:
-# Load=80/1024=8%, Rehash=0, Collisions=2/119=2%
+# Load=79/1024=8%, Rehash=0, Collisions=2/118=2%
 
 # Pattern-specific Variable Values
 
@@ -277,7 +276,6 @@ unit-test:
 
 proto-gen:
 #  Implicit rule search has not been done.
- 
 #  Modification time never checked.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 75):
@@ -317,6 +315,7 @@ all: depend generate build unit-test
 #  File has been updated.
 #  Needs to be updated (-q is set).
 # variable set hash-table stats:
+ 
 # Load=0/32=0%, Rehash=0, Collisions=0/3=0%
 
 run:
@@ -397,6 +396,6 @@ docker-build:
 # strcache performance: lookups = 101 / hit rate = 56%
 # hash-table stats:
 # Load=44/8192=1%, Rehash=0, Collisions=0/101=0%
-# Finished Make data base on Mon Aug  1 09:16:48 2022
+# Finished Make data base on Mon Aug  1 17:54:17 2022
 
  
