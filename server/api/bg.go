@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -119,11 +118,11 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	var beneficiaryDataList []*pb.BeneficiaryName
+	data := []*pb.BeneficiaryName{}
 
 	if res.ResponseCode == "00" {
 		for _, v := range res.ResponseData {
-			beneficiaryDataList = append(result.Data, &pb.BeneficiaryName{
+			data = append(data, &pb.BeneficiaryName{
 				BeneficiaryId: v.BeneficiaryID,
 				ThirdPartyId:  v.ThirdPartyID,
 				Cif:           v.Cif,
@@ -133,69 +132,43 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		}
 	}
 
-	if me.UserType != "ba" {
-		var opts []grpc.DialOption
-		opts = append(opts, grpc.WithInsecure())
+	if req.Type == 0 {
 
-		md, ok := metadata.FromIncomingContext(ctx)
-		if ok {
-			ctx = metadata.NewOutgoingContext(context.Background(), md)
-		}
-		var header, trailer metadata.MD
+		result.Data = data
 
-		taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
-		if err != nil {
-			logrus.Errorln("Failed connect to Task Service: %v", err)
-			return nil, status.Errorf(codes.Internal, "Error Internal")
-		}
-		taskConn.Connect()
-		defer taskConn.Close()
+	} else {
 
-		taskClient := task_pb.NewTaskServiceClient(taskConn)
+		mappedBeneficiaryIDs := []string{}
 
-		filter := &task_pb.Task{
-			Type:      "BG Mapping Digital",
-			CompanyID: me.CompanyID,
+		mappingFilter := []string{
+			"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+			"third_party_id:" + strconv.FormatUint(req.ThirdPartyID, 10),
+			"is_mapped:true",
 		}
 
-		filterThirdParty := fmt.Sprintf("data:@>[{\"thirdPartyID\": %d}]", req.GetThirdPartyID())
-
-		dataReq := &task_pb.ListTaskRequest{
-			Task:   filter,
-			Filter: filterThirdParty,
+		filter := &db.ListFilter{
+			Filter: strings.Join(mappingFilter, ","),
 		}
 
-		dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+		mappingORMs, err := s.provider.GetMapping(ctx, filter)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		taskMappingDigitalData := []*pb.MappingDigitalData{}
-		json.Unmarshal([]byte(dataList.Data[0].GetData()), &taskMappingDigitalData)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		var beneficiaryIdList []string
-
-		for _, v := range taskMappingDigitalData {
-			beneficiaryIdList = append(beneficiaryIdList, fmt.Sprint(v.BeneficiaryId))
-		}
-
-		// logrus.Println("RESPONSE LIST", beneficiaryDataList, taskMappingDigitalData)
-
-		for _, v := range beneficiaryDataList {
-			// logrus.Println("RESPONSE", beneficiaryIdList, v.GetBeneficiaryId())
-			if contains(beneficiaryIdList, fmt.Sprint(v.GetBeneficiaryId())) {
-				logrus.Printf("TRUE")
-				result.Data = append(result.Data, &pb.BeneficiaryName{
-					BeneficiaryId: v.BeneficiaryId,
-					ThirdPartyId:  v.ThirdPartyId,
-					Fullname:      v.Fullname,
-					Status:        v.Status,
-				})
+		for _, v := range mappingORMs {
+			if v.BeneficiaryID != 10101010 {
+				if !contains(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
+					mappedBeneficiaryIDs = append(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
+				}
 			}
 		}
+
+		for _, v := range data {
+			if contains(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryId, 10)) {
+				result.Data = append(result.Data, v)
+			}
+		}
+
 	}
 
 	return result, nil
@@ -430,6 +403,10 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 		if req.Transaction.ReferenceNo != "" {
 			httpReqParamsOpt.ReferenceNo = req.Transaction.ReferenceNo
+		}
+
+		if req.Transaction.ChannelID > 0 {
+			httpReqParamsOpt.ChannelId = req.Transaction.ChannelID
 		}
 	}
 

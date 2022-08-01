@@ -81,8 +81,8 @@ type ApiListTransactionRequest struct {
 	BeneficiaryName       string `url:"beneficiaryName"`
 	ThirdPartyId          uint64 `url:"thirdPartyId,string"`
 	ThirdPartyName        string `url:"thirdPartyName"`
-	ChannelId             uint64 `url:"channelId"`
-	ChannelName           string `url:"channelName"`
+	ChannelId             uint64 `url:"channel_id"`
+	ChannelName           string `url:"channel_name"`
 	ApplicationCustomerId string `url:"applicant_customer_id"`
 	BeneficiaryCustomerId string `url:"beneficiary_customer_id"`
 	Page                  uint64 `url:"page,string"`

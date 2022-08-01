@@ -18,6 +18,11 @@ enum ThirdPartyType {
     IsMapped = 2;
 }
 
+enum BeneficiaryType {
+    AllBeneficiary = 0;
+    IsMappedBeneficiary = 1;
+}
+
 enum TaskStatus {
     AllStatus = 0;
     Pending = 1;
@@ -315,6 +320,7 @@ message BeneficiaryName {
 }
 message GetBeneficiaryNameRequest {
     uint64 thirdPartyID = 1;
+    BeneficiaryType type = 2;
 }
 message GetBeneficiaryNameResponse {
     bool error = 1;
