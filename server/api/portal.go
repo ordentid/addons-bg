@@ -243,6 +243,21 @@ type ApiBgIssuingData struct {
 	RegistrationNo string `json:"registration_no"`
 }
 
+type ApiBgTrackingData struct {
+	RegistrationNo  string `json:"registration_no"`
+	ReferenceNo     string `json:"referenceNo"`
+	WarkatUrl       string `json:"warkatUrl"`
+	WarkatUrlPublic string `json:"warkatUrlPublic"`
+	Status          string `json:"status"`
+	ModifiedDate    string `json:"modifiedDate"`
+}
+
+type ApiBgTrackingResponse struct {
+	ResponseCode    string            `json:"code"`
+	ResponseMessage string            `json:"message"`
+	Data            ApiBgTrackingData `json:"data"`
+}
+
 func GetHttpClient(ctx context.Context) (*http.Client, error) {
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
@@ -513,6 +528,49 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 	if httpResData.ResponseCode == "00" {
 		result.Data = &pb.IssuingPortal{
 			RegistrationNo: httpResData.Data.RegistrationNo,
+		}
+	} else {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReqTrackingData := ApiBgIssuingData{
+		RegistrationNo: result.Data.GetRegistrationNo(),
+	}
+
+	httpReqTrackingPayload, err := json.Marshal(httpReqTrackingData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReqTracking, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqTrackingPayload))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReqTracking.Header.Add("Content-Type", "application/json")
+	httpReqTracking.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
+
+	httpResTracking, err := client.Do(httpReqTracking)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpResTracking.Body.Close()
+
+	var httpResTrackingData ApiBgTrackingResponse
+	err = json.NewDecoder(httpResTracking.Body).Decode(&httpResTrackingData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println(httpResTrackingData.ResponseCode)
+
+	if httpResTrackingData.ResponseCode == "00" {
+		result.Data = &pb.IssuingPortal{
+			ReferenceNo:     httpResTrackingData.Data.ReferenceNo,
+			WarkatUrl:       httpResTrackingData.Data.WarkatUrl,
+			WarkatUrlPublic: httpResTrackingData.Data.WarkatUrlPublic,
+			Status:          httpResTrackingData.Data.Status,
+			ModifiedDate:    httpResTrackingData.Data.ModifiedDate,
 		}
 	} else {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)

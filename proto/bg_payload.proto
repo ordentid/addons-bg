@@ -178,6 +178,11 @@ message Beneficiary {
 
 message IssuingPortal {
     string registrationNo = 1;
+    string referenceNo = 2;
+	string warkatUrl = 3;
+	string warkatUrlPublic = 4;
+	string status = 5;
+	string modifiedDate = 6;
 }
 
 message TaskIssuingData {

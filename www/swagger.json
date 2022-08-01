@@ -2477,6 +2477,21 @@
       "properties": {
         "registrationNo": {
           "type": "string"
+        },
+        "referenceNo": {
+          "type": "string"
+        },
+        "warkatUrl": {
+          "type": "string"
+        },
+        "warkatUrlPublic": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "modifiedDate": {
+          "type": "string"
         }
       }
     },
