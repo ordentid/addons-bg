@@ -18,8 +18,8 @@
   "paths": {
     "/api/bg/applicant-name": {
       "get": {
-        "summary": "Applicant Name",
-        "description": "This API for Applicant Name list",
+        "summary": "Applicant",
+        "description": "This API for Applicant list",
         "operationId": "ApiService_GetApplicantName",
         "responses": {
           "200": {
@@ -45,14 +45,14 @@
           }
         ],
         "tags": [
-          "Applicant Name"
+          "Applicant"
         ]
       }
     },
     "/api/bg/beneficiary-name": {
       "get": {
-        "summary": "Beneficiary Name",
-        "description": "This API for Beneficiary Name list",
+        "summary": "Beneficiary",
+        "description": "This API for Beneficiary list",
         "operationId": "ApiService_GetBeneficiaryName",
         "responses": {
           "200": {
@@ -89,7 +89,31 @@
           }
         ],
         "tags": [
-          "Beneficiary Name"
+          "Beneficiary"
+        ]
+      }
+    },
+    "/api/bg/branch": {
+      "get": {
+        "summary": "Branch",
+        "description": "This API for Branch list",
+        "operationId": "ApiService_GetBranch",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetBranchResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Branch"
         ]
       }
     },
@@ -1877,6 +1901,31 @@
       ],
       "default": "BidBond"
     },
+    "v1Branch": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "v1CheckIssuingResponse": {
       "type": "object",
       "properties": {
@@ -2255,6 +2304,27 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1BeneficiaryName"
+          }
+        }
+      }
+    },
+    "v1GetBranchResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Branch"
           }
         }
       }

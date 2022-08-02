@@ -18,6 +18,31 @@ import (
 	"gorm.io/gorm"
 )
 
+func (s *Server) GetBranch(ctx context.Context, req *pb.GetBranchRequest) (*pb.GetBranchResponse, error) {
+	result := &pb.GetBranchResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.Branch{},
+	}
+
+	data, err := s.provider.GetBranch(ctx, &db.ListFilter{})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	for _, v := range data {
+		branch, err := v.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		result.Data = append(result.Data, &branch)
+	}
+
+	return result, nil
+}
+
 func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameRequest) (*pb.GetApplicantNameResponse, error) {
 	result := &pb.GetApplicantNameResponse{
 		Error:   false,

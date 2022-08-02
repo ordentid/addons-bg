@@ -21,6 +21,23 @@ type QueryBuilder struct {
 	Sort *pb.Sort
 }
 
+func (p *GormProvider) GetBranch(ctx context.Context, v *ListFilter) (data []*pb.BranchORM, err error) {
+	query := p.db_main.Model(&pb.BranchORM{})
+	if v.Data != nil {
+		query = query.Where(v.Data)
+	}
+
+	query = query.Scopes(FilterScoope(v.Filter), QueryScoop(v.Query))
+
+	if err := query.Find(&data).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			logrus.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	return data, nil
+}
+
 func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*pb.MappingORM, err error) {
 	query := p.db_main.Model(&pb.MappingORM{})
 	if v.Data != nil {

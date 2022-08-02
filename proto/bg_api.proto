@@ -42,14 +42,25 @@ service ApiService {
         };
     };
 
+    rpc GetBranch(GetBranchRequest) returns (GetBranchResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/branch"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Branch"]
+            summary: "Branch"
+            description: "This API for Branch list"
+        };
+    };
+
     rpc GetBeneficiaryName(GetBeneficiaryNameRequest) returns (GetBeneficiaryNameResponse) {
         option (google.api.http) = {
             get: "/api/bg/beneficiary-name"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Beneficiary Name"]
-            summary: "Beneficiary Name"
-            description: "This API for Beneficiary Name list"
+            tags: ["Beneficiary"]
+            summary: "Beneficiary"
+            description: "This API for Beneficiary list"
         };
     };
 
@@ -58,9 +69,9 @@ service ApiService {
             get: "/api/bg/applicant-name"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Applicant Name"]
-            summary: "Applicant Name"
-            description: "This API for Applicant Name list"
+            tags: ["Applicant"]
+            summary: "Applicant"
+            description: "This API for Applicant list"
         };
     };
 
