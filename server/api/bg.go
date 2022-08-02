@@ -1140,7 +1140,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			holdAccountAmount <= 0.0 ||
 			consumerLimitId == "" ||
 			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) of insurance limit")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit selected")
 		}
 	case 1:
 		counterGuaranteeTypeString = "{\"0\":\"customer account\"}"
