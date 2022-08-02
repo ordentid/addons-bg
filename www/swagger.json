@@ -1791,16 +1791,16 @@
         "beneficiaryAddress": {
           "type": "string"
         },
-        "NPWPNo": {
+        "npwpNo": {
           "type": "string"
         },
-        "PhoneNumber": {
+        "phoneNumber": {
           "type": "string"
         },
-        "Email": {
+        "email": {
           "type": "string"
         },
-        "NIK": {
+        "nik": {
           "type": "string"
         }
       }
