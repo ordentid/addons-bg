@@ -1157,7 +1157,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
 		if consumerLimitId == "" ||
 			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer limit is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
 		}
 	case 3:
 		counterGuaranteeTypeString = "{\"0\":\"hold account\", \"1\":\"customer limit\"}"
@@ -1169,7 +1169,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			holdAccountAmount <= 0.0 ||
 			consumerLimitId == "" ||
 			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination limit is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination account is selected")
 		}
 	}
 
