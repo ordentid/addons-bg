@@ -311,6 +311,14 @@ message HealthCheckResponse {
     string message = 1;
 }
 
+message GetBranchRequest {}
+message GetBranchResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated Branch data = 4;
+}
+
 message BeneficiaryName {
     uint64 beneficiaryId = 1;
     uint64 thirdPartyId = 2;
