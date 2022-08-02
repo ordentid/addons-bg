@@ -212,14 +212,14 @@ type ApiBgIssuingRequest struct {
 	MaturityDate           string  `json:"maturityDate"`
 	ClaimPeriod            uint64  `json:"claimPeriod,string"`
 	IssuingBranch          string  `json:"issuingBranch"`
-	BranchPrinter          string  `json:"pencetakBranch"`
+	PublishingBranch       string  `json:"pencetakBranch"`
 	ContraGuarantee        string  `json:"contraGuarantee"`
 	InsuranceLimitId       string  `json:"insuranceLimitId"`
 	SP3No                  string  `json:"sp3No"`
 	HoldAccountNo          string  `json:"holdAccountNo"`
 	HoldAccountAmount      float64 `json:"holdAccountAmount,string"`
 	ConsumerLimitId        string  `json:"customerLimitId"`
-	ConsumerLimitAmount    string  `json:"customerLimitAmount"`
+	ConsumerLimitAmount    float64 `json:"customerLimitAmount,string"`
 	ApplicantContactPerson string  `json:"applicantContactPerson"`
 	ApplicantPhoneNumber   string  `json:"applicantPhoneNumber"`
 	ApplicantEmail         string  `json:"applicantEmail"`

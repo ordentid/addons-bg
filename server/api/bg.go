@@ -1114,6 +1114,33 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
+	counterGuaranteeType := req.Data.Project.GetCounterGuaranteeType()
+
+	var counterGuaranteeTypeString string
+	insuranceLimitId := ""
+	sp3No := ""
+	holdAccountNo := ""
+	holdAccountAmount := 0.0
+	consumerLimitId := ""
+	consumerLimitAmount := 0.0
+
+	switch counterGuaranteeType.Number() {
+	case 0:
+		counterGuaranteeTypeString = "{\"0\":\"insurance limit\"}"
+		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
+		sp3No = req.Data.Project.GetSp3No()
+		holdAccountNo = req.Data.Project.GetHoldAccountNo()
+		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+		consumerLimitId = req.Data.Project.GetConsumerLimitId()
+		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
+	case 1:
+		counterGuaranteeTypeString = "{\"0\":\"customer account\"}"
+	case 2:
+		counterGuaranteeTypeString = "{\"0\":\"hold account\"}"
+	case 3:
+		counterGuaranteeTypeString = "{\"0\":\"hold account\", \"1\":\"customer limit\"}"
+	}
+
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
@@ -1141,20 +1168,20 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
 		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
 		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
-		BranchPrinter:          "Test",
-		ContraGuarantee:        "Test",
-		InsuranceLimitId:       "Test",
-		SP3No:                  "Test",
-		HoldAccountNo:          "Test",
-		HoldAccountAmount:      0.0,
-		ConsumerLimitId:        "Test",
-		ConsumerLimitAmount:    "0",
+		PublishingBranch:       req.Data.Publishing.GetPublishingBranch(),
+		ContraGuarantee:        counterGuaranteeTypeString,
+		InsuranceLimitId:       insuranceLimitId,
+		SP3No:                  sp3No,
+		HoldAccountNo:          holdAccountNo,
+		HoldAccountAmount:      holdAccountAmount,
+		ConsumerLimitId:        consumerLimitId,
+		ConsumerLimitAmount:    consumerLimitAmount,
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
-		ApplicantPhoneNumber:   "Test",
-		ApplicantEmail:         "Test",
-		ChannelId:              "Test",
-		ApplicantCustomerId:    "Test",
-		BeneficiaryCustomerId:  "Test",
+		ApplicantPhoneNumber:   req.Data.Applicant.GetPhoneNumber(),
+		ApplicantEmail:         req.Data.Applicant.GetEmail(),
+		ChannelId:              "2",
+		ApplicantCustomerId:    "0",
+		BeneficiaryCustomerId:  "0",
 		LegalDocument:          req.Data.Document.GetBusinessLegal(),
 		ContractDocument:       req.Data.Document.GetBg(),
 		Sp3Document:            req.Data.Document.GetSp(),

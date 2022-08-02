@@ -5,9 +5,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
- 
 
-# Make data base, printed on Tue Aug  2 11:58:32 2022
+# Make data base, printed on Tue Aug  2 13:48:05 2022
 
 # Variables
 
@@ -37,12 +36,10 @@ VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 BINARY = addons-bg-service
 # default
 .VARIABLES := 
- 
 # environment
 PWD = /home/septian/Documents/Works/addons-bg
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
- 
 # makefile (from 'Makefile', line 9)
 BUILD_VERSION = 0.1.0
 # environment
@@ -75,10 +72,8 @@ MFLAGS = -pqrR
 .SHELLFLAGS := -c
 # environment
 NVM_BIN = /home/septian/.nvm/versions/node/v16.16.0/bin
- 
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
- 
 # makefile (from 'Makefile', line 1)
 MAKEFILE_LIST := Makefile
 # automatic
@@ -98,9 +93,7 @@ MAKE_HOST := x86_64-pc-linux-gnu
 # makefile
 SHELL = /bin/sh
 # default
- 
 MAKECMDGOALS := all
- 
 # environment
 SHLVL = 0
 # environment
@@ -116,9 +109,7 @@ MOTD_SHOWN = update-motd
 # automatic
 ^F = $(notdir $^)
 # environment
- 
 LESSCLOSE = /usr/bin/lesspipe %s %s
- 
 # automatic
 ?F = $(notdir $?)
 # environment
@@ -149,17 +140,15 @@ USER = septian
 MAKE_VERSION := 4.3
 # makefile (from 'Makefile', line 11)
 TOPDIR = $(PWD)
- 
 # makefile (from 'Makefile', line 1)
 DOCKERCMD = docker
 # environment
 _ = /home/septian/.vscode-server/bin/3b889b090b5ad5793f524b5d1d39fda662b96a2a/node
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-ce13072e-f35c-4d96-b17d-5ecae5bd2a8e.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-85b82958-5256-4f77-be3b-4e8898954e56.sock
 # environment
 NVM_CD_FLAGS = 
 # environment
- 
 GOMODCACHE = /home/septian/go/pkg/mod
 # environment
 VSCODE_AMD_ENTRYPOINT = vs/workbench/api/node/extensionHostProcess
@@ -185,7 +174,6 @@ WSL_DISTRO_NAME = Ubuntu-22.04
 # Load=80/1024=8%, Rehash=0, Collisions=2/119=2%
 
 # Pattern-specific Variable Values
- 
 
 # No pattern-specific variable values.
 
@@ -194,7 +182,6 @@ WSL_DISTRO_NAME = Ubuntu-22.04
 # . (device 2064, inode 122512): 22 files, no impossibilities.
 
 # 22 files, no impossibilities in 1 directories.
- 
 
 # Implicit Rules
 
@@ -227,7 +214,6 @@ depend:
 # automatic
 # ? := 
 # automatic
- 
 # | := 
 # variable set hash-table stats:
 # Load=8/32=25%, Rehash=0, Collisions=1/11=9%
@@ -237,7 +223,6 @@ depend:
 	go mod verify
 	go mod tidy
 	@echo "You can now run 'make build' to compile all packages"
- 
 
 solr:
 #  Phony target (prerequisite of .PHONY).
@@ -270,7 +255,6 @@ migrate-db:
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 52):
 	go run ./server/ db-migrate
- 
 
 clean:
 #  Phony target (prerequisite of .PHONY).
@@ -282,7 +266,6 @@ clean:
 	rm -f $(BINARY).exe
 
 unit-test:
- 
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
@@ -295,6 +278,7 @@ unit-test:
 proto-gen:
 #  Implicit rule search has not been done.
 #  Modification time never checked.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 75):
 	protoc --proto_path=./proto ./proto/*.proto \
@@ -329,7 +313,6 @@ all: depend generate build unit-test
 #  Phony target (prerequisite of .PHONY).
 #  Command line target.
 #  Implicit rule search has not been done.
- 
 #  File does not exist.
 #  File has been updated.
 #  Needs to be updated (-q is set).
@@ -346,7 +329,6 @@ run:
 vet:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
- 
 #  File does not exist.
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 36):
@@ -415,6 +397,6 @@ docker-build:
 # strcache performance: lookups = 101 / hit rate = 56%
 # hash-table stats:
 # Load=44/8192=1%, Rehash=0, Collisions=0/101=0%
-# Finished Make data base on Tue Aug  2 11:58:32 2022
+# Finished Make data base on Tue Aug  2 13:48:05 2022
 
  

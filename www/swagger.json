@@ -1982,6 +1982,16 @@
       ],
       "default": "PT"
     },
+    "v1CounterGuaranteeType": {
+      "type": "string",
+      "enum": [
+        "Insurance",
+        "Costumer",
+        "Hold",
+        "Combination"
+      ],
+      "default": "Insurance"
+    },
     "v1CreateIssuingResponse": {
       "type": "object",
       "properties": {
@@ -2766,7 +2776,30 @@
           "type": "number",
           "format": "double"
         },
+        "counterGuaranteeType": {
+          "$ref": "#/definitions/v1CounterGuaranteeType"
+        },
         "counterGuaranteeAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "insuranceLimitId": {
+          "type": "string"
+        },
+        "sp3No": {
+          "type": "string"
+        },
+        "holdAccountNo": {
+          "type": "string"
+        },
+        "holdAccountAmount": {
+          "type": "number",
+          "format": "double"
+        },
+        "consumerLimitId": {
+          "type": "string"
+        },
+        "consumerLimitAmount": {
           "type": "number",
           "format": "double"
         }

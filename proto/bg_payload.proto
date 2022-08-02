@@ -70,6 +70,13 @@ enum CompanyType {
     CV = 1;
 }
 
+enum CounterGuaranteeType {
+    Insurance = 0;
+    Costumer = 1;
+    Hold = 2;
+    Combination = 3;
+}
+
 message Task {
     uint64 taskID = 1;
     string type = 2;
@@ -281,14 +288,21 @@ message ProjectData {
     ];
     string nrkNumber = 4;
     string projectCurrency = 5;
-    double projectAmount = 6 [(validator.field) = {float_gte: 0}];;
+    double projectAmount = 6 [(validator.field) = {float_gte: 0}];
     string bgCurrency = 7;
-    double bgAmount = 8 [(validator.field) = {float_gte: 0}];;
+    double bgAmount = 8 [(validator.field) = {float_gte: 0}];
     string cashAccountNo = 9;
     double cashAccountAmount = 10 [(validator.field) = {float_gte: 0}];
     string nonCashAccountNo = 11;
-    double nonCashAccountAmount = 12 [(validator.field) = {float_gte: 0}];;
-    double counterGuaranteeAmount = 13 [(validator.field) = {float_gte: 0}];;
+    double nonCashAccountAmount = 12 [(validator.field) = {float_gte: 0}];
+    CounterGuaranteeType counterGuaranteeType = 13;
+    double counterGuaranteeAmount = 14 [(validator.field) = {float_gte: 0}];
+    string insuranceLimitId = 15;
+	string sp3No = 16;
+	string holdAccountNo = 17 ;
+	double holdAccountAmount = 18 [(validator.field) = {float_gte: 0}];
+	string consumerLimitId = 19;
+	double consumerLimitAmount = 20 [(validator.field) = {float_gte: 0}];
 }
 
 message DocumentData {
