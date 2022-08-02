@@ -1081,3 +1081,115 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 	return result, nil
 }
+
+func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest) (*pb.CreateIssuingResponse, error) {
+	result := &pb.CreateIssuingResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	httpReqData := ApiBgIssuingRequest{
+		AccountNo:              req.Data.Account.GetAccountNumber(),
+		ApplicantName:          req.Data.Applicant.GetName(),
+		ApplicantAddress:       req.Data.Applicant.GetAddress(),
+		IsIndividu:             uint64(req.Data.Applicant.GetApplicantType().Number()),
+		NIK:                    req.Data.Applicant.GetNIK(),
+		BirthDate:              req.Data.Applicant.GetBirthDate(),
+		Gender:                 req.Data.Applicant.GetGender().String(),
+		NPWPNo:                 req.Data.Applicant.GetNPWPNo(),
+		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
+		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
+		IsPlafond:              0,
+		TransactionType:        req.Data.Publishing.GetBgType().String(),
+		IsEndOfYearBg:          "0",
+		NRK:                    req.Data.Project.GetNrkNumber(),
+		ProjectName:            req.Data.Project.GetName(),
+		ThirdPartyId:           req.Data.Publishing.GetThirdPartyID(),
+		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
+		ProjectAmount:          req.Data.Project.GetProjectAmount(),
+		ContractNo:             req.Data.Project.GetContractNumber(),
+		ContractDate:           req.Data.Project.GetProjectDate(),
+		Currency:               req.Data.Project.GetBgCurrency(),
+		Amount:                 req.Data.Project.GetBgAmount(),
+		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
+		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
+		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
+		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
+		BranchPrinter:          "Test",
+		ContraGuarantee:        "Test",
+		InsuranceLimitId:       "Test",
+		SP3No:                  "Test",
+		HoldAccountNo:          "Test",
+		HoldAccountAmount:      0.0,
+		ConsumerLimitId:        "Test",
+		ConsumerLimitAmount:    "0",
+		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
+		ApplicantPhoneNumber:   "Test",
+		ApplicantEmail:         "Test",
+		ChannelId:              "Test",
+		ApplicantCustomerId:    "Test",
+		BeneficiaryCustomerId:  "Test",
+		LegalDocument:          req.Data.Document.GetBusinessLegal(),
+		ContractDocument:       req.Data.Document.GetBg(),
+		Sp3Document:            req.Data.Document.GetSp(),
+		OthersDocument:         req.Data.Document.GetOther(),
+	}
+
+	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReqParamsOpt := ApiBgTrackingRequest{
+		RegistrationNo: createIssuingRes.Data.RegistrationNo,
+	}
+
+	apiReq := &httpReqParamsOpt
+
+	checkIssuingRes, err := ApiCheckIssuingStatus(ctx, apiReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	result.Data = &pb.IssuingPortal{
+		RegistrationNo:  checkIssuingRes.Data.RegistrationNo,
+		ReferenceNo:     checkIssuingRes.Data.ReferenceNo,
+		WarkatUrl:       checkIssuingRes.Data.WarkatUrl,
+		WarkatUrlPublic: checkIssuingRes.Data.WarkatUrlPublic,
+		Status:          checkIssuingRes.Data.Status,
+		ModifiedDate:    checkIssuingRes.Data.ModifiedDate,
+	}
+
+	return result, nil
+}
+
+func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingRequest) (*pb.CheckIssuingResponse, error) {
+	result := &pb.CheckIssuingResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	httpReqParamsOpt := ApiBgTrackingRequest{
+		RegistrationNo: req.GetRegistrationNo(),
+	}
+
+	apiReq := &httpReqParamsOpt
+
+	res, err := ApiCheckIssuingStatus(ctx, apiReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	result.Data = &pb.IssuingPortal{
+		RegistrationNo:  res.Data.RegistrationNo,
+		ReferenceNo:     res.Data.ReferenceNo,
+		WarkatUrl:       res.Data.WarkatUrl,
+		WarkatUrlPublic: res.Data.WarkatUrlPublic,
+		Status:          res.Data.Status,
+		ModifiedDate:    res.Data.ModifiedDate,
+	}
+
+	return result, nil
+}

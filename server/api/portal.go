@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 
-	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
@@ -240,16 +239,20 @@ type ApiBgIssuingResponse struct {
 }
 
 type ApiBgIssuingData struct {
-	RegistrationNo string `json:"registration_no"`
+	RegistrationNo string `json:"registrationNo"`
 }
 
 type ApiBgTrackingData struct {
-	RegistrationNo  string `json:"registration_no"`
+	RegistrationNo  string `json:"registrationNo"`
 	ReferenceNo     string `json:"referenceNo"`
 	WarkatUrl       string `json:"warkatUrl"`
 	WarkatUrlPublic string `json:"warkatUrlPublic"`
 	Status          string `json:"status"`
 	ModifiedDate    string `json:"modifiedDate"`
+}
+
+type ApiBgTrackingRequest struct {
+	RegistrationNo string `json:"registrationNo"`
 }
 
 type ApiBgTrackingResponse struct {
@@ -443,61 +446,8 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 	return &httpResData, nil
 }
 
-func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingRequest) (*pb.ApiCreateIssuingResponse, error) {
-	result := &pb.ApiCreateIssuingResponse{
-		Error:   false,
-		Code:    200,
-		Message: "Data",
-	}
-
-	httpReqData := ApiBgIssuingRequest{
-		AccountNo:              req.Data.Account.GetAccountNumber(),
-		ApplicantName:          req.Data.Applicant.GetName(),
-		ApplicantAddress:       req.Data.Applicant.GetAddress(),
-		IsIndividu:             uint64(req.Data.Applicant.GetApplicantType().Number()),
-		NIK:                    "Test",
-		BirthDate:              req.Data.Applicant.GetBirthDate(),
-		Gender:                 req.Data.Applicant.GetGender().String(),
-		NPWPNo:                 "Test",
-		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
-		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
-		IsPlafond:              0,
-		TransactionType:        req.Data.Publishing.GetBgType().String(),
-		IsEndOfYearBg:          "0",
-		NRK:                    req.Data.Project.GetNrkNumber(),
-		ProjectName:            req.Data.Project.GetName(),
-		ThirdPartyId:           req.Data.Publishing.GetThirdPartyID(),
-		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
-		ProjectAmount:          req.Data.Project.GetProjectAmount(),
-		ContractNo:             req.Data.Project.GetContractNumber(),
-		ContractDate:           req.Data.Project.GetProjectDate(),
-		Currency:               req.Data.Project.GetBgCurrency(),
-		Amount:                 req.Data.Project.GetBgAmount(),
-		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
-		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
-		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
-		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
-		BranchPrinter:          "Test",
-		ContraGuarantee:        "Test",
-		InsuranceLimitId:       "Test",
-		SP3No:                  "Test",
-		HoldAccountNo:          "Test",
-		HoldAccountAmount:      0.0,
-		ConsumerLimitId:        "Test",
-		ConsumerLimitAmount:    "0",
-		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
-		ApplicantPhoneNumber:   "Test",
-		ApplicantEmail:         "Test",
-		ChannelId:              "Test",
-		ApplicantCustomerId:    "Test",
-		BeneficiaryCustomerId:  "Test",
-		LegalDocument:          req.Data.Document.GetBusinessLegal(),
-		ContractDocument:       req.Data.Document.GetBg(),
-		Sp3Document:            req.Data.Document.GetSp(),
-		OthersDocument:         req.Data.Document.GetOther(),
-	}
-
-	httpReqPayload, err := json.Marshal(httpReqData)
+func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
+	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -525,56 +475,51 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *pb.ApiCreateIssuingR
 
 	logrus.Println(httpResData.ResponseCode)
 
-	if httpResData.ResponseCode == "00" {
-		result.Data = &pb.IssuingPortal{
-			RegistrationNo: httpResData.Data.RegistrationNo,
-		}
-	} else {
+	if httpResData.ResponseCode != "00" {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReqTrackingData := ApiBgIssuingData{
-		RegistrationNo: result.Data.GetRegistrationNo(),
-	}
-
-	httpReqTrackingPayload, err := json.Marshal(httpReqTrackingData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReqTracking, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqTrackingPayload))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReqTracking.Header.Add("Content-Type", "application/json")
-	httpReqTracking.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
-
-	httpResTracking, err := client.Do(httpReqTracking)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-	defer httpResTracking.Body.Close()
-
-	var httpResTrackingData ApiBgTrackingResponse
-	err = json.NewDecoder(httpResTracking.Body).Decode(&httpResTrackingData)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	logrus.Println(httpResTrackingData.ResponseCode)
-
-	if httpResTrackingData.ResponseCode == "00" {
-		result.Data = &pb.IssuingPortal{
-			ReferenceNo:     httpResTrackingData.Data.ReferenceNo,
-			WarkatUrl:       httpResTrackingData.Data.WarkatUrl,
-			WarkatUrlPublic: httpResTrackingData.Data.WarkatUrlPublic,
-			Status:          httpResTrackingData.Data.Status,
-			ModifiedDate:    httpResTrackingData.Data.ModifiedDate,
-		}
-	} else {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	result := &httpResData
 
 	return result, nil
+}
+
+func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
+	httpReqData := ApiBgIssuingData{
+		RegistrationNo: req.RegistrationNo,
+	}
+
+	httpReqPayload, err := json.Marshal(httpReqData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqPayload))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Content-Type", "application/json")
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	client := &http.Client{}
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiBgTrackingResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpRes)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println(httpResData.ResponseCode)
+
+	if httpResData.ResponseCode != "00" {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	return &httpResData, nil
 }

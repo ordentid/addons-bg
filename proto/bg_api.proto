@@ -297,15 +297,17 @@ service ApiService {
         };
     };
 
-    rpc ApiCreateIssuing(ApiCreateIssuingRequest) returns (ApiCreateIssuingResponse) {
+    rpc CreateIssuing(CreateIssuingRequest) returns (CreateIssuingResponse) {
+    }
+
+    rpc CheckIssuingStatus(CheckIssuingRequest) returns (CheckIssuingResponse) {
         option (google.api.http) = {
-            post: "/api/bg/issuing/create"
-            body: "*"
+            get: "/api/bg/issuing/check"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             tags: ["BG Issuing"]
-            summary: "Create BG Issuing to Portal"
-            description: "This API for create BG Issuing to Portal"
+            summary: "Check BG Issuing Status"
+            description: "This API for check BG Issuing status which has been sent to Portal"
         };
     }
 }

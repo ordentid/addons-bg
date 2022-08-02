@@ -266,6 +266,7 @@ message ApplicantData {
     string NPWPNo = 11;
     string PhoneNumber = 12;
     string Email = 13;
+    string NIK = 14;
 }
 
 message ProjectData {
@@ -719,14 +720,25 @@ message GetTaskIssuingFileResponse {
     string message = 3;
 }
 
-message ApiCreateIssuingRequest {
+message CreateIssuingRequest {
     uint64 taskID = 1;
     IssuingData data = 2;
 }
 
-message ApiCreateIssuingResponse {
+message CreateIssuingResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
     IssuingPortal data= 4;
+}
+
+message CheckIssuingRequest {
+    string registrationNo = 1;
+}
+
+message CheckIssuingResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    IssuingPortal data = 4;
 }
