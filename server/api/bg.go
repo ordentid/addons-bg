@@ -1114,6 +1114,16 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
+	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
+	dateEstablished := ""
+
+	if isIndividu == 0 {
+		dateEstablished = req.Data.Applicant.GetDateEstablished()
+		if dateEstablished == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on dateEstablished when isIndividu is true")
+		}
+	}
+
 	counterGuaranteeType := req.Data.Project.GetCounterGuaranteeType()
 
 	var counterGuaranteeTypeString string
@@ -1129,11 +1139,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		counterGuaranteeTypeString = "{\"0\":\"insurance limit\"}"
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
 		sp3No = req.Data.Project.GetSp3No()
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		consumerLimitId = req.Data.Project.GetConsumerLimitId()
-		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
-
 		if insuranceLimitId == "" ||
 			sp3No == "" ||
 			holdAccountNo == "" ||
@@ -1144,22 +1149,44 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	case 1:
 		counterGuaranteeTypeString = "{\"0\":\"customer account\"}"
+		holdAccountNo = req.Data.Project.GetHoldAccountNo()
+		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+		if insuranceLimitId == "" ||
+			sp3No == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
+		}
 	case 2:
 		counterGuaranteeTypeString = "{\"0\":\"hold account\"}"
+		consumerLimitId = req.Data.Project.GetConsumerLimitId()
+		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
+		if consumerLimitId == "" ||
+			consumerLimitAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer limit is selected")
+		}
 	case 3:
 		counterGuaranteeTypeString = "{\"0\":\"hold account\", \"1\":\"customer limit\"}"
+		holdAccountNo = req.Data.Project.GetHoldAccountNo()
+		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+		consumerLimitId = req.Data.Project.GetConsumerLimitId()
+		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
+		if holdAccountNo == "" ||
+			holdAccountAmount <= 0.0 ||
+			consumerLimitId == "" ||
+			consumerLimitAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination limit is selected")
+		}
 	}
 
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
 		ApplicantAddress:       req.Data.Applicant.GetAddress(),
-		IsIndividu:             uint64(req.Data.Applicant.GetApplicantType().Number()),
+		IsIndividu:             isIndividu,
 		NIK:                    req.Data.Applicant.GetNik(),
 		BirthDate:              req.Data.Applicant.GetBirthDate(),
 		Gender:                 req.Data.Applicant.GetGender().String(),
 		NPWPNo:                 req.Data.Applicant.GetNpwpNo(),
-		DateEstablished:        req.Data.Applicant.GetDateEstablished(),
+		DateEstablished:        dateEstablished,
 		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
 		IsPlafond:              0,
 		TransactionType:        req.Data.Publishing.GetBgType().String(),
