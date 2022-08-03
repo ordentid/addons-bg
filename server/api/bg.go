@@ -1212,7 +1212,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
 		ApplicantPhoneNumber:   req.Data.Applicant.GetPhoneNumber(),
 		ApplicantEmail:         req.Data.Applicant.GetEmail(),
-		ChannelId:              "2",
+		ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
 		ApplicantCustomerId:    "0",
 		BeneficiaryCustomerId:  "0",
 		LegalDocument:          req.Data.Document.GetBusinessLegal(),
@@ -1267,23 +1267,23 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	channelId, err := strconv.ParseUint(getEnv("BG_CHANNEL_ID", "2"), 10, 64)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	// channelId, err := strconv.ParseUint(getEnv("BG_CHANNEL_ID", "2"), 10, 64)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
 
-	httpTransactionReqParamsOpt := ApiListTransactionRequest{
-		ReferenceNo: res.Data.ReferenceNo,
-		ChannelId:   channelId,
-	}
+	// httpTransactionReqParamsOpt := ApiListTransactionRequest{
+	// 	ReferenceNo: res.Data.ReferenceNo,
+	// 	ChannelId:   channelId,
+	// }
 
-	apiTransactionReq := &httpTransactionReqParamsOpt
+	// apiTransactionReq := &httpTransactionReqParamsOpt
 
-	transactionRes, err := ApiListTransaction(ctx, apiTransactionReq)
+	// transactionRes, err := ApiListTransaction(ctx, apiTransactionReq)
 
-	if len(transactionRes.ResponseData) <= 0 {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	// if len(transactionRes.ResponseData) <= 0 {
+	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	// }
 
 	result.Data = &pb.IssuingPortal{
 		RegistrationNo:  res.Data.RegistrationNo,
