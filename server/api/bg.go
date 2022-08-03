@@ -1267,6 +1267,26 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	channelId, err := strconv.ParseUint(getEnv("BG_CHANNEL_ID", "2"), 10, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpTransactionReqParamsOpt := ApiListTransactionRequest{
+		ReferenceNo: res.Data.ReferenceNo,
+		ChannelId:   channelId,
+	}
+
+	apiTransactionReq := &httpTransactionReqParamsOpt
+
+	transactionRes, err := ApiListTransaction(ctx, apiTransactionReq)
+
+	if len(transactionRes.ResponseData) <= 0 {
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+	}
+
 	result.Data = &pb.IssuingPortal{
 		RegistrationNo:  res.Data.RegistrationNo,
 		ReferenceNo:     res.Data.ReferenceNo,
