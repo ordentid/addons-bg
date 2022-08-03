@@ -70,7 +70,7 @@ enum CompanyType {
     CV = 1;
 }
 
-enum CounterGuaranteeType {
+enum ContractGuaranteeType {
     Insurance = 0;
     Costumer = 1;
     Hold = 2;
@@ -295,7 +295,7 @@ message ProjectData {
     double cashAccountAmount = 10 [(validator.field) = {float_gte: 0}];
     string nonCashAccountNo = 11;
     double nonCashAccountAmount = 12 [(validator.field) = {float_gte: 0}];
-    CounterGuaranteeType counterGuaranteeType = 13;
+    ContractGuaranteeType contractGuaranteeType = 13;
     double counterGuaranteeAmount = 14 [(validator.field) = {float_gte: 0}];
     string insuranceLimitId = 15;
 	string sp3No = 16;

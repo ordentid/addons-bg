@@ -1982,7 +1982,7 @@
       ],
       "default": "PT"
     },
-    "v1CounterGuaranteeType": {
+    "v1ContractGuaranteeType": {
       "type": "string",
       "enum": [
         "Insurance",
@@ -2776,8 +2776,8 @@
           "type": "number",
           "format": "double"
         },
-        "counterGuaranteeType": {
-          "$ref": "#/definitions/v1CounterGuaranteeType"
+        "contractGuaranteeType": {
+          "$ref": "#/definitions/v1ContractGuaranteeType"
         },
         "counterGuaranteeAmount": {
           "type": "number",
