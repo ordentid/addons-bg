@@ -1124,7 +1124,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
-	counterGuaranteeType := req.Data.Project.GetCounterGuaranteeType()
+	counterGuaranteeType := req.Data.Project.GetContractGuaranteeType()
 
 	var counterGuaranteeTypeString string
 	insuranceLimitId := ""
