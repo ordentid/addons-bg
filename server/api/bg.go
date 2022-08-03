@@ -1282,9 +1282,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	transactionRes, err := ApiListTransaction(ctx, apiTransactionReq)
 
 	if len(transactionRes.ResponseData) <= 0 {
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	result.Data = &pb.IssuingPortal{
