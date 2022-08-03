@@ -450,13 +450,11 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
-		logrus.Println("marshall")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/applyBG", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
-		logrus.Println("newrequest")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -465,7 +463,6 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 
 	client, err := GetHttpClient(ctx)
 	if err != nil {
-		logrus.Println("GetHttpClient")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 	httpRes, err := client.Do(httpReq)
@@ -476,18 +473,16 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	defer httpRes.Body.Close()
 
 	var httpResData ApiBgIssuingResponse
-	bytes, err := io.ReadAll(httpRes.Body)
+	bytes, _ := io.ReadAll(httpRes.Body)
 	logrus.Println("RESPONSE STRING", string(bytes))
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
-		logrus.Println("Marshall", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	logrus.Println(httpResData)
 
 	if httpResData.ResponseCode != "00" {
-		logrus.Println("httpResData.ResponseCode")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v")
 	}
 
@@ -531,7 +526,7 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	}
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", "err")
 	}
 
 	return &httpResData, nil

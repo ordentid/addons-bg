@@ -7,10 +7,11 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
+	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
-	_ "github.com/mwitkow/go-proto-validators"
+	regexp "regexp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -152,16 +153,42 @@ func (this *IssuingData) Validate() error {
 	}
 	return nil
 }
+
+var _regex_PublishingData_EffectiveDate = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+var _regex_PublishingData_ExpiryDate = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+
 func (this *PublishingData) Validate() error {
+	if !_regex_PublishingData_EffectiveDate.MatchString(this.EffectiveDate) {
+		return github_com_mwitkow_go_proto_validators.FieldError("EffectiveDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.EffectiveDate))
+	}
+	if !_regex_PublishingData_ExpiryDate.MatchString(this.ExpiryDate) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ExpiryDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.ExpiryDate))
+	}
 	return nil
 }
 func (this *AccountData) Validate() error {
 	return nil
 }
+
+var _regex_ApplicantData_BirthDate = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+var _regex_ApplicantData_DateEstablished = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+
 func (this *ApplicantData) Validate() error {
+	if !_regex_ApplicantData_BirthDate.MatchString(this.BirthDate) {
+		return github_com_mwitkow_go_proto_validators.FieldError("BirthDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.BirthDate))
+	}
+	if !_regex_ApplicantData_DateEstablished.MatchString(this.DateEstablished) {
+		return github_com_mwitkow_go_proto_validators.FieldError("DateEstablished", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.DateEstablished))
+	}
 	return nil
 }
+
+var _regex_ProjectData_ProjectDate = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+
 func (this *ProjectData) Validate() error {
+	if !_regex_ProjectData_ProjectDate.MatchString(this.ProjectDate) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ProjectDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.ProjectDate))
+	}
 	if !(this.ProjectAmount >= 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("ProjectAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.ProjectAmount))
 	}

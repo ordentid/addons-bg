@@ -1159,6 +1159,21 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		Message: "Success",
 	}
 
+	openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
+	publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
+
+	openingBranch, err := branchFormatter(openingBranchRaw)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	}
+	publishingBranch, err := branchFormatter(publishingBranchRaw)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	}
+
+	req.Data.Publishing.OpeningBranch = openingBranch
+	req.Data.Publishing.PublishingBranch = publishingBranch
+
 	me, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err

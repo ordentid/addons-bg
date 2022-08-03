@@ -1,7 +1,10 @@
 package api
 
 import (
+	"fmt"
 	"os"
+	"strconv"
+	"strings"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
@@ -133,4 +136,27 @@ func contains(s []string, e string) bool {
 		}
 	}
 	return false
+}
+
+func branchFormatter(s string) (string, error) {
+	error := status.Errorf(codes.InvalidArgument, "Error Invalid Argument")
+	var sFinal *int
+	if s != "" {
+		sArr := strings.Split(s, "-")
+		if len(sArr) != 2 {
+			return "", error
+		}
+		sFinals := sArr[0]
+		res, err := strconv.Atoi(sFinals)
+		sFinal = &res
+		if err != nil {
+			return "", error
+		}
+	} else {
+		return "", error
+	}
+
+	sPadding := fmt.Sprintf("%05d", *sFinal)
+
+	return sPadding, nil
 }

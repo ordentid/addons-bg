@@ -1986,8 +1986,8 @@
       "type": "string",
       "enum": [
         "Insurance",
-        "Costumer",
-        "Hold",
+        "Cash",
+        "NonCashLoan",
         "Combination"
       ],
       "default": "Insurance"

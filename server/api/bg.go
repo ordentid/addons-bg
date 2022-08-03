@@ -1142,7 +1142,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		logrus.Println(insuranceLimitId, sp3No)
 		if insuranceLimitId == "" ||
 			sp3No == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
 	case 1:
 		counterGuaranteeTypeString = "{\"0\":\"customer account\"}"
@@ -1150,7 +1150,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
 		if insuranceLimitId == "" ||
 			sp3No == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
 		}
 	case 2:
 		counterGuaranteeTypeString = "{\"0\":\"hold account\"}"
@@ -1223,8 +1223,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
-		logrus.Println("ApiCreateIssuing")
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", "Invalid response")
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	httpReqParamsOpt := ApiBgTrackingRequest{
@@ -1265,7 +1264,6 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	res, err := ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
-		logrus.Println("TEST RES")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
