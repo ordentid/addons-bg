@@ -116,7 +116,7 @@ type ApiInquiryThirdPartyByStatusResponse struct {
 }
 
 type ApiDownloadRequest struct {
-	ReferenceNo string `json:"reference_no"`
+	ReferenceNo string `json:"referenceNo"`
 }
 
 type ApiDownloadResponse struct {
@@ -391,7 +391,7 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	httpReq.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)

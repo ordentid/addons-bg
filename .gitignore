@@ -92,4 +92,4 @@ fabric.properties
 active.en.json
 
 .env
-.vscode/
+.vscode/*
