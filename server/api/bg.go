@@ -1223,7 +1223,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	httpReqParamsOpt := ApiBgTrackingRequest{
@@ -1234,7 +1234,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	checkIssuingRes, err := ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	result.Data = &pb.IssuingPortal{
