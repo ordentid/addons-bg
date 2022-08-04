@@ -1158,7 +1158,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
 		if consumerLimitId == "" ||
 			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when hold account is selected")
 		}
 	case 3:
 		counterGuaranteeTypeString = "{\"0\":\"hold account\", \"1\":\"customer limit\"}"
@@ -1264,7 +1264,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	res, err := ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	// channelId, err := strconv.ParseUint(getEnv("BG_CHANNEL_ID", "2"), 10, 64)

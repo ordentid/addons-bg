@@ -526,7 +526,8 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	}
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", "err")
+		logrus.Println("Error")
+		return nil, status.Errorf(codes.InvalidArgument, "Error invalid argument")
 	}
 
 	return &httpResData, nil
