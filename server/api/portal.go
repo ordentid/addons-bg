@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 	"net/http"
 	"net/url"
 
@@ -186,51 +185,51 @@ type ApiInquiryBenficiaryResponse struct {
 // }
 
 type ApiBgIssuingRequest struct {
-	AccountNo              string  `json:"accountNumber"`
-	ApplicantName          string  `json:"applicantName"`
-	ApplicantAddress       string  `json:"applicantAddress"`
-	IsIndividu             uint64  `json:"isIndividu,string"`
-	NIK                    string  `json:"nik"`
-	BirthDate              string  `json:"birthDate"`
-	Gender                 string  `json:"gender"`
-	NPWPNo                 string  `json:"npwp"`
-	DateEstablished        string  `json:"tanggalBerdiri"`
-	CompanyType            string  `json:"companyType"`
-	IsPlafond              uint64  `json:"isPlafond,string"`
-	TransactionType        string  `json:"transactionType"`
-	TransactionTypeDesc    string  `json:"transactionTypeDesc"`
-	IsEndOfYearBg          string  `json:"isBGAkhirTahun"`
-	NRK                    string  `json:"nrk"`
-	ProjectName            string  `json:"projectName"`
-	ThirdPartyId           uint64  `json:"thirdPartyId,string"`
-	BeneficiaryName        string  `json:"beneficiaryName"`
-	ProjectAmount          float64 `json:"projectAmount,string"`
-	ContractNo             string  `json:"contractNo"`
-	ContractDate           string  `json:"contractDate"`
-	Currency               string  `json:"currency"`
-	Amount                 float64 `json:"amount,string"`
-	EffectiveDate          string  `json:"effectiveDate"`
-	MaturityDate           string  `json:"maturityDate"`
-	ClaimPeriod            uint64  `json:"claimPeriod,string"`
-	IssuingBranch          string  `json:"issuingBranch"`
-	PublishingBranch       string  `json:"pencetakBranch"`
-	ContraGuarantee        string  `json:"contraGuarantee"`
-	InsuranceLimitId       string  `json:"insuranceLimitId"`
-	SP3No                  string  `json:"sp3No"`
-	HoldAccountNo          string  `json:"holdAccountNo"`
-	HoldAccountAmount      float64 `json:"holdAccountAmount,string"`
-	ConsumerLimitId        string  `json:"customerLimitId"`
-	ConsumerLimitAmount    float64 `json:"customerLimitAmount,string"`
-	ApplicantContactPerson string  `json:"applicantContactPerson"`
-	ApplicantPhoneNumber   string  `json:"applicantPhoneNumber"`
-	ApplicantEmail         string  `json:"applicantEmail"`
-	ChannelId              string  `json:"channelId"`
-	ApplicantCustomerId    string  `json:"applicantCustomerId"`
-	BeneficiaryCustomerId  string  `json:"beneficiaryCustomerId"`
-	LegalDocument          string  `json:"documentLegalitas"`
-	ContractDocument       string  `json:"documentContract"`
-	Sp3Document            string  `json:"documentSp3"`
-	OthersDocument         string  `json:"documentOthers"`
+	AccountNo              string            `json:"accountNumber"`
+	ApplicantName          string            `json:"applicantName"`
+	ApplicantAddress       string            `json:"applicantAddress"`
+	IsIndividu             uint64            `json:"isIndividu,string"`
+	NIK                    string            `json:"nik"`
+	BirthDate              string            `json:"birthDate"`
+	Gender                 string            `json:"gender"`
+	NPWPNo                 string            `json:"npwp"`
+	DateEstablished        string            `json:"tanggalBerdiri"`
+	CompanyType            string            `json:"companyType"`
+	IsPlafond              uint64            `json:"isPlafond,string"`
+	TransactionType        string            `json:"transactionType"`
+	TransactionTypeDesc    string            `json:"transactionTypeDesc"`
+	IsEndOfYearBg          string            `json:"isBGAkhirTahun"`
+	NRK                    string            `json:"nrk"`
+	ProjectName            string            `json:"projectName"`
+	ThirdPartyId           uint64            `json:"thirdPartyId,string"`
+	BeneficiaryName        string            `json:"beneficiaryName"`
+	ProjectAmount          float64           `json:"projectAmount,string"`
+	ContractNo             string            `json:"contractNo"`
+	ContractDate           string            `json:"contractDate"`
+	Currency               string            `json:"currency"`
+	Amount                 float64           `json:"amount,string"`
+	EffectiveDate          string            `json:"effectiveDate"`
+	MaturityDate           string            `json:"maturityDate"`
+	ClaimPeriod            uint64            `json:"claimPeriod,string"`
+	IssuingBranch          string            `json:"issuingBranch"`
+	PublishingBranch       string            `json:"pencetakBranch"`
+	ContraGuarantee        map[string]string `json:"contraGuarantee"`
+	InsuranceLimitId       string            `json:"insuranceLimitId"`
+	SP3No                  string            `json:"sp3No"`
+	HoldAccountNo          string            `json:"holdAccountNo"`
+	HoldAccountAmount      float64           `json:"holdAccountAmount,string"`
+	ConsumerLimitId        string            `json:"customerLimitId"`
+	ConsumerLimitAmount    float64           `json:"customerLimitAmount,string"`
+	ApplicantContactPerson string            `json:"applicantContactPerson"`
+	ApplicantPhoneNumber   string            `json:"applicantPhoneNumber"`
+	ApplicantEmail         string            `json:"applicantEmail"`
+	ChannelId              string            `json:"channelId"`
+	ApplicantCustomerId    string            `json:"applicantCustomerId"`
+	BeneficiaryCustomerId  string            `json:"beneficiaryCustomerId"`
+	LegalDocument          string            `json:"documentLegalitas"`
+	ContractDocument       string            `json:"documentContract"`
+	Sp3Document            string            `json:"documentSp3"`
+	OthersDocument         string            `json:"documentOthers"`
 }
 
 type ApiBgIssuingResponse struct {
@@ -449,6 +448,7 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 
 func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
 	httpReqPayload, err := json.Marshal(req)
+	logrus.Println(string(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -473,11 +473,11 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	defer httpRes.Body.Close()
 
 	var httpResData ApiBgIssuingResponse
-	bytes, _ := io.ReadAll(httpRes.Body)
-	logrus.Println("RESPONSE STRING", string(bytes))
+	// bytes, _ := io.ReadAll(httpRes.Body)
+	// logrus.Println("[DEBUG] RESPONSE STRING", string(bytes))
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", "Error invalid response")
 	}
 
 	logrus.Println(httpResData)
