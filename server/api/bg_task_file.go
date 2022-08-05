@@ -104,18 +104,24 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	y := pdf.GetY()
 	x := marginH
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
 	for index, v := range file.res.Data {
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
 
-		err := v.Task.CreatedAt.CheckValid()
+		err = v.Task.CreatedAt.CheckValid()
 		if err == nil {
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -124,7 +130,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 			year, _, _ := v.Task.UpdatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+				dateModified = v.Task.UpdatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -180,7 +186,6 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	}
 
 	var buf bytes.Buffer
-	var err error
 
 	err = pdf.Output(&buf)
 	if err == nil {
@@ -211,18 +216,24 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 
 	_ = w.Write(fields)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
 	for index, v := range file.res.Data {
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
 
-		err := v.Task.CreatedAt.CheckValid()
+		err = v.Task.CreatedAt.CheckValid()
 		if err == nil {
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -231,7 +242,7 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 			year, _, _ := v.Task.UpdatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+				dateModified = v.Task.UpdatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -248,7 +259,7 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 	}
 
 	w.Flush()
-	err := w.Error()
+	err = w.Error()
 	if err != nil {
 		return nil, err
 	}
@@ -276,18 +287,24 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 	_ = f.SetCellValue("Sheet1", "E1", "Date Modified")
 	_ = f.SetCellValue("Sheet1", "F1", "Status")
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
 	for k, v := range file.res.Data {
 
 		curYear, _, _ := time.Now().Date()
 		dateCreated := ""
 		dateModified := ""
 
-		err := v.Task.CreatedAt.CheckValid()
+		err = v.Task.CreatedAt.CheckValid()
 		if err == nil {
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -296,7 +313,7 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 			year, _, _ := v.Task.UpdatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+				dateModified = v.Task.UpdatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -411,6 +428,11 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	y := pdf.GetY()
 	x := marginH
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		return nil, err
+	}
+
 	for index, v := range file.res.Data {
 
 		company := string(v.Company.CompanyName)
@@ -423,12 +445,12 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 		dateCreated := ""
 		dateModified := ""
 
-		err := v.Task.CreatedAt.CheckValid()
+		err = v.Task.CreatedAt.CheckValid()
 		if err == nil {
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -437,7 +459,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 			year, _, _ := v.Task.UpdatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+				dateModified = v.Task.UpdatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -494,7 +516,6 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	}
 
 	var buf bytes.Buffer
-	var err error
 
 	err = pdf.Output(&buf)
 	if err == nil {
@@ -525,6 +546,11 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToCsv(ctx context.Context)
 
 	_ = w.Write(fields)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		return nil, err
+	}
+
 	for index, v := range file.res.Data {
 
 		company := string(v.Company.CompanyName)
@@ -542,7 +568,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToCsv(ctx context.Context)
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -551,7 +577,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToCsv(ctx context.Context)
 			year, _, _ := v.Task.UpdatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateModified = v.Task.UpdatedAt.AsTime().Format("02/01/2006")
+				dateModified = v.Task.UpdatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 
@@ -569,7 +595,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToCsv(ctx context.Context)
 	}
 
 	w.Flush()
-	err := w.Error()
+	err = w.Error()
 	if err != nil {
 		return nil, err
 	}
@@ -598,6 +624,11 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToXls(ctx context.Context)
 	_ = f.SetCellValue("Sheet1", "E1", "Date Modified")
 	_ = f.SetCellValue("Sheet1", "F1", "Status")
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		return nil, err
+	}
+
 	for k, v := range file.res.Data {
 
 		company := string(v.Company.CompanyName)
@@ -615,7 +646,7 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToXls(ctx context.Context)
 			year, _, _ := v.Task.CreatedAt.AsTime().Date()
 			yearDiff := curYear - year
 			if yearDiff < 10 && yearDiff > -10 {
-				dateCreated = v.Task.CreatedAt.AsTime().Format("02/01/2006")
+				dateCreated = v.Task.CreatedAt.AsTime().In(location).Format("02/01/2006")
 			}
 		}
 

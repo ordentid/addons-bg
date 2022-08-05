@@ -352,7 +352,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		"is_mapped:true",
 	}
 
-	if req.Transaction.ThirdPartyID > 0 {
+	if req.Transaction.GetThirdPartyID() > 0 {
 		filterData = append(filterData, "third_party_id:"+strconv.FormatUint(req.Transaction.ThirdPartyID, 10))
 	}
 
