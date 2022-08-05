@@ -6,9 +6,8 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
- 
 
-# Make data base, printed on Fri Aug  5 08:56:53 2022
+# Make data base, printed on Fri Aug  5 10:39:00 2022
 
 # Variables
 
@@ -99,7 +98,6 @@ MAKE_VERSION := 3.81
 # environment
 USER = farizrachmanyusuf
 # makefile
- 
 .DEFAULT_GOAL := build
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
@@ -199,7 +197,6 @@ all: depend generate build unit-test
 
 proto-gen:
 #  Implicit rule search has not been done.
- 
 #  Modification time never checked.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 75):
@@ -284,6 +281,7 @@ vet:
 	
 
 default: depend
+ 
 #  Implicit rule search has not been done.
 #  Modification time never checked.
 #  File has not been updated.
@@ -393,7 +391,6 @@ install: depend build
 # files hash-table stats:
 # Load=20/1024=2%, Rehash=0, Collisions=0/62=0%
 # VPATH Search Paths
- 
 
 # No `vpath' search paths.
 
@@ -404,6 +401,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Fri Aug  5 08:56:53 2022
+# Finished Make data base on Fri Aug  5 10:39:00 2022
 
  
