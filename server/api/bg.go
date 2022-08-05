@@ -403,7 +403,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	if len(beneficiaryIDs) > 0 {
 		httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
 	} else {
-		httpReqParamsOpt.BeneficiaryId = "0"
+		httpReqParamsOpt.BeneficiaryId = "10101010"
 	}
 
 	if req.Transaction != nil {
