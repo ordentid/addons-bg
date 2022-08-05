@@ -433,6 +433,10 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		if req.Transaction.ChannelID > 0 {
 			httpReqParamsOpt.ChannelId = req.Transaction.ChannelID
 		}
+
+		if req.Transaction.ApplicantName != "" {
+			httpReqParamsOpt.ApplicantName = req.Transaction.ApplicantName
+		}
 	}
 
 	apiReq := &httpReqParamsOpt
