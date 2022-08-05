@@ -998,8 +998,6 @@ func (file *TransactionFile) TransactionToXls(ctx context.Context) (*httpbody.Ht
 	}, nil
 }
 
-/// Unfinished Endpoint
-
 func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingFileRequest) (*httpbody.HttpBody, error) {
 	result := &httpbody.HttpBody{}
 
@@ -1103,11 +1101,22 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 		status := v.Task.Status
 
+		referenceNumber := v.Data.ReferenceNo
+		registrationNo := v.Data.RegistrationNo
+
+		if referenceNumber == "" {
+			referenceNumber = "TBA"
+		}
+
+		if registrationNo == "" {
+			registrationNo = "TBA"
+		}
+
 		maxHt := lineHt
 		vals := []string{
 			fmt.Sprintf("%d", index+1),
-			"Test",
-			"Test",
+			referenceNumber,
+			registrationNo,
 			v.Data.Applicant.Name,
 			v.Data.Applicant.BeneficiaryName,
 			bgType,
@@ -1204,11 +1213,21 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 		ac := accounting.Accounting{Symbol: v.Data.Project.BgCurrency, Precision: 2}
 		bgAmount := ac.FormatMoney(v.Data.Project.BgAmount)
 		status := v.Task.Status
+		referenceNumber := v.Data.ReferenceNo
+		registrationNo := v.Data.RegistrationNo
+
+		if referenceNumber == "" {
+			referenceNumber = "TBA"
+		}
+
+		if registrationNo == "" {
+			registrationNo = "TBA"
+		}
 
 		row := []string{
 			fmt.Sprintf("%d", index+1),
-			"Test",
-			"Test",
+			referenceNumber,
+			registrationNo,
 			v.Data.Applicant.Name,
 			v.Data.Applicant.BeneficiaryName,
 			bgType,
@@ -1266,11 +1285,21 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 		ac := accounting.Accounting{Symbol: v.Data.Project.BgCurrency, Precision: 2}
 		bgAmount := ac.FormatMoney(v.Data.Project.BgAmount)
 		status := v.Task.Status
+		referenceNumber := v.Data.ReferenceNo
+		registrationNo := v.Data.RegistrationNo
+
+		if referenceNumber == "" {
+			referenceNumber = "TBA"
+		}
+
+		if registrationNo == "" {
+			registrationNo = "TBA"
+		}
 
 		rowNumber := k + 2
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("A%d", rowNumber), fmt.Sprintf("%d", k+1))
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), "Test")
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), "Test")
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("B%d", rowNumber), referenceNumber)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), registrationNo)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), v.Data.Applicant.Name)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), v.Data.Applicant.BeneficiaryName)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), bgType)
