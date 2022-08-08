@@ -1177,8 +1177,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		counterGuaranteeTypeString = map[string]string{"0": "customer account"}
 		holdAccountNo = req.Data.Project.GetHoldAccountNo()
 		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		if insuranceLimitId == "" ||
-			sp3No == "" {
+		if holdAccountNo == "" ||
+			insuranceLimitId == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
 		}
 	case 2:
