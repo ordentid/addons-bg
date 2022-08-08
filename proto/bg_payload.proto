@@ -689,7 +689,9 @@ message GetTaskIssuingRequest {
     string query = 8 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
 		description: "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement => Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
 	}];
-    string search = 9;
+    string search = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Search BG Issuing Task",
+	}];
 }
 message GetTaskIssuingResponse {
     bool error = 1;

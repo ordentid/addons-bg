@@ -276,6 +276,7 @@
           },
           {
             "name": "search",
+            "description": "Search BG Issuing Task",
             "in": "query",
             "required": false,
             "type": "string"
