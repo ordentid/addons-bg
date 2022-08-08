@@ -155,7 +155,7 @@ func branchFormatter(s string) (string, error) {
 		return "", error
 	}
 
-	sText := string(rune(*sFinal))
+	sText := strconv.Itoa(*sFinal)
 
 	return sText, nil
 }
