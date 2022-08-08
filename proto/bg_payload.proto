@@ -298,16 +298,21 @@ message ProjectData {
     double bgAmount = 8 [(validator.field) = {float_gte: 0}];
     string cashAccountNo = 9;
     double cashAccountAmount = 10 [(validator.field) = {float_gte: 0}];
-    string nonCashAccountNo = 11;
-    double nonCashAccountAmount = 12 [(validator.field) = {float_gte: 0}];
-    ContractGuaranteeType contractGuaranteeType = 13;
-    double counterGuaranteeAmount = 14 [(validator.field) = {float_gte: 0}];
-    string insuranceLimitId = 15;
-	string sp3No = 16;
-	string holdAccountNo = 17 ;
-	double holdAccountAmount = 18 [(validator.field) = {float_gte: 0}];
-	string consumerLimitId = 19;
-	double consumerLimitAmount = 20 [(validator.field) = {float_gte: 0}];
+    string cashAccountAmountString = 11;
+    string nonCashAccountNo = 12;
+    double nonCashAccountAmount = 13 [(validator.field) = {float_gte: 0}];
+    string nonCashAccountAmountString = 14;
+    ContractGuaranteeType contractGuaranteeType = 15;
+    double counterGuaranteeAmount = 16 [(validator.field) = {float_gte: 0}];
+    string counterGuaranteeAmountString = 17;
+    string insuranceLimitId = 18;
+	string sp3No = 19;
+	string holdAccountNo = 20 ;
+	double holdAccountAmount = 21 [(validator.field) = {float_gte: 0}];
+    string holdAccountAmountString = 22;
+	string consumerLimitId = 23;
+	double consumerLimitAmount = 24 [(validator.field) = {float_gte: 0}];
+    string consumerLimitAmountString = 25;
 }
 
 message DocumentData {

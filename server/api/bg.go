@@ -1177,29 +1177,27 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	switch counterGuaranteeType.Number() {
 	case 0:
-		logrus.Println("counterGuaranteeTypeString")
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
 		sp3No = req.Data.Project.GetSp3No()
-		logrus.Println(insuranceLimitId, sp3No)
 		if insuranceLimitId == "" ||
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
 	case 1:
 		counterGuaranteeTypeString = map[string]string{"0": "customer account"}
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		if holdAccountNo == "" ||
-			holdAccountAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
-		}
-	case 2:
-		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
 		consumerLimitId = req.Data.Project.GetConsumerLimitId()
 		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
 		if consumerLimitId == "" ||
 			consumerLimitAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
+		}
+	case 2:
+		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
+		holdAccountNo = req.Data.Project.GetHoldAccountNo()
+		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+		if holdAccountNo == "" ||
+			holdAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when hold account is selected")
 		}
 	case 3:

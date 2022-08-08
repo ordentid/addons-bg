@@ -273,6 +273,12 @@
             "in": "query",
             "required": false,
             "type": "string"
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "required": false,
+            "type": "string"
           }
         ],
         "tags": [
@@ -2769,6 +2775,9 @@
           "type": "number",
           "format": "double"
         },
+        "cashAccountAmountString": {
+          "type": "string"
+        },
         "nonCashAccountNo": {
           "type": "string"
         },
@@ -2776,12 +2785,18 @@
           "type": "number",
           "format": "double"
         },
+        "nonCashAccountAmountString": {
+          "type": "string"
+        },
         "contractGuaranteeType": {
           "$ref": "#/definitions/v1ContractGuaranteeType"
         },
         "counterGuaranteeAmount": {
           "type": "number",
           "format": "double"
+        },
+        "counterGuaranteeAmountString": {
+          "type": "string"
         },
         "insuranceLimitId": {
           "type": "string"
@@ -2796,12 +2811,18 @@
           "type": "number",
           "format": "double"
         },
+        "holdAccountAmountString": {
+          "type": "string"
+        },
         "consumerLimitId": {
           "type": "string"
         },
         "consumerLimitAmount": {
           "type": "number",
           "format": "double"
+        },
+        "consumerLimitAmountString": {
+          "type": "string"
         }
       }
     },
