@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
@@ -156,7 +155,7 @@ func branchFormatter(s string) (string, error) {
 		return "", error
 	}
 
-	sPadding := fmt.Sprintf("%05d", *sFinal)
+	sText := string(rune(*sFinal))
 
-	return sPadding, nil
+	return sText, nil
 }

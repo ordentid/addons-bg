@@ -1159,6 +1159,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		Message: "Success",
 	}
 
+	me, err := s.manager.GetMeFromJWT(ctx, "")
+	if err != nil {
+		return nil, err
+	}
+
 	openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
 	publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
 
@@ -1173,11 +1178,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	req.Data.Publishing.OpeningBranch = openingBranch
 	req.Data.Publishing.PublishingBranch = publishingBranch
-
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
 
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))

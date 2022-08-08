@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -1132,6 +1133,14 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
+	var gender string
+
+	if req.Data.Applicant.GetGender().Number() == 0 {
+		gender = "Laki-laki"
+	} else {
+		gender = "Perempuan"
+	}
+
 	counterGuaranteeType := req.Data.Project.GetContractGuaranteeType()
 
 	var counterGuaranteeTypeString map[string]string
@@ -1141,6 +1150,17 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	holdAccountAmount := 0.0
 	consumerLimitId := ""
 	consumerLimitAmount := 0.0
+
+	openingBranchInt, err := strconv.Atoi(req.Data.Publishing.GetOpeningBranch())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	}
+	publishingBranchInt, err := strconv.Atoi(req.Data.Publishing.GetPublishingBranch())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	}
+	openingBranch := fmt.Sprintf("%05d", openingBranchInt)
+	publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
 
 	switch counterGuaranteeType.Number() {
 	case 0:
@@ -1190,12 +1210,12 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		IsIndividu:             isIndividu,
 		NIK:                    req.Data.Applicant.GetNik(),
 		BirthDate:              req.Data.Applicant.GetBirthDate(),
-		Gender:                 req.Data.Applicant.GetGender().String(),
+		Gender:                 gender,
 		NPWPNo:                 req.Data.Applicant.GetNpwpNo(),
 		DateEstablished:        dateEstablished,
-		CompanyType:            req.Data.Applicant.GetCompanyType().String(),
+		CompanyType:            uint64(req.Data.Applicant.GetCompanyType().Number()),
 		IsPlafond:              0,
-		TransactionType:        req.Data.Publishing.GetBgType().String(),
+		TransactionType:        uint64(req.Data.Publishing.GetBgType().Number()),
 		IsEndOfYearBg:          "0",
 		NRK:                    req.Data.Project.GetNrkNumber(),
 		ProjectName:            req.Data.Project.GetName(),
@@ -1209,8 +1229,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
 		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
 		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
-		IssuingBranch:          req.Data.Publishing.GetOpeningBranch(),
-		PublishingBranch:       req.Data.Publishing.GetPublishingBranch(),
+		IssuingBranch:          openingBranch,
+		PublishingBranch:       publishingBranch,
 		ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
@@ -1229,6 +1249,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Sp3Document:            req.Data.Document.GetSp(),
 		OthersDocument:         req.Data.Document.GetOther(),
 	}
+
+	logrus.Println("HTTP REQUEST", httpReqData)
 
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {

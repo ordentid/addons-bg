@@ -194,9 +194,9 @@ type ApiBgIssuingRequest struct {
 	Gender                 string            `json:"gender"`
 	NPWPNo                 string            `json:"npwp"`
 	DateEstablished        string            `json:"tanggalBerdiri"`
-	CompanyType            string            `json:"companyType"`
+	CompanyType            uint64            `json:"companyType,string"`
 	IsPlafond              uint64            `json:"isPlafond,string"`
-	TransactionType        string            `json:"transactionType"`
+	TransactionType        uint64            `json:"transactionType"`
 	TransactionTypeDesc    string            `json:"transactionTypeDesc"`
 	IsEndOfYearBg          string            `json:"isBGAkhirTahun"`
 	NRK                    string            `json:"nrk"`
