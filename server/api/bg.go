@@ -1151,14 +1151,27 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	consumerLimitId := ""
 	consumerLimitAmount := 0.0
 
-	openingBranchInt, err := strconv.Atoi(req.Data.Publishing.GetOpeningBranch())
+	openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
+	publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
+
+	openingBranchString, err := branchFormatter(openingBranchRaw)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
 	}
-	publishingBranchInt, err := strconv.Atoi(req.Data.Publishing.GetPublishingBranch())
+	publishingBranchString, err := branchFormatter(publishingBranchRaw)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
 	}
+
+	openingBranchInt, err := strconv.Atoi(openingBranchString)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	}
+	publishingBranchInt, err := strconv.Atoi(publishingBranchString)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	}
+
 	openingBranch := fmt.Sprintf("%05d", openingBranchInt)
 	publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
 
