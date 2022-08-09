@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -1151,29 +1150,57 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	consumerLimitId := ""
 	consumerLimitAmount := 0.0
 
-	openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
-	publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
+	// openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
+	// publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
 
-	openingBranchString, err := branchFormatter(openingBranchRaw)
+	// openingBranchString, err := branchFormatter(openingBranchRaw)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	// }
+	// publishingBranchString, err := branchFormatter(publishingBranchRaw)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	// }
+
+	// openingBranchInt, err := strconv.Atoi(openingBranchString)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	// }
+	// publishingBranchInt, err := strconv.Atoi(publishingBranchString)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	// }
+
+	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
+	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
+
+	openingBranchORM, err := s.provider.GetFirst(ctx, &db.ListFilter{Data: &pb.BranchORM{Id: req.Data.Publishing.GetOpeningBranchId()}})
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
-	}
-	publishingBranchString, err := branchFormatter(publishingBranchRaw)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+		} else {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
 	}
 
-	openingBranchInt, err := strconv.Atoi(openingBranchString)
+	publishingBranchORM, err := s.provider.GetFirst(ctx, &db.ListFilter{Data: &pb.BranchORM{Id: req.Data.Publishing.GetPublishingBranchId()}})
 	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
-	}
-	publishingBranchInt, err := strconv.Atoi(publishingBranchString)
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
+		} else {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
 	}
 
-	openingBranch := fmt.Sprintf("%05d", openingBranchInt)
-	publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
+	openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
 
 	switch counterGuaranteeType.Number() {
 	case 0:
@@ -1242,8 +1269,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
 		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
 		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
-		IssuingBranch:          openingBranch,
-		PublishingBranch:       publishingBranch,
+		IssuingBranch:          strconv.FormatUint(openingBranch.Id, 10),
+		PublishingBranch:       strconv.FormatUint(publishingBranch.Id, 10),
 		ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
