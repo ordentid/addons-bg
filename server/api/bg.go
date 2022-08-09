@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -1171,10 +1172,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
 	// }
 
-	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
-	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
-
-	openingBranchORM, err := s.provider.GetFirst(ctx, &db.ListFilter{Data: &pb.BranchORM{Id: req.Data.Publishing.GetOpeningBranchId()}})
+	openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetOpeningBranchId()})
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
@@ -1183,7 +1181,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
-	publishingBranchORM, err := s.provider.GetFirst(ctx, &db.ListFilter{Data: &pb.BranchORM{Id: req.Data.Publishing.GetPublishingBranchId()}})
+	publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetPublishingBranchId()})
 	if err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
@@ -1243,6 +1241,9 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
+	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
+	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
+
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
@@ -1269,8 +1270,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
 		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
 		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
-		IssuingBranch:          strconv.FormatUint(openingBranch.Id, 10),
-		PublishingBranch:       strconv.FormatUint(publishingBranch.Id, 10),
+		IssuingBranch:          openingBranchPadded,
+		PublishingBranch:       publishingBranchPadded,
 		ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
