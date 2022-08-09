@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
-	"strconv"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
@@ -957,7 +956,8 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	filter := &task_pb.Task{
-		Type: "BG Issuing",
+		Type:      "BG Issuing",
+		CompanyID: me.CompanyID,
 	}
 
 	logrus.Println(filter)
@@ -969,18 +969,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		filter.Step = task_pb.Steps(req.Step.Number())
 	}
 
-	filterOr :=
-		"data.referenceNo:%!" + req.Search +
-			"|data.registrationNo:%!" + req.Search +
-			"|data.applicant.name:%!" + req.Search +
-			"|data.beneficiaryName:%!" + req.Search +
-			"|data.project.bgAmount:%!" + req.Search
-
-	taskId := req.Search
-	if _, err := strconv.Atoi(taskId); err == nil {
-		filterOr += "|task_id:" + taskId
-	}
-
 	dataReq := &task_pb.ListTaskRequest{
 		Task:        filter,
 		Limit:       req.GetLimit(),
@@ -990,8 +978,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		Filter:      req.GetFilter(),
 		Query:       req.GetQuery(),
 		CustomOrder: customOrder,
-		In:          me.CompanyIDs,
-		FilterOr:    filterOr,
 	}
 
 	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
