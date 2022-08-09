@@ -1329,8 +1329,40 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		Message: "Data",
 	}
 
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	taskData := pb.IssuingData{}
+	json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Print(taskData)
+
 	httpReqParamsOpt := ApiBgTrackingRequest{
-		RegistrationNo: req.GetRegistrationNo(),
+		RegistrationNo: taskData.RegistrationNo,
 	}
 
 	apiReq := &httpReqParamsOpt
@@ -1357,6 +1389,26 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	// if len(transactionRes.ResponseData) <= 0 {
 	// 	return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	// }
+
+	taskData.ReferenceNo = res.Data.ReferenceNo
+
+	data, err := json.Marshal(taskData)
+	if err != nil {
+		logrus.Error("Failed To Marshal : ", taskData)
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	taskReq := &task_pb.UpdateTaskDataReq{
+		Type:   "BG Issuing",
+		TaskID: req.TaskID,
+		Data:   string(data),
+	}
+
+	_, err = taskClient.UpdateTaskData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		logrus.Error("Failed To Transfer Data : ", "FAK")
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
 
 	result.Data = &pb.IssuingPortal{
 		RegistrationNo:  res.Data.RegistrationNo,
