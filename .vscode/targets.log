@@ -5,8 +5,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
+ 
 
-# Make data base, printed on Mon Aug  8 09:16:00 2022
+# Make data base, printed on Tue Aug  9 09:23:18 2022
 
 # Variables
 
@@ -107,7 +108,7 @@ HOSTTYPE = x86_64
 # automatic
 +F = $(notdir $+)
 # environment
-WSL_INTEROP = /run/WSL/13_interop
+WSL_INTEROP = /run/WSL/12_interop
 # 'override' directive
 GNUMAKEFLAGS := 
 # makefile (from 'Makefile', line 5)
@@ -129,7 +130,7 @@ DOCKERCMD = docker
 # environment
 _ = /usr/bin/sh
 # environment
-VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-5f7facfa-c99d-4383-97b2-5418f0500791.sock
+VSCODE_IPC_HOOK_CLI = /tmp/vscode-ipc-2bb1db13-362a-4875-8887-170df6347d06.sock
 # environment
 GOMODCACHE = /home/septian/go/pkg/mod
 # environment
@@ -242,6 +243,7 @@ clean:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
 #  File has not been updated.
 #  recipe to execute (from 'Makefile', line 71):
 	rm -f $(BINARY)
@@ -378,6 +380,6 @@ docker-build:
 # strcache performance: lookups = 101 / hit rate = 56%
 # hash-table stats:
 # Load=44/8192=1%, Rehash=0, Collisions=0/101=0%
-# Finished Make data base on Mon Aug  8 09:16:00 2022
+# Finished Make data base on Tue Aug  9 09:23:18 2022
 
  

@@ -1178,8 +1178,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	switch counterGuaranteeType.Number() {
 	case 0:
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
+		logrus.Println(req.Data)
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
 		sp3No = req.Data.Project.GetSp3No()
+		logrus.Println("Insurance limit", insuranceLimitId, sp3No)
 		if insuranceLimitId == "" ||
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")

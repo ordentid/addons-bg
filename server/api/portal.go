@@ -234,7 +234,7 @@ type ApiBgIssuingRequest struct {
 
 type ApiBgIssuingResponse struct {
 	ResponseCode    string           `json:"responseCode"`
-	ResponseMessage string           `json:"responseMessage"`
+	ResponseMessage *json.RawMessage `json:"responseMessage"`
 	Data            ApiBgIssuingData `json:"responseData"`
 }
 
@@ -473,17 +473,13 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	defer httpRes.Body.Close()
 
 	var httpResData ApiBgIssuingResponse
-	// bytes, _ := io.ReadAll(httpRes.Body)
-	// logrus.Println("[DEBUG] RESPONSE STRING", string(bytes))
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", "Error invalid response")
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println(httpResData)
-
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v")
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*httpResData.ResponseMessage))
 	}
 
 	result := &httpResData
