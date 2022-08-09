@@ -1146,10 +1146,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	var counterGuaranteeTypeString map[string]string
 	insuranceLimitId := ""
 	sp3No := ""
-	holdAccountNo := ""
-	holdAccountAmount := 0.0
-	consumerLimitId := ""
-	consumerLimitAmount := 0.0
+	nonCashAccountNo := ""
+	nonCashAccountAmount := 0.0
+	cashAccountNo := ""
+	cashAccountAmount := 0.0
 
 	// openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
 	// publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
@@ -1204,40 +1204,40 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	}
 
 	switch counterGuaranteeType.Number() {
-	case 0:
+	case 0: // Insurance
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
-		sp3No = req.Data.Project.GetSp3No()
+		sp3No = req.Data.Document.GetSp()
 		if insuranceLimitId == "" ||
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
-	case 1:
+	case 1: // Tunai / Cash
 		counterGuaranteeTypeString = map[string]string{"0": "customer account"}
-		consumerLimitId = req.Data.Project.GetConsumerLimitId()
-		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
-		if consumerLimitId == "" ||
-			consumerLimitAmount <= 0.0 {
+		cashAccountNo = req.Data.Project.GetCashAccountNo()
+		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
+		if cashAccountNo == "" ||
+			cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
 		}
-	case 2:
+	case 2: // Non Cash Loan
 		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		if holdAccountNo == "" ||
-			holdAccountAmount <= 0.0 {
+		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
+		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+		if nonCashAccountNo == "" ||
+			nonCashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when hold account is selected")
 		}
-	case 3:
+	case 3: // Combinasi
 		counterGuaranteeTypeString = map[string]string{"0": "customer account", "1": "hold account"}
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		consumerLimitId = req.Data.Project.GetConsumerLimitId()
-		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
-		if holdAccountNo == "" ||
-			holdAccountAmount <= 0.0 ||
-			consumerLimitId == "" ||
-			consumerLimitAmount <= 0.0 {
+		nonCashAccountNo = req.Data.Project.GetHoldAccountNo()
+		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+		cashAccountNo = req.Data.Project.GetConsumerLimitId()
+		cashAccountAmount = req.Data.Project.GetConsumerLimitAmount()
+		if nonCashAccountNo == "" ||
+			nonCashAccountAmount <= 0.0 ||
+			cashAccountNo == "" ||
+			cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination account is selected")
 		}
 	}
@@ -1276,10 +1276,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
-		HoldAccountNo:          holdAccountNo,
-		HoldAccountAmount:      holdAccountAmount,
-		ConsumerLimitId:        consumerLimitId,
-		ConsumerLimitAmount:    consumerLimitAmount,
+		HoldAccountNo:          nonCashAccountNo,
+		HoldAccountAmount:      nonCashAccountAmount,
+		ConsumerLimitId:        cashAccountNo,
+		ConsumerLimitAmount:    cashAccountAmount,
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
 		ApplicantPhoneNumber:   req.Data.Applicant.GetPhoneNumber(),
 		ApplicantEmail:         req.Data.Applicant.GetEmail(),
