@@ -1213,12 +1213,12 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
 	case 1: // Tunai / Cash
-		counterGuaranteeTypeString = map[string]string{"0": "customer account"}
+		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		if cashAccountNo == "" ||
 			cashAccountAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer account is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
 		}
 	case 2: // Non Cash Loan
 		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
@@ -1229,7 +1229,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
 	case 3: // Combinasi
-		counterGuaranteeTypeString = map[string]string{"0": "customer account", "1": "hold account"}
+		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
 		nonCashAccountNo = req.Data.Project.GetHoldAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 		cashAccountNo = req.Data.Project.GetConsumerLimitId()
