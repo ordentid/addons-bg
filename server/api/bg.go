@@ -1172,9 +1172,12 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
 	// }
 
+	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
+	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
+
 	openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetOpeningBranchId()})
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 		} else {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1183,7 +1186,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetPublishingBranchId()})
 	if err != nil {
-		if !errors.Is(err, gorm.ErrRecordNotFound) {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
 		} else {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1200,44 +1203,45 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	switch counterGuaranteeType.Number() {
-	case 0:
-		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
-		logrus.Println(req.Data)
-		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
-		sp3No = req.Data.Project.GetSp3No()
-		logrus.Println("Insurance limit", insuranceLimitId, sp3No)
-		if insuranceLimitId == "" ||
-			sp3No == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
-		}
-	case 1:
-		counterGuaranteeTypeString = map[string]string{"0": "customer account"}
-		consumerLimitId = req.Data.Project.GetConsumerLimitId()
-		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
-		if consumerLimitId == "" ||
-			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
-		}
-	case 2:
-		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		if holdAccountNo == "" ||
-			holdAccountAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when hold account is selected")
-		}
-	case 3:
-		counterGuaranteeTypeString = map[string]string{"0": "customer account", "1": "hold account"}
-		holdAccountNo = req.Data.Project.GetHoldAccountNo()
-		holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
-		consumerLimitId = req.Data.Project.GetConsumerLimitId()
-		consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
-		if holdAccountNo == "" ||
-			holdAccountAmount <= 0.0 ||
-			consumerLimitId == "" ||
-			consumerLimitAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination account is selected")
+	if counterGuaranteeType == *pb.ContractGuaranteeType_CounterGuarantee.Enum() {
+
+		switch counterGuaranteeType.Number() {
+		case 0:
+			counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
+			insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
+			sp3No = req.Data.Project.GetSp3No()
+			if insuranceLimitId == "" ||
+				sp3No == "" {
+				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when insurance limit is selected")
+			}
+		case 1:
+			counterGuaranteeTypeString = map[string]string{"0": "customer account"}
+			consumerLimitId = req.Data.Project.GetConsumerLimitId()
+			consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
+			if consumerLimitId == "" ||
+				consumerLimitAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when customer account is selected")
+			}
+		case 2:
+			counterGuaranteeTypeString = map[string]string{"0": "hold account"}
+			holdAccountNo = req.Data.Project.GetHoldAccountNo()
+			holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+			if holdAccountNo == "" ||
+				holdAccountAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when hold account is selected")
+			}
+		case 3:
+			counterGuaranteeTypeString = map[string]string{"0": "customer account", "1": "hold account"}
+			holdAccountNo = req.Data.Project.GetHoldAccountNo()
+			holdAccountAmount = req.Data.Project.GetHoldAccountAmount()
+			consumerLimitId = req.Data.Project.GetConsumerLimitId()
+			consumerLimitAmount = req.Data.Project.GetConsumerLimitAmount()
+			if holdAccountNo == "" ||
+				holdAccountAmount <= 0.0 ||
+				consumerLimitId == "" ||
+				consumerLimitAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on required field(s) when combination account is selected")
+			}
 		}
 	}
 
@@ -1245,34 +1249,34 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
 
 	httpReqData := ApiBgIssuingRequest{
-		AccountNo:              req.Data.Account.GetAccountNumber(),
-		ApplicantName:          req.Data.Applicant.GetName(),
-		ApplicantAddress:       req.Data.Applicant.GetAddress(),
-		IsIndividu:             isIndividu,
-		NIK:                    req.Data.Applicant.GetNik(),
-		BirthDate:              req.Data.Applicant.GetBirthDate(),
-		Gender:                 gender,
-		NPWPNo:                 req.Data.Applicant.GetNpwpNo(),
-		DateEstablished:        dateEstablished,
-		CompanyType:            uint64(req.Data.Applicant.GetCompanyType().Number()),
-		IsPlafond:              0,
-		TransactionType:        uint64(req.Data.Publishing.GetBgType().Number()),
-		IsEndOfYearBg:          "0",
-		NRK:                    req.Data.Project.GetNrkNumber(),
-		ProjectName:            req.Data.Project.GetName(),
-		ThirdPartyId:           req.Data.Publishing.GetThirdPartyID(),
-		BeneficiaryName:        req.Data.Applicant.GetBeneficiaryName(),
-		ProjectAmount:          req.Data.Project.GetProjectAmount(),
-		ContractNo:             req.Data.Project.GetContractNumber(),
-		ContractDate:           req.Data.Project.GetProjectDate(),
-		Currency:               req.Data.Project.GetBgCurrency(),
-		Amount:                 req.Data.Project.GetBgAmount(),
-		EffectiveDate:          req.Data.Publishing.GetEffectiveDate(),
-		MaturityDate:           req.Data.Publishing.GetExpiryDate(),
-		ClaimPeriod:            req.Data.Publishing.GetClaimPeriod(),
-		IssuingBranch:          openingBranchPadded,
-		PublishingBranch:       publishingBranchPadded,
-		ContraGuarantee:        counterGuaranteeTypeString,
+		AccountNo:        req.Data.Account.GetAccountNumber(),
+		ApplicantName:    req.Data.Applicant.GetName(),
+		ApplicantAddress: req.Data.Applicant.GetAddress(),
+		IsIndividu:       isIndividu,
+		NIK:              req.Data.Applicant.GetNik(),
+		BirthDate:        req.Data.Applicant.GetBirthDate(),
+		Gender:           gender,
+		NPWPNo:           req.Data.Applicant.GetNpwpNo(),
+		DateEstablished:  dateEstablished,
+		CompanyType:      uint64(req.Data.Applicant.GetCompanyType().Number()),
+		IsPlafond:        0,
+		TransactionType:  uint64(req.Data.Publishing.GetBgType().Number()),
+		IsEndOfYearBg:    "0",
+		NRK:              req.Data.Project.GetNrkNumber(),
+		ProjectName:      req.Data.Project.GetName(),
+		ThirdPartyId:     req.Data.Publishing.GetThirdPartyID(),
+		BeneficiaryName:  req.Data.Applicant.GetBeneficiaryName(),
+		ProjectAmount:    req.Data.Project.GetProjectAmount(),
+		ContractNo:       req.Data.Project.GetContractNumber(),
+		ContractDate:     req.Data.Project.GetProjectDate(),
+		Currency:         req.Data.Project.GetBgCurrency(),
+		Amount:           req.Data.Project.GetBgAmount(),
+		EffectiveDate:    req.Data.Publishing.GetEffectiveDate(),
+		MaturityDate:     req.Data.Publishing.GetExpiryDate(),
+		ClaimPeriod:      req.Data.Publishing.GetClaimPeriod(),
+		IssuingBranch:    openingBranchPadded,
+		PublishingBranch: publishingBranchPadded,
+		// ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
 		HoldAccountNo:          holdAccountNo,
@@ -1289,6 +1293,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ContractDocument:       req.Data.Document.GetBg(),
 		Sp3Document:            req.Data.Document.GetSp(),
 		OthersDocument:         req.Data.Document.GetOther(),
+	}
+
+	if counterGuaranteeType == *pb.ContractGuaranteeType_CounterGuarantee.Enum() {
+		httpReqData.ContraGuarantee = counterGuaranteeTypeString
 	}
 
 	logrus.Println("HTTP REQUEST", httpReqData)

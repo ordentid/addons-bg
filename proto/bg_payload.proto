@@ -75,6 +75,7 @@ enum ContractGuaranteeType {
     Cash = 1;
     NonCashLoan = 2;
     Combination = 3;
+    CounterGuarantee = 4;
 }
 
 message Task {

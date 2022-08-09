@@ -2005,7 +2005,8 @@
         "Insurance",
         "Cash",
         "NonCashLoan",
-        "Combination"
+        "Combination",
+        "CounterGuarantee"
       ],
       "default": "Insurance"
     },
