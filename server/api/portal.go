@@ -479,7 +479,7 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	}
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*httpResData.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
 	}
 
 	result := &httpResData
