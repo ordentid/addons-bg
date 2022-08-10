@@ -771,7 +771,7 @@ message CreateIssuingResponse {
 }
 
 message CheckIssuingRequest {
-    string registrationNo = 1;
+    uint64 taskID = 1;
 }
 
 message CheckIssuingResponse {
