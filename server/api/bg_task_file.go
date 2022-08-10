@@ -63,6 +63,13 @@ func GetTaskMappingFileGenerator(res *pb.GetTaskMappingResponse) *TaskMappingFil
 }
 
 func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.HttpBody, error) {
+
+	var buf bytes.Buffer
+	var err error
+
+	var y float64
+	var x float64
+
 	const (
 		colCount = 3
 		colWd    = 60.0
@@ -87,28 +94,49 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 		cell     cellType
 	)
 
-	pdf.AddPage()
-	_, pageh := pdf.GetPageSize()
-
-	pdf.SetFont("Times", "B", 9.5)
-	pdf.SetFillColor(240, 240, 240)
-	pdf.SetX(marginH)
-	for i, header := range fields {
-		pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
-	}
-	pdf.Ln(-1)
-
-	pdf.SetFont("Times", "", 9.5)
-	pdf.SetFillColor(255, 255, 255)
-
-	y := pdf.GetY()
-	x := marginH
-
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
 		logrus.Error(err)
 		return nil, err
 	}
+
+	exportedAt := time.Now().In(location).Format("02/01/2006")
+
+	pdf.SetTopMargin(30)
+
+	pdf.SetHeaderFuncMode(func() {
+		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.SetFont("Times", "B", 9.5)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFillColor(2, 75, 140)
+		pdf.SetX(marginH)
+		for i, header := range fields {
+			pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+		}
+		pdf.Ln(-1)
+		_, y = pdf.GetXY()
+	}, true)
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Times", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb} - %v", pdf.PageNo(), exportedAt),
+			"", 0, "C", false, 0, "")
+	})
+
+	pdf.AliasNbPages("")
+
+	pdf.AddPage()
+	_, pageh := pdf.GetPageSize()
+
+	pdf.SetX(marginH)
+	pdf.Ln(-1)
+
+	pdf.SetFont("Times", "", 9.5)
+	pdf.SetTextColor(0, 0, 0)
+	pdf.SetFillColor(255, 255, 255)
+
+	y = pdf.GetY()
+	x = marginH
 
 	for index, v := range file.res.Data {
 
@@ -158,6 +186,8 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+maxHt+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
@@ -180,12 +210,12 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
 	}
-
-	var buf bytes.Buffer
 
 	err = pdf.Output(&buf)
 	if err == nil {
@@ -387,6 +417,13 @@ func GetTaskMappingDigitalFileGenerator(res *pb.GetTaskMappingDigitalResponse) *
 }
 
 func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Context) (*httpbody.HttpBody, error) {
+
+	var buf bytes.Buffer
+	var err error
+
+	var y float64
+	var x float64
+
 	const (
 		colCount = 3
 		colWd    = 60.0
@@ -411,27 +448,49 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 		cell     cellType
 	)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	exportedAt := time.Now().In(location).Format("02/01/2006")
+
+	pdf.SetTopMargin(30)
+
+	pdf.SetHeaderFuncMode(func() {
+		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.SetFont("Times", "B", 9.5)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFillColor(2, 75, 140)
+		pdf.SetX(marginH)
+		for i, header := range fields {
+			pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+		}
+		pdf.Ln(-1)
+		_, y = pdf.GetXY()
+	}, true)
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Times", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb} - %v", pdf.PageNo(), exportedAt),
+			"", 0, "C", false, 0, "")
+	})
+
+	pdf.AliasNbPages("")
+
 	pdf.AddPage()
 	_, pageh := pdf.GetPageSize()
 
-	pdf.SetFont("Times", "B", 9.5)
-	pdf.SetFillColor(240, 240, 240)
 	pdf.SetX(marginH)
-	for i, header := range fields {
-		pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
-	}
 	pdf.Ln(-1)
 
 	pdf.SetFont("Times", "", 9.5)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.SetFillColor(255, 255, 255)
 
-	y := pdf.GetY()
-	x := marginH
-
-	location, err := time.LoadLocation("Asia/Jakarta")
-	if err != nil {
-		return nil, err
-	}
+	y = pdf.GetY()
+	x = marginH
 
 	for index, v := range file.res.Data {
 
@@ -488,6 +547,8 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 
 		if y >= pageh-((marginH*2)+maxHt+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
@@ -510,12 +571,12 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 
 		if y >= pageh-((marginH*2)+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
 	}
-
-	var buf bytes.Buffer
 
 	err = pdf.Output(&buf)
 	if err == nil {
@@ -731,6 +792,13 @@ func GetTransactionFileGenerator(res *pb.GetTransactionResponse) *TransactionFil
 }
 
 func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.HttpBody, error) {
+
+	var buf bytes.Buffer
+	var err error
+
+	var y float64
+	var x float64
+
 	const (
 		colCount = 3
 		colWd    = 60.0
@@ -755,22 +823,49 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		cell     cellType
 	)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	exportedAt := time.Now().In(location).Format("02/01/2006")
+
+	pdf.SetTopMargin(30)
+
+	pdf.SetHeaderFuncMode(func() {
+		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.SetFont("Times", "B", 9.5)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFillColor(2, 75, 140)
+		pdf.SetX(marginH)
+		for i, header := range fields {
+			pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+		}
+		pdf.Ln(-1)
+		_, y = pdf.GetXY()
+	}, true)
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Times", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb} - %v", pdf.PageNo(), exportedAt),
+			"", 0, "C", false, 0, "")
+	})
+
+	pdf.AliasNbPages("")
+
 	pdf.AddPage()
 	_, pageh := pdf.GetPageSize()
 
-	pdf.SetFont("Times", "B", 9.5)
-	pdf.SetFillColor(240, 240, 240)
 	pdf.SetX(marginH)
-	for i, header := range fields {
-		pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
-	}
 	pdf.Ln(-1)
 
 	pdf.SetFont("Times", "", 9.5)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.SetFillColor(255, 255, 255)
 
-	y := pdf.GetY()
-	x := marginH
+	y = pdf.GetY()
+	x = marginH
 
 	for index, v := range file.res.Data {
 
@@ -827,10 +922,9 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+maxHt+lineHt) {
 			pdf.AddPage()
-			for i, header := range fields {
-				pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
-			}
-			x, y = pdf.GetXY()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
+			_, y = pdf.GetXY()
 		}
 
 		// Cell render loop
@@ -852,13 +946,12 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+lineHt) {
 			pdf.AddPage()
-			x, y = pdf.GetXY()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
+			_, y = pdf.GetXY()
 		}
 
 	}
-
-	var buf bytes.Buffer
-	var err error
 
 	err = pdf.Output(&buf)
 	if err == nil {
@@ -878,6 +971,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		Data:        buf.Bytes(),
 		Extensions:  nil,
 	}, nil
+
 }
 
 func (file *TransactionFile) TransactionToCsv(ctx context.Context) (*httpbody.HttpBody, error) {
@@ -1071,6 +1165,13 @@ func GetTaskIssuingFileGenerator(res *pb.GetTaskIssuingResponse) *TaskIssuingFil
 }
 
 func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.HttpBody, error) {
+
+	var buf bytes.Buffer
+	var err error
+
+	var y float64
+	var x float64
+
 	const (
 		colCount = 3
 		colWd    = 60.0
@@ -1086,7 +1187,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Status"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Task Status"}
 	widths := []float64{8, 40, 40, 35, 35, 30, 30, 30}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
@@ -1095,22 +1196,49 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 		cell     cellType
 	)
 
+	location, err := time.LoadLocation("Asia/Jakarta")
+	if err != nil {
+		logrus.Error(err)
+		return nil, err
+	}
+
+	exportedAt := time.Now().In(location).Format("02/01/2006")
+
+	pdf.SetTopMargin(30)
+
+	pdf.SetHeaderFuncMode(func() {
+		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.SetFont("Times", "B", 9.5)
+		pdf.SetTextColor(255, 255, 255)
+		pdf.SetFillColor(2, 75, 140)
+		pdf.SetX(marginH)
+		for i, header := range fields {
+			pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
+		}
+		pdf.Ln(-1)
+		_, y = pdf.GetXY()
+	}, true)
+	pdf.SetFooterFunc(func() {
+		pdf.SetY(-15)
+		pdf.SetFont("Times", "I", 8)
+		pdf.CellFormat(0, 10, fmt.Sprintf("Page %d/{nb} - %v", pdf.PageNo(), exportedAt),
+			"", 0, "C", false, 0, "")
+	})
+
+	pdf.AliasNbPages("")
+
 	pdf.AddPage()
 	_, pageh := pdf.GetPageSize()
 
-	pdf.SetFont("Times", "B", 9.5)
-	pdf.SetFillColor(240, 240, 240)
 	pdf.SetX(marginH)
-	for i, header := range fields {
-		pdf.CellFormat(widths[i], lineHt, header, "1", 0, align[i], true, 0, "")
-	}
 	pdf.Ln(-1)
 
 	pdf.SetFont("Times", "", 9.5)
+	pdf.SetTextColor(0, 0, 0)
 	pdf.SetFillColor(255, 255, 255)
 
-	y := pdf.GetY()
-	x := marginH
+	y = pdf.GetY()
+	x = marginH
 
 	for index, v := range file.res.Data {
 
@@ -1168,6 +1296,8 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+maxHt+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
@@ -1190,13 +1320,12 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 		if y >= pageh-((marginH*2)+lineHt) {
 			pdf.AddPage()
+			pdf.SetX(marginH)
+			pdf.Ln(-1)
 			x, y = pdf.GetXY()
 		}
 
 	}
-
-	var buf bytes.Buffer
-	var err error
 
 	err = pdf.Output(&buf)
 	if err == nil {
