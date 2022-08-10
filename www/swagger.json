@@ -117,6 +117,30 @@
         ]
       }
     },
+    "/api/bg/currency": {
+      "get": {
+        "summary": "Currency",
+        "description": "This API for Currency list",
+        "operationId": "ApiService_GetCurrency",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetCurrencyResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "tags": [
+          "Currency"
+        ]
+      }
+    },
     "/api/bg/health": {
       "get": {
         "summary": "Health Check",
@@ -2185,6 +2209,34 @@
         }
       }
     },
+    "v1Currency": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uint64"
+        },
+        "code": {
+          "type": "string"
+        },
+        "nameEN": {
+          "type": "string"
+        },
+        "nameID": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "readOnly": true
+        }
+      }
+    },
     "v1DeleteTransactionRequest": {
       "type": "object",
       "properties": {
@@ -2344,6 +2396,27 @@
           "type": "array",
           "items": {
             "$ref": "#/definitions/v1Branch"
+          }
+        }
+      }
+    },
+    "v1GetCurrencyResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Currency"
           }
         }
       }

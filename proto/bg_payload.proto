@@ -346,6 +346,14 @@ message GetBranchResponse {
     repeated Branch data = 4;
 }
 
+message GetCurrencyRequest {}
+message GetCurrencyResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated Currency data = 4;
+}
+
 message BeneficiaryName {
     uint64 beneficiaryId = 1;
     uint64 thirdPartyId = 2;

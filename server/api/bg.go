@@ -44,6 +44,31 @@ func (s *Server) GetBranch(ctx context.Context, req *pb.GetBranchRequest) (*pb.G
 	return result, nil
 }
 
+func (s *Server) GetCurrency(ctx context.Context, req *pb.GetCurrencyRequest) (*pb.GetCurrencyResponse, error) {
+	result := &pb.GetCurrencyResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.Currency{},
+	}
+
+	data, err := s.provider.GetCurrency(ctx, &db.ListFilter{})
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	for _, v := range data {
+		currency, err := v.ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		result.Data = append(result.Data, &currency)
+	}
+
+	return result, nil
+}
+
 func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameRequest) (*pb.GetApplicantNameResponse, error) {
 	result := &pb.GetApplicantNameResponse{
 		Error:   false,

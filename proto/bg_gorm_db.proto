@@ -73,3 +73,22 @@ message Branch {
         (gorm.field).tag = {not_null: true}
     ];
 }
+
+message Currency {
+    option (gorm.opts) = {
+        ormable: true,
+        table: "currencies",
+    };
+    uint64 id = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
+    string code = 2 [(gorm.field).tag = {not_null: true}];
+    string nameEN = 3 [(gorm.field).tag = {not_null: true}];
+    string nameID = 4 [(gorm.field).tag = {not_null: true}];
+    google.protobuf.Timestamp createdAt = 51 [
+        (google.api.field_behavior) = OUTPUT_ONLY,
+        (gorm.field).tag = {not_null: true}
+    ];
+    google.protobuf.Timestamp updatedAt = 52 [
+        (google.api.field_behavior) = OUTPUT_ONLY, 
+        (gorm.field).tag = {not_null: true}
+    ];
+}
