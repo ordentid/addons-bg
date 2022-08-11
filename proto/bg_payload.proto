@@ -778,6 +778,24 @@ message CreateIssuingResponse {
     IssuingPortal data= 4;
 }
 
+message TaskActionRequest {
+    uint64 taskID = 1;
+    string action = 2 [
+        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+            description: "Action: 'approve', 'rework', 'reject', 'delete'"
+        }
+    ];
+    string comment = 3;
+    string reasons = 4;
+}
+
+message TaskActionResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    Task data = 4;
+}
+
 message CheckIssuingRequest {
     uint64 taskID = 1;
 }

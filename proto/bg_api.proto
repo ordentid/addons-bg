@@ -319,6 +319,18 @@ service ApiService {
         };
     };
 
+    rpc TaskAction (TaskActionRequest) returns (TaskActionResponse) {
+        option (google.api.http) = {
+            put: "/api/bg/issuing/task/action"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Set action task";
+            description: "set task action. Action: 'approve', 'rework', 'reject', 'delete'"
+        };
+    }
+
     rpc CreateIssuing(CreateIssuingRequest) returns (CreateIssuingResponse) {
     }
 

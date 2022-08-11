@@ -4,12 +4,15 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
+	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -17,6 +20,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingRequest) (*pb.GetTaskMappingResponse, error) {
@@ -1294,4 +1298,361 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	return result, nil
+}
+
+func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb.TaskActionResponse, error) {
+	if req.GetAction() == "" || req.GetTaskID() < 1 {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	_, md, err := s.manager.GetMeFromMD(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var header, trailer metadata.MD
+
+	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Task Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	workflowConn, err := grpc.Dial(getEnv("WORKFLOW_SERVICE", ":9099"), opts...)
+	if err != nil {
+		logrus.Errorln("Failed connect to Workflow Service: %v", err)
+		return nil, status.Errorf(codes.Internal, "Error Internal")
+	}
+	taskConn.Connect()
+	defer taskConn.Close()
+
+	taskClient := task_pb.NewTaskServiceClient(taskConn)
+
+	workflowClient := workflow_pb.NewApiServiceClient(workflowConn)
+
+	task, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{
+		Type: "BG Issuing",
+		ID:   req.GetTaskID(),
+	})
+	logrus.Println("task ===> ", task)
+	if err != nil {
+		logrus.Errorln("[api][func: TaskAction] error get task by ID: ", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	if task.GetData() == nil {
+		return nil, status.Error(codes.NotFound, "task not found")
+	}
+
+	taskData := task.GetData()
+	logrus.Println("taskData ===> ", taskData)
+	if taskData.GetWorkflowDoc() == "{}" || taskData.GetWorkflowDoc() == "" {
+		logrus.Errorln("[api][func: TaskAction] error workflow empty")
+		return nil, status.Error(codes.InvalidArgument, "invalid request, workflow is empty")
+	}
+
+	var workflow *workflow_pb.ValidateWorkflowData
+	err = json.Unmarshal([]byte(taskData.WorkflowDoc), &workflow)
+	if err != nil {
+		logrus.Errorln("[api][func: TaskAction] error unmarshal workflow: ", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	if workflow == nil {
+		logrus.Errorln("[api][func: TaskAction] error workflow is nil")
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	var workflowAction workflow_pb.ValidateWorkflowRequest_Action
+
+	switch action := strings.ToLower(req.GetAction()); action {
+	case "approve":
+		workflowAction = workflow_pb.ValidateWorkflowRequest_APPROVE
+
+	case "reject":
+		workflowAction = workflow_pb.ValidateWorkflowRequest_REJECT
+
+	case "rework":
+		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_CHANGE
+
+	case "delete":
+		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_DELETE
+
+	default:
+		return nil, status.Error(codes.InvalidArgument, "invalid action")
+	}
+
+	send, _ := metadata.FromOutgoingContext(ctx)
+	ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, md))
+
+	logrus.Println("[api][func: TaskAction] action: ", workflowAction)
+
+	validateWorkflow, err := workflowClient.ValidateWorkflow(ctx, &workflow_pb.ValidateWorkflowRequest{
+		CurrentWorkflow: workflow.Workflow,
+		Action:          workflowAction,
+	}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, err
+	}
+	if !validateWorkflow.IsValid {
+		return nil, status.Error(codes.OK, validateWorkflow.Message)
+	}
+
+	logrus.Println("workflow validate ===> ", validateWorkflow)
+
+	currentStep := validateWorkflow.GetData().GetWorkflow().GetCurrentStep()
+
+	logrus.Println("current step ===> ", currentStep)
+
+	var dataToSave []byte
+
+	if currentStep == "complete" && task.GetData().GetStatus() != task_pb.Statuses_Approved {
+
+		logrus.Println("[api][func: TaskAction] exec BG Issuing Portal Request")
+
+		var issuingData *pb.IssuingData
+		err = json.Unmarshal([]byte(taskData.Data), &issuingData)
+		if err != nil {
+			logrus.Errorln("[api][func: TaskAction] error unmarshal issuing: ", err)
+			return nil, status.Error(codes.Internal, "internal error")
+		}
+
+		isIndividu := uint64(issuingData.Applicant.GetApplicantType().Number())
+		dateEstablished := ""
+
+		if isIndividu == 0 {
+			dateEstablished = issuingData.Applicant.GetDateEstablished()
+			if dateEstablished == "" {
+				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on dateEstablished when isIndividu is true")
+			}
+		}
+
+		var gender string
+
+		if issuingData.Applicant.GetGender().Number() == 0 {
+			gender = "Laki-laki"
+		} else {
+			gender = "Perempuan"
+		}
+
+		contractGuaranteeType := issuingData.Project.GetContractGuaranteeType()
+
+		var contractGuaranteeTypeString map[string]string
+		insuranceLimitId := ""
+		sp3No := ""
+		nonCashAccountNo := ""
+		nonCashAccountAmount := 0.0
+		cashAccountNo := ""
+		cashAccountAmount := 0.0
+
+		openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetOpeningBranchId()})
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+			} else {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+		}
+
+		publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetPublishingBranchId()})
+		if err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
+			} else {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+		}
+
+		openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		switch contractGuaranteeType {
+		case pb.ContractGuaranteeType_Insurance: // Insurance
+			contractGuaranteeTypeString = map[string]string{"0": "insurance limit"}
+			insuranceLimitId = issuingData.Project.GetInsuranceLimitId()
+			sp3No = issuingData.Document.GetSp()
+			if insuranceLimitId == "" ||
+				sp3No == "" {
+				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
+			}
+		case pb.ContractGuaranteeType_Cash: // Tunai / Cash
+			contractGuaranteeTypeString = map[string]string{"0": "customer limit"}
+			cashAccountNo = issuingData.Project.GetCashAccountNo()
+			cashAccountAmount = issuingData.Project.GetCashAccountAmount()
+			if cashAccountNo == "" ||
+				cashAccountAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
+			}
+		case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
+			contractGuaranteeTypeString = map[string]string{"0": "hold account"}
+			nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
+			nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
+			if nonCashAccountNo == "" ||
+				nonCashAccountAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
+			}
+		case pb.ContractGuaranteeType_Combination: // Combinasi
+			contractGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
+			nonCashAccountNo = issuingData.Project.GetHoldAccountNo()
+			nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
+			cashAccountNo = issuingData.Project.GetConsumerLimitId()
+			cashAccountAmount = issuingData.Project.GetConsumerLimitAmount()
+			if nonCashAccountNo == "" ||
+				nonCashAccountAmount <= 0.0 ||
+				cashAccountNo == "" ||
+				cashAccountAmount <= 0.0 {
+				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
+			}
+		default:
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
+		}
+
+		openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
+		publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
+
+		httpReqData := ApiBgIssuingRequest{
+			AccountNo:              issuingData.Account.GetAccountNumber(),
+			ApplicantName:          issuingData.Applicant.GetName(),
+			ApplicantAddress:       issuingData.Applicant.GetAddress(),
+			IsIndividu:             isIndividu,
+			NIK:                    issuingData.Applicant.GetNik(),
+			BirthDate:              issuingData.Applicant.GetBirthDate(),
+			Gender:                 gender,
+			NPWPNo:                 issuingData.Applicant.GetNpwpNo(),
+			DateEstablished:        dateEstablished,
+			CompanyType:            uint64(issuingData.Applicant.GetCompanyType().Number()),
+			IsPlafond:              0,
+			TransactionType:        uint64(issuingData.Publishing.GetBgType().Number()),
+			IsEndOfYearBg:          "0",
+			NRK:                    issuingData.Project.GetNrkNumber(),
+			ProjectName:            issuingData.Project.GetName(),
+			ThirdPartyId:           issuingData.Publishing.GetThirdPartyID(),
+			BeneficiaryName:        issuingData.Applicant.GetBeneficiaryName(),
+			ProjectAmount:          issuingData.Project.GetProjectAmount(),
+			ContractNo:             issuingData.Project.GetContractNumber(),
+			ContractDate:           issuingData.Project.GetProjectDate(),
+			Currency:               issuingData.Project.GetBgCurrency(),
+			Amount:                 issuingData.Project.GetBgAmount(),
+			EffectiveDate:          issuingData.Publishing.GetEffectiveDate(),
+			MaturityDate:           issuingData.Publishing.GetExpiryDate(),
+			ClaimPeriod:            issuingData.Publishing.GetClaimPeriod(),
+			IssuingBranch:          openingBranchPadded,
+			PublishingBranch:       publishingBranchPadded,
+			ContraGuarantee:        contractGuaranteeTypeString,
+			InsuranceLimitId:       insuranceLimitId,
+			SP3No:                  sp3No,
+			HoldAccountNo:          nonCashAccountNo,
+			HoldAccountAmount:      nonCashAccountAmount,
+			ConsumerLimitId:        cashAccountNo,
+			ConsumerLimitAmount:    cashAccountAmount,
+			ApplicantContactPerson: issuingData.Applicant.GetContactPerson(),
+			ApplicantPhoneNumber:   issuingData.Applicant.GetPhoneNumber(),
+			ApplicantEmail:         issuingData.Applicant.GetEmail(),
+			ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
+			ApplicantCustomerId:    "0",
+			BeneficiaryCustomerId:  "0",
+			LegalDocument:          issuingData.Document.GetBusinessLegal(),
+			ContractDocument:       issuingData.Document.GetBg(),
+			Sp3Document:            issuingData.Document.GetSp(),
+			OthersDocument:         issuingData.Document.GetOther(),
+		}
+
+		logrus.Println("HTTP REQUEST", httpReqData)
+
+		createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
+		if err != nil {
+			return nil, err
+		}
+
+		// httpReqParamsOpt := ApiBgTrackingRequest{
+		// 	RegistrationNo: createIssuingRes.Data.RegistrationNo,
+		// }
+
+		// apiReq := &httpReqParamsOpt
+
+		// checkIssuingRes, err := ApiCheckIssuingStatus(ctx, apiReq)
+		// if err != nil {
+		// 	return nil, err
+		// }
+
+		issuingData.RegistrationNo = createIssuingRes.Data.RegistrationNo
+
+		dataToSave, err = json.Marshal(issuingData)
+		if err != nil {
+			logrus.Errorln("[api][func: TaskAction] error marshal saved data: ", err)
+			return nil, status.Error(codes.Internal, "internal error")
+		}
+	}
+
+	if len(dataToSave) > 0 {
+		taskData.Data = string(dataToSave)
+	} else {
+		taskData.Data = task.GetData().GetData()
+	}
+
+	// TODO: update task dengan workflow yang sekarang
+
+	currentWorkflow, err := json.Marshal(validateWorkflow.GetData())
+	if err != nil {
+		logrus.Errorln("[api][func: TaskAction] error marshal current workflow: ", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+	taskData.WorkflowDoc = string(currentWorkflow)
+
+	saveReq := &task_pb.SaveTaskRequest{
+		TaskID:            taskData.TaskID,
+		Task:              taskData,
+		IsDraft:           false,
+		TransactionAmount: 0,
+	}
+
+	logrus.Println("saveReq ===> ", saveReq)
+
+	savedTask, err := taskClient.SaveTaskWithWorkflow(ctx, saveReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	logrus.Println("savedTask ===> ", savedTask)
+	if err != nil {
+		logrus.Errorln("[api][func: TaskAction] error save task: ", err)
+		return nil, status.Error(codes.Internal, "internal error")
+	}
+
+	res := &pb.TaskActionResponse{
+		Error:   false,
+		Code:    200,
+		Message: "",
+		Data: &pb.Task{
+			TaskID:             savedTask.Data.TaskID,
+			Type:               savedTask.Data.Type,
+			Status:             savedTask.Data.Status.String(),
+			Step:               savedTask.Data.Step.String(),
+			FeatureID:          savedTask.Data.FeatureID,
+			LastApprovedByID:   savedTask.Data.LastApprovedByID,
+			LastRejectedByID:   savedTask.Data.LastRejectedByID,
+			LastApprovedByName: savedTask.Data.LastApprovedByName,
+			LastRejectedByName: savedTask.Data.LastRejectedByName,
+			CreatedByName:      savedTask.Data.CreatedByName,
+			UpdatedByName:      savedTask.Data.UpdatedByName,
+			Reasons:            savedTask.Data.Reasons,
+			Comment:            savedTask.Data.Comment,
+			CreatedAt:          savedTask.Data.CreatedAt,
+			UpdatedAt:          savedTask.Data.UpdatedAt,
+		},
+	}
+
+	return res, nil
+
 }
