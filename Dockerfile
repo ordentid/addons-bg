@@ -37,6 +37,7 @@ ENV https_proxy=
 
 WORKDIR /usr/app
 
+COPY --from=builder /root/go/src/app/assets /usr/app/assets
 COPY --from=builder /root/go/src/app/app /usr/app/app
 COPY --from=builder /root/go/src/app/www /usr/app/www
 COPY --from=builder /root/go/src/app/grpc_health_probe-linux-amd64 /usr/app/grpc_health_probe-linux-amd64
