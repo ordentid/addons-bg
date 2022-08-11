@@ -344,7 +344,7 @@
         ]
       }
     },
-    "/api/bg/issuing/task/action": {
+    "/api/bg/issuing/task/action/{taskID}": {
       "put": {
         "summary": "Set action task",
         "description": "set task action. Action: 'approve', 'rework', 'reject', 'delete'",
@@ -365,11 +365,30 @@
         },
         "parameters": [
           {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
             "name": "body",
             "in": "body",
             "required": true,
             "schema": {
-              "$ref": "#/definitions/v1TaskActionRequest"
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "description": "Action: 'approve', 'rework', 'reject', 'delete'"
+                },
+                "comment": {
+                  "type": "string"
+                },
+                "reasons": {
+                  "type": "string"
+                }
+              }
             }
           }
         ],
@@ -3067,25 +3086,6 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
-        }
-      }
-    },
-    "v1TaskActionRequest": {
-      "type": "object",
-      "properties": {
-        "taskID": {
-          "type": "string",
-          "format": "uint64"
-        },
-        "action": {
-          "type": "string",
-          "description": "Action: 'approve', 'rework', 'reject', 'delete'"
-        },
-        "comment": {
-          "type": "string"
-        },
-        "reasons": {
-          "type": "string"
         }
       }
     },
