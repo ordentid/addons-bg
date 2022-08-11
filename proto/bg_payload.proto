@@ -206,8 +206,8 @@ message TaskIssuingData {
 
 message IssuingData {
     uint64 step = 1;
-    string referenceNo = 2;
-    string registrationNo = 3;
+    string referenceNo = 2 [(google.api.field_behavior) = OUTPUT_ONLY];;
+    string registrationNo = 3 [(google.api.field_behavior) = OUTPUT_ONLY];;
     PublishingData publishing = 4;
     AccountData account = 5;
     ApplicantData applicant = 6;

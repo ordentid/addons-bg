@@ -1261,6 +1261,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 			CreatedByID: me.UserID,
 			CompanyID:   me.CompanyID,
 		},
+		TransactionAmount: req.Data.Project.BgAmount,
 	}
 
 	if req.IsDraft {
