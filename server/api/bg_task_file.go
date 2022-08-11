@@ -912,7 +912,11 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
 			cell.str = vals[colJ]
+			logrus.Print("Cell String")
+			logrus.Print(cell.str)
 			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
+			logrus.Print("Cell List")
+			logrus.Print(cell.list)
 			cell.ht = float64(len(cell.list)) * lineHt
 			if cell.ht > maxHt {
 				maxHt = cell.ht
