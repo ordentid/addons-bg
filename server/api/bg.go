@@ -1228,8 +1228,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	switch counterGuaranteeType.Number() {
-	case 0: // Insurance
+	switch counterGuaranteeType {
+	case pb.ContractGuaranteeType_Insurance: // Insurance
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
 		sp3No = req.Data.Document.GetSp()
@@ -1237,7 +1237,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
-	case 1: // Tunai / Cash
+	case pb.ContractGuaranteeType_Cash: // Tunai / Cash
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
@@ -1245,7 +1245,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
 		}
-	case 2: // Non Cash Loan
+	case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
 		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
@@ -1253,7 +1253,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			nonCashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
-	case 3: // Combinasi
+	case pb.ContractGuaranteeType_Combination: // Combinasi
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
 		nonCashAccountNo = req.Data.Project.GetHoldAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
