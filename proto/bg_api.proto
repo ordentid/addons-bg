@@ -53,6 +53,17 @@ service ApiService {
         };
     };
 
+    rpc GetCurrency(GetCurrencyRequest) returns (GetCurrencyResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/currency"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Currency"]
+            summary: "Currency"
+            description: "This API for Currency list"
+        };
+    };
+
     rpc GetBeneficiaryName(GetBeneficiaryNameRequest) returns (GetBeneficiaryNameResponse) {
         option (google.api.http) = {
             get: "/api/bg/beneficiary-name"
