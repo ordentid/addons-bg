@@ -1191,12 +1191,12 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Task Status"}
-	widths := []float64{8, 40, 40, 35, 35, 30, 30, 30}
-	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Task Status"}
+	widths := []float64{8, 40, 40, 35, 35, 30, 30, 30, 30, 30}
+	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
 	var (
-		cellList [8]cellType
+		cellList [10]cellType
 		cell     cellType
 	)
 
@@ -1282,6 +1282,8 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 			registrationNo,
 			v.Data.Applicant.Name,
 			v.Data.Applicant.BeneficiaryName,
+			v.Task.CreatedByName,
+			v.Task.LastApprovedByName,
 			bgType,
 			bgAmount,
 			status,
@@ -1356,7 +1358,7 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 
 	w := csv.NewWriter(&buf)
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "BG Type", "Amount", "Status"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Task Status"}
 
 	_ = w.Write(fields)
 
@@ -1394,6 +1396,8 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 			registrationNo,
 			v.Data.Applicant.Name,
 			v.Data.Applicant.BeneficiaryName,
+			v.Task.CreatedByName,
+			v.Task.LastApprovedByName,
 			bgType,
 			bgAmount,
 			status,
@@ -1428,9 +1432,11 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 	_ = f.SetCellValue("Sheet1", "C1", "Registration Number")
 	_ = f.SetCellValue("Sheet1", "D1", "Applicant Name")
 	_ = f.SetCellValue("Sheet1", "E1", "Beneficiary Name")
-	_ = f.SetCellValue("Sheet1", "F1", "BG Type")
-	_ = f.SetCellValue("Sheet1", "G1", "Amount")
-	_ = f.SetCellValue("Sheet1", "H1", "Status")
+	_ = f.SetCellValue("Sheet1", "F1", "Created By")
+	_ = f.SetCellValue("Sheet1", "G1", "Reviewed By")
+	_ = f.SetCellValue("Sheet1", "H1", "BG Type")
+	_ = f.SetCellValue("Sheet1", "I1", "Amount")
+	_ = f.SetCellValue("Sheet1", "J1", "Status")
 
 	for k, v := range file.res.Data {
 
@@ -1466,9 +1472,11 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("C%d", rowNumber), registrationNo)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("D%d", rowNumber), v.Data.Applicant.Name)
 		_ = f.SetCellValue("Sheet1", fmt.Sprintf("E%d", rowNumber), v.Data.Applicant.BeneficiaryName)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), bgType)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), bgAmount)
-		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), status)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("F%d", rowNumber), v.Task.CreatedByName)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("G%d", rowNumber), v.Task.LastApprovedByName)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("H%d", rowNumber), bgType)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("I%d", rowNumber), bgAmount)
+		_ = f.SetCellValue("Sheet1", fmt.Sprintf("J%d", rowNumber), status)
 	}
 
 	f.SetActiveSheet(sheet)
