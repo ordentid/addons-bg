@@ -344,6 +344,59 @@
         ]
       }
     },
+    "/api/bg/issuing/task/action/{taskID}": {
+      "put": {
+        "summary": "Set action task",
+        "description": "set task action. Action: 'approve', 'rework', 'reject', 'delete'",
+        "operationId": "ApiService_TaskAction",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1TaskActionResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "taskID",
+            "in": "path",
+            "required": true,
+            "type": "string",
+            "format": "uint64"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "properties": {
+                "action": {
+                  "type": "string",
+                  "description": "Action: 'approve', 'rework', 'reject', 'delete'"
+                },
+                "comment": {
+                  "type": "string"
+                },
+                "reasons": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      }
+    },
     "/api/bg/issuing/task/template/{fileFormat}": {
       "get": {
         "summary": "BG Issuing Export",
@@ -2647,10 +2700,12 @@
           "format": "uint64"
         },
         "referenceNo": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "registrationNo": {
-          "type": "string"
+          "type": "string",
+          "readOnly": true
         },
         "publishing": {
           "$ref": "#/definitions/v1PublishingData"
@@ -3031,6 +3086,24 @@
         "updatedAt": {
           "type": "string",
           "format": "date-time"
+        }
+      }
+    },
+    "v1TaskActionResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1Task"
         }
       }
     },
