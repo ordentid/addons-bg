@@ -914,6 +914,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
+			logrus.Print("Column Index: ", colJ)
+			logrus.Print("Length: ", len(widths))
 			cell.str = vals[colJ]
 			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
 			cell.ht = float64(len(cell.list)) * lineHt
