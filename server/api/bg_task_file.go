@@ -105,7 +105,8 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -459,7 +460,8 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -834,7 +836,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -912,11 +915,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
 			cell.str = vals[colJ]
-			logrus.Print("Cell String")
-			logrus.Print(cell.str)
 			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
-			logrus.Print("Cell List")
-			logrus.Print(cell.list)
 			cell.ht = float64(len(cell.list)) * lineHt
 			if cell.ht > maxHt {
 				maxHt = cell.ht
@@ -1192,7 +1191,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
 	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Task Status"}
-	widths := []float64{8, 40, 40, 35, 35, 30, 30, 30, 30, 30}
+	widths := []float64{8, 35, 35, 35, 35, 20, 20, 25, 20, 20}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
 	var (
@@ -1211,7 +1210,8 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 10, 10, 60, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
