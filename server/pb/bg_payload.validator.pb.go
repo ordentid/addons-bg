@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
-	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	regexp "regexp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
@@ -203,12 +203,6 @@ func (this *ProjectData) Validate() error {
 	}
 	if !(this.CounterGuaranteeAmount >= 0) {
 		return github_com_mwitkow_go_proto_validators.FieldError("CounterGuaranteeAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.CounterGuaranteeAmount))
-	}
-	if !(this.HoldAccountAmount >= 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("HoldAccountAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.HoldAccountAmount))
-	}
-	if !(this.ConsumerLimitAmount >= 0) {
-		return github_com_mwitkow_go_proto_validators.FieldError("ConsumerLimitAmount", fmt.Errorf(`value '%v' must be greater than or equal to '0'`, this.ConsumerLimitAmount))
 	}
 	return nil
 }

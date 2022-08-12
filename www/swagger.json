@@ -2934,26 +2934,6 @@
         },
         "sp3No": {
           "type": "string"
-        },
-        "holdAccountNo": {
-          "type": "string"
-        },
-        "holdAccountAmount": {
-          "type": "number",
-          "format": "double"
-        },
-        "holdAccountAmountString": {
-          "type": "string"
-        },
-        "consumerLimitId": {
-          "type": "string"
-        },
-        "consumerLimitAmount": {
-          "type": "number",
-          "format": "double"
-        },
-        "consumerLimitAmountString": {
-          "type": "string"
         }
       }
     },
