@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
+	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
@@ -1166,7 +1167,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		gender = "Perempuan"
 	}
 
-	counterGuaranteeType := req.Data.Project.GetContractGuaranteeType()
+	contractGuaranteeType := req.Data.Project.GetContractGuaranteeType()
 
 	var counterGuaranteeTypeString map[string]string
 	insuranceLimitId := ""
@@ -1228,7 +1229,23 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	switch counterGuaranteeType {
+	// accountConn := &grpc.ClientConn{}
+
+	// if contractGuaranteeType != pb.ContractGuaranteeType_Insurance {
+	// 	var opts []grpc.DialOption
+	// 	opts = append(opts, grpc.WithInsecure())
+
+	// 	accountConn, err = grpc.Dial(getEnv("ACCOUNT_SERVICE", ":9093"), opts...)
+	// 	if err != nil {
+	// 		logrus.Println("Error account service")
+	// 		logrus.Errorln("Failed connect to Account Service: %v", err)
+	// 		return nil, status.Errorf(codes.Internal, "Error Internal")
+	// 	}
+	// 	accountConn.Connect()
+	// 	defer accountConn.Close()
+	// }
+
+	switch contractGuaranteeType {
 	case pb.ContractGuaranteeType_Insurance: // Insurance
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
@@ -1241,6 +1258,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
+		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
+		// if !isCashAccountValid || err != nil {
+		// 	logrus.Println("Check account")
+		// 	return nil, err
+		// }
 		if cashAccountNo == "" ||
 			cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
@@ -1249,22 +1271,36 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
+		// if !isNonCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
 	case pb.ContractGuaranteeType_Combination: // Combinasi
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
-		nonCashAccountNo = req.Data.Project.GetHoldAccountNo()
+		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
-		cashAccountNo = req.Data.Project.GetConsumerLimitId()
-		cashAccountAmount = req.Data.Project.GetConsumerLimitAmount()
+		cashAccountNo = req.Data.Project.GetCashAccountNo()
+		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
+		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
+		// if !isCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
+		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
+		// if !isNonCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 ||
 			cashAccountNo == "" ||
 			cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
 		}
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
 	}
 
 	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
@@ -1445,4 +1481,32 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	}
 
 	return result, nil
+}
+
+func (s *Server) checkAccountNoIsValid(ctx context.Context, accountConn *grpc.ClientConn, accountNo string) (bool, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+	var header, trailer metadata.MD
+
+	accountClient := account_pb.NewApiServiceClient(accountConn)
+	account, err := accountClient.ValidateAccount(ctx, &account_pb.ValidateAccountRequest{
+		AccountNo: accountNo,
+	}, grpc.Header(&header), grpc.Trailer(&trailer))
+	if err != nil {
+		logrus.Println("Error rpc", err)
+		return false, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if account.Error {
+		if account.Code == 404 {
+			logrus.Println("Error not found 2")
+			return false, status.Errorf(codes.NotFound, "Bad Request: Account not found")
+		}
+		logrus.Println("Error internal")
+		return false, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	return true, nil
 }
