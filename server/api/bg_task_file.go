@@ -105,8 +105,8 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
-		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 12, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 12, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -460,8 +460,8 @@ func (file *TaskMappingDigitalFile) TaskMappingDigitalToPDFv2(ctx context.Contex
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
-		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 12, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 12, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -836,8 +836,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
-		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 12, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 12, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
@@ -1210,8 +1210,8 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 	pdf.SetTopMargin(30)
 
 	pdf.SetHeaderFuncMode(func() {
-		pdf.Image("assets/bricams.png", 12.5, 15, 40, 0, false, "", 0, "")
-		pdf.Image("assets/bri.png", 240, 15, 20, 0, false, "", 0, "")
+		pdf.Image("assets/bricams.png", 12.5, 12, 40, 0, false, "", 0, "")
+		pdf.Image("assets/bri.png", 240, 12, 20, 0, false, "", 0, "")
 		pdf.SetFont("Times", "B", 9.5)
 		pdf.SetTextColor(255, 255, 255)
 		pdf.SetFillColor(2, 75, 140)
