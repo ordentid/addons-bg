@@ -1249,7 +1249,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	case pb.ContractGuaranteeType_Insurance: // Insurance
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
-		sp3No = req.Data.Document.GetSp()
+		sp3No = req.Data.Project.GetSp3No()
 		if insuranceLimitId == "" ||
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
