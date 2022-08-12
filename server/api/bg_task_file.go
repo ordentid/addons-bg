@@ -914,6 +914,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
+			logrus.Print("Column Index: ", colJ)
+			logrus.Print("Length: ", len(widths))
 			cell.str = vals[colJ]
 			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
 			cell.ht = float64(len(cell.list)) * lineHt
@@ -1190,7 +1192,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Task Status"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Workflow Status"}
 	widths := []float64{8, 35, 35, 35, 35, 20, 20, 25, 20, 20}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
@@ -1358,7 +1360,7 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 
 	w := csv.NewWriter(&buf)
 
-	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Task Status"}
+	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Workflow Status"}
 
 	_ = w.Write(fields)
 
@@ -1436,7 +1438,7 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 	_ = f.SetCellValue("Sheet1", "G1", "Reviewed By")
 	_ = f.SetCellValue("Sheet1", "H1", "BG Type")
 	_ = f.SetCellValue("Sheet1", "I1", "Amount")
-	_ = f.SetCellValue("Sheet1", "J1", "Status")
+	_ = f.SetCellValue("Sheet1", "J1", "Workkflow Status")
 
 	for k, v := range file.res.Data {
 
