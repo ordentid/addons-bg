@@ -310,12 +310,6 @@ message ProjectData {
     string counterGuaranteeAmountString = 17;
     string insuranceLimitId = 18;
 	string sp3No = 19;
-	string holdAccountNo = 20 ;
-	double holdAccountAmount = 21 [(validator.field) = {float_gte: 0}];
-    string holdAccountAmountString = 22;
-	string consumerLimitId = 23;
-	double consumerLimitAmount = 24 [(validator.field) = {float_gte: 0}];
-    string consumerLimitAmountString = 25;
 }
 
 message DocumentData {

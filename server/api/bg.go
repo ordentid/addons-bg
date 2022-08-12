@@ -1255,10 +1255,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	case pb.ContractGuaranteeType_Combination: // Combinasi
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
-		nonCashAccountNo = req.Data.Project.GetHoldAccountNo()
+		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
-		cashAccountNo = req.Data.Project.GetConsumerLimitId()
-		cashAccountAmount = req.Data.Project.GetConsumerLimitAmount()
+		cashAccountNo = req.Data.Project.GetCashAccountNo()
+		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 ||
 			cashAccountNo == "" ||
