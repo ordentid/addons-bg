@@ -1508,10 +1508,10 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			}
 		case pb.ContractGuaranteeType_Combination: // Combinasi
 			contractGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
-			nonCashAccountNo = issuingData.Project.GetHoldAccountNo()
+			nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
 			nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
-			cashAccountNo = issuingData.Project.GetConsumerLimitId()
-			cashAccountAmount = issuingData.Project.GetConsumerLimitAmount()
+			cashAccountNo = issuingData.Project.GetCashAccountNo()
+			cashAccountAmount = issuingData.Project.GetCashAccountAmount()
 			if nonCashAccountNo == "" ||
 				nonCashAccountAmount <= 0.0 ||
 				cashAccountNo == "" ||
