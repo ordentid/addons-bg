@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Fri Aug 12 06:13:54 2022
+# Make data base, printed on Mon Aug 15 14:52:59 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/thefirstrefresh
+VSCODE_CWD = /Users/farizrachmanyusuf/Codes/addons-system-service
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -59,13 +59,13 @@ LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
 GOPATH = /Users/farizrachmanyusuf/go
 # environment
-LaunchInstanceID = 4A4CA0BD-1B89-4D56-8BDF-CE1FCCFF61A6
+LaunchInstanceID = A8FEA76B-4191-4212-90E7-9770937C3EF1
 # environment
 ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.9Ft1AQxRBo/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.BIi5nJTBGj/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -109,7 +109,7 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
-TERM_SESSION_ID = 7F579F7C-9777-4EBD-B875-9328337E1CF6
+TERM_SESSION_ID = 4319213B-C8C2-47EE-8C5D-098817A2EC1E
 # environment
 LESS = -R
 # automatic
@@ -141,7 +141,7 @@ MFLAGS = -Rrqp
 # environment
 TERM_PROGRAM_VERSION = 445
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939.296A381C-ECA1-4075-982C-E018A7343B4F
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939.54708DD9-5C9D-465B-B104-A3DBD217CC19
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -181,9 +181,9 @@ LANG = C
 # environment
 TERM = xterm-256color
 # environment
-_P9K_TTY = /dev/ttys001
+_P9K_TTY = /dev/ttys000
 # environment
-VSCODE_PID = 52613
+VSCODE_PID = 61229
 # variable set hash-table stats:
 # Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
 
@@ -424,6 +424,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Fri Aug 12 06:13:54 2022
+# Finished Make data base on Mon Aug 15 14:52:59 2022
 
  

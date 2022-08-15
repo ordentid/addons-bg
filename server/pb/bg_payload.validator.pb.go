@@ -221,19 +221,6 @@ func (this *HealthCheckRequest) Validate() error {
 func (this *HealthCheckResponse) Validate() error {
 	return nil
 }
-func (this *GetBranchRequest) Validate() error {
-	return nil
-}
-func (this *GetBranchResponse) Validate() error {
-	for _, item := range this.Data {
-		if item != nil {
-			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
-				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
-			}
-		}
-	}
-	return nil
-}
 func (this *GetCurrencyRequest) Validate() error {
 	return nil
 }

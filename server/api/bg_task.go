@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -1335,6 +1336,14 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	taskConn.Connect()
 	defer taskConn.Close()
 
+	systemConn, err := grpc.Dial(getEnv("SYSTEM_SERVICE", ":9101"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
+	}
+	defer systemConn.Close()
+
+	systemClient := system_pb.NewApiServiceClient(systemConn)
+
 	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
 	workflowClient := workflow_pb.NewApiServiceClient(workflowConn)
@@ -1478,7 +1487,11 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
 		// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
 
-		openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetOpeningBranchId()})
+		openingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+			Data: &system_pb.MdBranch{
+				Id: issuingData.Publishing.GetOpeningBranchId(),
+			},
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
@@ -1487,7 +1500,15 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			}
 		}
 
-		publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetPublishingBranchId()})
+		if len(openingBranchORMs.Data) == 0 {
+			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+		}
+
+		publishingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+			Data: &system_pb.MdBranch{
+				Id: issuingData.Publishing.GetPublishingBranchId(),
+			},
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
@@ -1496,15 +1517,13 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			}
 		}
 
-		openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		if len(publishingBranchORMs.Data) == 0 {
+			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 		}
 
-		publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+		openingBranch := openingBranchORMs.Data[0]
+
+		publishingBranch := publishingBranchORMs.Data[0]
 
 		// accountConn := &grpc.ClientConn{}
 
