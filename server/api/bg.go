@@ -1222,12 +1222,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	cashAccountAmount := 0.0
 	isEndOfYearBg := "0"
 
-	if req.Data.Publishing.GetBgType() == pb.BgType_GovernmentPaymentGuarantee {
-		isEndOfYearBg = "1"
-		if req.Data.Project.GetNrkNumber() == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
-		}
-	}
 	// openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
 	// publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
 
@@ -1306,9 +1300,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
 	case pb.ContractGuaranteeType_Cash: // Tunai / Cash
-		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
+		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
+		nonCashAccountNo = req.Data.Project.GetCashAccountNo()
+		nonCashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
 		// if !isCashAccountValid || err != nil {
 		// 	logrus.Println("Check account")
@@ -1316,10 +1312,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		// }
 		if cashAccountNo == "" ||
 			cashAccountAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
 	case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
-		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
+		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
@@ -1328,7 +1324,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		// }
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
 		}
 	case pb.ContractGuaranteeType_Combination: // Combinasi
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
@@ -1343,6 +1339,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
 		// if !isNonCashAccountValid || err != nil {
 		// 	return nil, err
+		// }
+		isEndOfYearBg = "1"
+		// if req.Data.Project.GetNrkNumber() == "" {
+		// 	return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
 		// }
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 ||
