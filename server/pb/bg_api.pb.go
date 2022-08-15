@@ -34,7 +34,7 @@ var file_bg_api_proto_rawDesc = []byte{
 	0x65, 0x6e, 0x2d, 0x6f, 0x70, 0x65, 0x6e, 0x61, 0x70, 0x69, 0x76, 0x32, 0x2f, 0x6f, 0x70, 0x74,
 	0x69, 0x6f, 0x6e, 0x73, 0x2f, 0x61, 0x6e, 0x6e, 0x6f, 0x74, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x73,
 	0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x1a, 0x10, 0x62, 0x67, 0x5f, 0x70, 0x61, 0x79, 0x6c, 0x6f,
-	0x61, 0x64, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0xe3, 0x2e, 0x0a, 0x0a, 0x41, 0x70, 0x69,
+	0x61, 0x64, 0x2e, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x32, 0x90, 0x30, 0x0a, 0x0a, 0x41, 0x70, 0x69,
 	0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0xa1, 0x01, 0x0a, 0x0b, 0x48, 0x65, 0x61, 0x6c,
 	0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x12, 0x21, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72,
 	0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68,
@@ -408,15 +408,26 @@ var file_bg_api_proto_rawDesc = []byte{
 	0x20, 0x41, 0x50, 0x49, 0x20, 0x66, 0x6f, 0x72, 0x20, 0x63, 0x68, 0x65, 0x63, 0x6b, 0x20, 0x42,
 	0x47, 0x20, 0x49, 0x73, 0x73, 0x75, 0x69, 0x6e, 0x67, 0x20, 0x73, 0x74, 0x61, 0x74, 0x75, 0x73,
 	0x20, 0x77, 0x68, 0x69, 0x63, 0x68, 0x20, 0x68, 0x61, 0x73, 0x20, 0x62, 0x65, 0x65, 0x6e, 0x20,
-	0x73, 0x65, 0x6e, 0x74, 0x20, 0x74, 0x6f, 0x20, 0x50, 0x6f, 0x72, 0x74, 0x61, 0x6c, 0x42, 0x72,
-	0x5a, 0x04, 0x2e, 0x2f, 0x70, 0x62, 0x92, 0x41, 0x69, 0x5a, 0x59, 0x0a, 0x57, 0x0a, 0x06, 0x62,
-	0x65, 0x61, 0x72, 0x65, 0x72, 0x12, 0x4d, 0x08, 0x02, 0x12, 0x38, 0x41, 0x75, 0x74, 0x68, 0x65,
-	0x6e, 0x74, 0x69, 0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x20, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x2c,
-	0x20, 0x70, 0x72, 0x65, 0x66, 0x69, 0x78, 0x65, 0x64, 0x20, 0x62, 0x79, 0x20, 0x42, 0x65, 0x61,
-	0x72, 0x65, 0x72, 0x3a, 0x20, 0x42, 0x65, 0x61, 0x72, 0x65, 0x72, 0x20, 0x3c, 0x74, 0x6f, 0x6b,
-	0x65, 0x6e, 0x3e, 0x1a, 0x0d, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69,
-	0x6f, 0x6e, 0x20, 0x02, 0x62, 0x0c, 0x0a, 0x0a, 0x0a, 0x06, 0x62, 0x65, 0x61, 0x72, 0x65, 0x72,
-	0x12, 0x00, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x73, 0x65, 0x6e, 0x74, 0x20, 0x74, 0x6f, 0x20, 0x50, 0x6f, 0x72, 0x74, 0x61, 0x6c, 0x12, 0xaa,
+	0x01, 0x0a, 0x0a, 0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x12, 0x20, 0x2e,
+	0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e, 0x46, 0x69,
+	0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
+	0x21, 0x2e, 0x62, 0x67, 0x2e, 0x73, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x76, 0x31, 0x2e,
+	0x46, 0x69, 0x6c, 0x65, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e,
+	0x73, 0x65, 0x22, 0x57, 0x82, 0xd3, 0xe4, 0x93, 0x02, 0x1b, 0x22, 0x16, 0x2f, 0x61, 0x70, 0x69,
+	0x2f, 0x62, 0x67, 0x2f, 0x69, 0x73, 0x73, 0x75, 0x69, 0x6e, 0x67, 0x2f, 0x75, 0x70, 0x6c, 0x6f,
+	0x61, 0x64, 0x3a, 0x01, 0x2a, 0x92, 0x41, 0x33, 0x0a, 0x0a, 0x42, 0x47, 0x20, 0x49, 0x73, 0x73,
+	0x75, 0x69, 0x6e, 0x67, 0x12, 0x0b, 0x55, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x20, 0x46, 0x69, 0x6c,
+	0x65, 0x1a, 0x18, 0x54, 0x68, 0x69, 0x73, 0x20, 0x41, 0x50, 0x49, 0x20, 0x66, 0x6f, 0x72, 0x20,
+	0x66, 0x69, 0x6c, 0x65, 0x20, 0x75, 0x70, 0x6c, 0x6f, 0x61, 0x64, 0x42, 0x72, 0x5a, 0x04, 0x2e,
+	0x2f, 0x70, 0x62, 0x92, 0x41, 0x69, 0x5a, 0x59, 0x0a, 0x57, 0x0a, 0x06, 0x62, 0x65, 0x61, 0x72,
+	0x65, 0x72, 0x12, 0x4d, 0x08, 0x02, 0x12, 0x38, 0x41, 0x75, 0x74, 0x68, 0x65, 0x6e, 0x74, 0x69,
+	0x63, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x20, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x2c, 0x20, 0x70, 0x72,
+	0x65, 0x66, 0x69, 0x78, 0x65, 0x64, 0x20, 0x62, 0x79, 0x20, 0x42, 0x65, 0x61, 0x72, 0x65, 0x72,
+	0x3a, 0x20, 0x42, 0x65, 0x61, 0x72, 0x65, 0x72, 0x20, 0x3c, 0x74, 0x6f, 0x6b, 0x65, 0x6e, 0x3e,
+	0x1a, 0x0d, 0x41, 0x75, 0x74, 0x68, 0x6f, 0x72, 0x69, 0x7a, 0x61, 0x74, 0x69, 0x6f, 0x6e, 0x20,
+	0x02, 0x62, 0x0c, 0x0a, 0x0a, 0x0a, 0x06, 0x62, 0x65, 0x61, 0x72, 0x65, 0x72, 0x12, 0x00, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var file_bg_api_proto_goTypes = []interface{}{
@@ -448,31 +459,33 @@ var file_bg_api_proto_goTypes = []interface{}{
 	(*TaskActionRequest)(nil),                   // 25: bg.service.v1.TaskActionRequest
 	(*CreateIssuingRequest)(nil),                // 26: bg.service.v1.CreateIssuingRequest
 	(*CheckIssuingRequest)(nil),                 // 27: bg.service.v1.CheckIssuingRequest
-	(*HealthCheckResponse)(nil),                 // 28: bg.service.v1.HealthCheckResponse
-	(*GetBranchResponse)(nil),                   // 29: bg.service.v1.GetBranchResponse
-	(*GetCurrencyResponse)(nil),                 // 30: bg.service.v1.GetCurrencyResponse
-	(*GetBeneficiaryNameResponse)(nil),          // 31: bg.service.v1.GetBeneficiaryNameResponse
-	(*GetApplicantNameResponse)(nil),            // 32: bg.service.v1.GetApplicantNameResponse
-	(*GetThirdPartyResponse)(nil),               // 33: bg.service.v1.GetThirdPartyResponse
-	(*GetCustomerLimitResponse)(nil),            // 34: bg.service.v1.GetCustomerLimitResponse
-	(*httpbody.HttpBody)(nil),                   // 35: google.api.HttpBody
-	(*GetTaskMappingResponse)(nil),              // 36: bg.service.v1.GetTaskMappingResponse
-	(*GetTaskMappingDetailResponse)(nil),        // 37: bg.service.v1.GetTaskMappingDetailResponse
-	(*CreateTaskMappingResponse)(nil),           // 38: bg.service.v1.CreateTaskMappingResponse
-	(*GetTaskMappingDigitalResponse)(nil),       // 39: bg.service.v1.GetTaskMappingDigitalResponse
-	(*GetTaskMappingDigitalDetailResponse)(nil), // 40: bg.service.v1.GetTaskMappingDigitalDetailResponse
-	(*CreateTaskMappingDigitalResponse)(nil),    // 41: bg.service.v1.CreateTaskMappingDigitalResponse
-	(*GetTransactionAttachmentResponse)(nil),    // 42: bg.service.v1.GetTransactionAttachmentResponse
-	(*GetTransactionResponse)(nil),              // 43: bg.service.v1.GetTransactionResponse
-	(*GetTransactionDetailResponse)(nil),        // 44: bg.service.v1.GetTransactionDetailResponse
-	(*CreateTransactionResponse)(nil),           // 45: bg.service.v1.CreateTransactionResponse
-	(*DeleteTransactionResponse)(nil),           // 46: bg.service.v1.DeleteTransactionResponse
-	(*GetTaskIssuingResponse)(nil),              // 47: bg.service.v1.GetTaskIssuingResponse
-	(*GetTaskIssuingDetailResponse)(nil),        // 48: bg.service.v1.GetTaskIssuingDetailResponse
-	(*CreateTaskIssuingResponse)(nil),           // 49: bg.service.v1.CreateTaskIssuingResponse
-	(*TaskActionResponse)(nil),                  // 50: bg.service.v1.TaskActionResponse
-	(*CreateIssuingResponse)(nil),               // 51: bg.service.v1.CreateIssuingResponse
-	(*CheckIssuingResponse)(nil),                // 52: bg.service.v1.CheckIssuingResponse
+	(*FileUploadRequest)(nil),                   // 28: bg.service.v1.FileUploadRequest
+	(*HealthCheckResponse)(nil),                 // 29: bg.service.v1.HealthCheckResponse
+	(*GetBranchResponse)(nil),                   // 30: bg.service.v1.GetBranchResponse
+	(*GetCurrencyResponse)(nil),                 // 31: bg.service.v1.GetCurrencyResponse
+	(*GetBeneficiaryNameResponse)(nil),          // 32: bg.service.v1.GetBeneficiaryNameResponse
+	(*GetApplicantNameResponse)(nil),            // 33: bg.service.v1.GetApplicantNameResponse
+	(*GetThirdPartyResponse)(nil),               // 34: bg.service.v1.GetThirdPartyResponse
+	(*GetCustomerLimitResponse)(nil),            // 35: bg.service.v1.GetCustomerLimitResponse
+	(*httpbody.HttpBody)(nil),                   // 36: google.api.HttpBody
+	(*GetTaskMappingResponse)(nil),              // 37: bg.service.v1.GetTaskMappingResponse
+	(*GetTaskMappingDetailResponse)(nil),        // 38: bg.service.v1.GetTaskMappingDetailResponse
+	(*CreateTaskMappingResponse)(nil),           // 39: bg.service.v1.CreateTaskMappingResponse
+	(*GetTaskMappingDigitalResponse)(nil),       // 40: bg.service.v1.GetTaskMappingDigitalResponse
+	(*GetTaskMappingDigitalDetailResponse)(nil), // 41: bg.service.v1.GetTaskMappingDigitalDetailResponse
+	(*CreateTaskMappingDigitalResponse)(nil),    // 42: bg.service.v1.CreateTaskMappingDigitalResponse
+	(*GetTransactionAttachmentResponse)(nil),    // 43: bg.service.v1.GetTransactionAttachmentResponse
+	(*GetTransactionResponse)(nil),              // 44: bg.service.v1.GetTransactionResponse
+	(*GetTransactionDetailResponse)(nil),        // 45: bg.service.v1.GetTransactionDetailResponse
+	(*CreateTransactionResponse)(nil),           // 46: bg.service.v1.CreateTransactionResponse
+	(*DeleteTransactionResponse)(nil),           // 47: bg.service.v1.DeleteTransactionResponse
+	(*GetTaskIssuingResponse)(nil),              // 48: bg.service.v1.GetTaskIssuingResponse
+	(*GetTaskIssuingDetailResponse)(nil),        // 49: bg.service.v1.GetTaskIssuingDetailResponse
+	(*CreateTaskIssuingResponse)(nil),           // 50: bg.service.v1.CreateTaskIssuingResponse
+	(*TaskActionResponse)(nil),                  // 51: bg.service.v1.TaskActionResponse
+	(*CreateIssuingResponse)(nil),               // 52: bg.service.v1.CreateIssuingResponse
+	(*CheckIssuingResponse)(nil),                // 53: bg.service.v1.CheckIssuingResponse
+	(*FileUploadResponse)(nil),                  // 54: bg.service.v1.FileUploadResponse
 }
 var file_bg_api_proto_depIdxs = []int32{
 	0,  // 0: bg.service.v1.ApiService.HealthCheck:input_type -> bg.service.v1.HealthCheckRequest
@@ -503,36 +516,38 @@ var file_bg_api_proto_depIdxs = []int32{
 	25, // 25: bg.service.v1.ApiService.TaskAction:input_type -> bg.service.v1.TaskActionRequest
 	26, // 26: bg.service.v1.ApiService.CreateIssuing:input_type -> bg.service.v1.CreateIssuingRequest
 	27, // 27: bg.service.v1.ApiService.CheckIssuingStatus:input_type -> bg.service.v1.CheckIssuingRequest
-	28, // 28: bg.service.v1.ApiService.HealthCheck:output_type -> bg.service.v1.HealthCheckResponse
-	29, // 29: bg.service.v1.ApiService.GetBranch:output_type -> bg.service.v1.GetBranchResponse
-	30, // 30: bg.service.v1.ApiService.GetCurrency:output_type -> bg.service.v1.GetCurrencyResponse
-	31, // 31: bg.service.v1.ApiService.GetBeneficiaryName:output_type -> bg.service.v1.GetBeneficiaryNameResponse
-	32, // 32: bg.service.v1.ApiService.GetApplicantName:output_type -> bg.service.v1.GetApplicantNameResponse
-	33, // 33: bg.service.v1.ApiService.GetThirdParty:output_type -> bg.service.v1.GetThirdPartyResponse
-	34, // 34: bg.service.v1.ApiService.GetCustomerLimit:output_type -> bg.service.v1.GetCustomerLimitResponse
-	35, // 35: bg.service.v1.ApiService.GetTaskMappingFile:output_type -> google.api.HttpBody
-	36, // 36: bg.service.v1.ApiService.GetTaskMapping:output_type -> bg.service.v1.GetTaskMappingResponse
-	37, // 37: bg.service.v1.ApiService.GetTaskMappingDetail:output_type -> bg.service.v1.GetTaskMappingDetailResponse
-	38, // 38: bg.service.v1.ApiService.CreateTaskMapping:output_type -> bg.service.v1.CreateTaskMappingResponse
-	35, // 39: bg.service.v1.ApiService.GetTaskMappingDigitalFile:output_type -> google.api.HttpBody
-	39, // 40: bg.service.v1.ApiService.GetTaskMappingDigital:output_type -> bg.service.v1.GetTaskMappingDigitalResponse
-	40, // 41: bg.service.v1.ApiService.GetTaskMappingDigitalDetail:output_type -> bg.service.v1.GetTaskMappingDigitalDetailResponse
-	41, // 42: bg.service.v1.ApiService.CreateTaskMappingDigital:output_type -> bg.service.v1.CreateTaskMappingDigitalResponse
-	42, // 43: bg.service.v1.ApiService.GetTransactionAttachment:output_type -> bg.service.v1.GetTransactionAttachmentResponse
-	35, // 44: bg.service.v1.ApiService.GetTransactionFile:output_type -> google.api.HttpBody
-	43, // 45: bg.service.v1.ApiService.GetTransaction:output_type -> bg.service.v1.GetTransactionResponse
-	44, // 46: bg.service.v1.ApiService.GetTransactionDetail:output_type -> bg.service.v1.GetTransactionDetailResponse
-	45, // 47: bg.service.v1.ApiService.CreateTransaction:output_type -> bg.service.v1.CreateTransactionResponse
-	46, // 48: bg.service.v1.ApiService.DeleteTransaction:output_type -> bg.service.v1.DeleteTransactionResponse
-	47, // 49: bg.service.v1.ApiService.GetTaskIssuing:output_type -> bg.service.v1.GetTaskIssuingResponse
-	48, // 50: bg.service.v1.ApiService.GetTaskIssuingDetail:output_type -> bg.service.v1.GetTaskIssuingDetailResponse
-	35, // 51: bg.service.v1.ApiService.GetTaskIssuingFile:output_type -> google.api.HttpBody
-	49, // 52: bg.service.v1.ApiService.CreateTaskIssuing:output_type -> bg.service.v1.CreateTaskIssuingResponse
-	50, // 53: bg.service.v1.ApiService.TaskAction:output_type -> bg.service.v1.TaskActionResponse
-	51, // 54: bg.service.v1.ApiService.CreateIssuing:output_type -> bg.service.v1.CreateIssuingResponse
-	52, // 55: bg.service.v1.ApiService.CheckIssuingStatus:output_type -> bg.service.v1.CheckIssuingResponse
-	28, // [28:56] is the sub-list for method output_type
-	0,  // [0:28] is the sub-list for method input_type
+	28, // 28: bg.service.v1.ApiService.FileUpload:input_type -> bg.service.v1.FileUploadRequest
+	29, // 29: bg.service.v1.ApiService.HealthCheck:output_type -> bg.service.v1.HealthCheckResponse
+	30, // 30: bg.service.v1.ApiService.GetBranch:output_type -> bg.service.v1.GetBranchResponse
+	31, // 31: bg.service.v1.ApiService.GetCurrency:output_type -> bg.service.v1.GetCurrencyResponse
+	32, // 32: bg.service.v1.ApiService.GetBeneficiaryName:output_type -> bg.service.v1.GetBeneficiaryNameResponse
+	33, // 33: bg.service.v1.ApiService.GetApplicantName:output_type -> bg.service.v1.GetApplicantNameResponse
+	34, // 34: bg.service.v1.ApiService.GetThirdParty:output_type -> bg.service.v1.GetThirdPartyResponse
+	35, // 35: bg.service.v1.ApiService.GetCustomerLimit:output_type -> bg.service.v1.GetCustomerLimitResponse
+	36, // 36: bg.service.v1.ApiService.GetTaskMappingFile:output_type -> google.api.HttpBody
+	37, // 37: bg.service.v1.ApiService.GetTaskMapping:output_type -> bg.service.v1.GetTaskMappingResponse
+	38, // 38: bg.service.v1.ApiService.GetTaskMappingDetail:output_type -> bg.service.v1.GetTaskMappingDetailResponse
+	39, // 39: bg.service.v1.ApiService.CreateTaskMapping:output_type -> bg.service.v1.CreateTaskMappingResponse
+	36, // 40: bg.service.v1.ApiService.GetTaskMappingDigitalFile:output_type -> google.api.HttpBody
+	40, // 41: bg.service.v1.ApiService.GetTaskMappingDigital:output_type -> bg.service.v1.GetTaskMappingDigitalResponse
+	41, // 42: bg.service.v1.ApiService.GetTaskMappingDigitalDetail:output_type -> bg.service.v1.GetTaskMappingDigitalDetailResponse
+	42, // 43: bg.service.v1.ApiService.CreateTaskMappingDigital:output_type -> bg.service.v1.CreateTaskMappingDigitalResponse
+	43, // 44: bg.service.v1.ApiService.GetTransactionAttachment:output_type -> bg.service.v1.GetTransactionAttachmentResponse
+	36, // 45: bg.service.v1.ApiService.GetTransactionFile:output_type -> google.api.HttpBody
+	44, // 46: bg.service.v1.ApiService.GetTransaction:output_type -> bg.service.v1.GetTransactionResponse
+	45, // 47: bg.service.v1.ApiService.GetTransactionDetail:output_type -> bg.service.v1.GetTransactionDetailResponse
+	46, // 48: bg.service.v1.ApiService.CreateTransaction:output_type -> bg.service.v1.CreateTransactionResponse
+	47, // 49: bg.service.v1.ApiService.DeleteTransaction:output_type -> bg.service.v1.DeleteTransactionResponse
+	48, // 50: bg.service.v1.ApiService.GetTaskIssuing:output_type -> bg.service.v1.GetTaskIssuingResponse
+	49, // 51: bg.service.v1.ApiService.GetTaskIssuingDetail:output_type -> bg.service.v1.GetTaskIssuingDetailResponse
+	36, // 52: bg.service.v1.ApiService.GetTaskIssuingFile:output_type -> google.api.HttpBody
+	50, // 53: bg.service.v1.ApiService.CreateTaskIssuing:output_type -> bg.service.v1.CreateTaskIssuingResponse
+	51, // 54: bg.service.v1.ApiService.TaskAction:output_type -> bg.service.v1.TaskActionResponse
+	52, // 55: bg.service.v1.ApiService.CreateIssuing:output_type -> bg.service.v1.CreateIssuingResponse
+	53, // 56: bg.service.v1.ApiService.CheckIssuingStatus:output_type -> bg.service.v1.CheckIssuingResponse
+	54, // 57: bg.service.v1.ApiService.FileUpload:output_type -> bg.service.v1.FileUploadResponse
+	29, // [29:58] is the sub-list for method output_type
+	0,  // [0:29] is the sub-list for method input_type
 	0,  // [0:0] is the sub-list for extension type_name
 	0,  // [0:0] is the sub-list for extension extendee
 	0,  // [0:0] is the sub-list for field type_name

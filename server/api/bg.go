@@ -2,9 +2,11 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"strconv"
 	"strings"
 
@@ -353,13 +355,13 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 			Plafond:           v.Plafond,
 			ReservationAmount: v.ReservationAmount,
 			OutstandingAmount: v.OutstandingAmount,
-			// AvailableAmount:   v.AvailableAmount,
-			ExpiryDate:   v.ExpiryDate,
-			PnRm:         v.PnRm,
-			NameRm:       v.NameRm,
-			CreatedDate:  v.CreatedDate,
-			ModifiedDate: v.ModifiedDate,
-			Status:       v.Status,
+			AvailableAmount:   v.AvailableAmount,
+			ExpiryDate:        v.ExpiryDate,
+			PnRm:              v.PnRm,
+			NameRm:            v.NameRm,
+			CreatedDate:       v.CreatedDate,
+			ModifiedDate:      v.ModifiedDate,
+			Status:            v.Status,
 		})
 	}
 
@@ -1530,6 +1532,47 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		Status:          res.Data.Status,
 		ModifiedDate:    res.Data.ModifiedDate,
 	}
+
+	return result, nil
+}
+
+func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb.FileUploadResponse, error) {
+	result := &pb.FileUploadResponse{
+		Error:   false,
+		Code:    200,
+		Message: "Data",
+	}
+
+	decodedBytes, err := base64.StdEncoding.DecodeString(req.GetData())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: File is corrupted")
+	}
+
+	contentType := http.DetectContentType(decodedBytes)
+
+	if contentType != "application/pdf" {
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Invalid filetype")
+	}
+
+	httpReqParamsOpt := ApiUploadEncodeRequest{
+		Document: req.GetData(),
+	}
+
+	apiReq := &httpReqParamsOpt
+
+	res, err := ApiUploadEncode(ctx, apiReq)
+	if err != nil {
+		return nil, err
+	}
+
+	resultData := &pb.FileUploadData{
+		FileName:        res.ResponseData.Filename,
+		DocumentPath:    res.ResponseData.DocumentPath,
+		UploadDate:      res.ResponseData.UploadDate,
+		UploadedFileUrl: res.ResponseData.UploadFileUrl,
+	}
+
+	result.Data = resultData
 
 	return result, nil
 }

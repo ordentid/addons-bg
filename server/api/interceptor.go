@@ -1,6 +1,7 @@
 package api
 
 import (
+	"net/http"
 	"os"
 	"strconv"
 	"strings"
@@ -158,4 +159,16 @@ func branchFormatter(s string) (string, error) {
 	sText := strconv.Itoa(*sFinal)
 
 	return sText, nil
+}
+
+func getFileContentType(out *os.File) (string, error) {
+	buffer := make([]byte, 512)
+
+	_, err := out.Read(buffer)
+	if err != nil {
+		return "", err
+	}
+	contentType := http.DetectContentType(buffer)
+
+	return contentType, nil
 }
