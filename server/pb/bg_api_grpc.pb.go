@@ -51,6 +51,7 @@ type ApiServiceClient interface {
 	TaskAction(ctx context.Context, in *TaskActionRequest, opts ...grpc.CallOption) (*TaskActionResponse, error)
 	CreateIssuing(ctx context.Context, in *CreateIssuingRequest, opts ...grpc.CallOption) (*CreateIssuingResponse, error)
 	CheckIssuingStatus(ctx context.Context, in *CheckIssuingRequest, opts ...grpc.CallOption) (*CheckIssuingResponse, error)
+	FileUpload(ctx context.Context, in *FileUploadRequest, opts ...grpc.CallOption) (*FileUploadResponse, error)
 }
 
 type apiServiceClient struct {
@@ -313,6 +314,15 @@ func (c *apiServiceClient) CheckIssuingStatus(ctx context.Context, in *CheckIssu
 	return out, nil
 }
 
+func (c *apiServiceClient) FileUpload(ctx context.Context, in *FileUploadRequest, opts ...grpc.CallOption) (*FileUploadResponse, error) {
+	out := new(FileUploadResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/FileUpload", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ApiServiceServer is the server API for ApiService service.
 // All implementations must embed UnimplementedApiServiceServer
 // for forward compatibility
@@ -345,6 +355,7 @@ type ApiServiceServer interface {
 	TaskAction(context.Context, *TaskActionRequest) (*TaskActionResponse, error)
 	CreateIssuing(context.Context, *CreateIssuingRequest) (*CreateIssuingResponse, error)
 	CheckIssuingStatus(context.Context, *CheckIssuingRequest) (*CheckIssuingResponse, error)
+	FileUpload(context.Context, *FileUploadRequest) (*FileUploadResponse, error)
 	mustEmbedUnimplementedApiServiceServer()
 }
 
@@ -435,6 +446,9 @@ func (UnimplementedApiServiceServer) CreateIssuing(context.Context, *CreateIssui
 }
 func (UnimplementedApiServiceServer) CheckIssuingStatus(context.Context, *CheckIssuingRequest) (*CheckIssuingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CheckIssuingStatus not implemented")
+}
+func (UnimplementedApiServiceServer) FileUpload(context.Context, *FileUploadRequest) (*FileUploadResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FileUpload not implemented")
 }
 func (UnimplementedApiServiceServer) mustEmbedUnimplementedApiServiceServer() {}
 
@@ -953,6 +967,24 @@ func _ApiService_CheckIssuingStatus_Handler(srv interface{}, ctx context.Context
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ApiService_FileUpload_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FileUploadRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).FileUpload(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/FileUpload",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).FileUpload(ctx, req.(*FileUploadRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ApiService_ServiceDesc is the grpc.ServiceDesc for ApiService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -1071,6 +1103,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "CheckIssuingStatus",
 			Handler:    _ApiService_CheckIssuingStatus_Handler,
+		},
+		{
+			MethodName: "FileUpload",
+			Handler:    _ApiService_FileUpload_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -320,6 +320,14 @@ message DocumentData {
     string other = 5;
 }
 
+message FileUploadData {
+    string fileName = 1;
+	string documentPath = 2;
+	string uploadDate = 3;
+	string uploadedFileUrl = 4;
+}
+
+
 message ApiPaginationResponse {
     uint64 page = 1;
     uint64 limit = 2;
@@ -828,4 +836,15 @@ message CheckIssuingResponse {
     uint32 code = 2;
     string message = 3;
     IssuingPortal data = 4;
+}
+
+message FileUploadRequest {
+    string data = 1;
+}
+  
+message FileUploadResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    FileUploadData data = 4;
 }

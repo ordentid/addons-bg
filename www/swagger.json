@@ -620,6 +620,40 @@
         ]
       }
     },
+    "/api/bg/issuing/upload": {
+      "post": {
+        "summary": "Upload File",
+        "description": "This API for file upload",
+        "operationId": "ApiService_FileUpload",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1FileUploadResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1FileUploadRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      }
+    },
     "/api/bg/mapping-digital/task": {
       "get": {
         "summary": "BG Mapping Digital List",
@@ -2448,6 +2482,49 @@
         },
         "other": {
           "type": "string"
+        }
+      }
+    },
+    "v1FileUploadData": {
+      "type": "object",
+      "properties": {
+        "fileName": {
+          "type": "string"
+        },
+        "documentPath": {
+          "type": "string"
+        },
+        "uploadDate": {
+          "type": "string"
+        },
+        "uploadedFileUrl": {
+          "type": "string"
+        }
+      }
+    },
+    "v1FileUploadRequest": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "string"
+        }
+      }
+    },
+    "v1FileUploadResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/definitions/v1FileUploadData"
         }
       }
     },

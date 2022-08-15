@@ -272,22 +272,40 @@ type ApiInquiryLimitIndividualResponse struct {
 }
 
 type ApiInquiryLimitIndividualData struct {
-	CustomerLimitId   string `json:"customerLimitId"`
-	Code              string `json:"code"`
-	Fullname          string `json:"fullname"`
-	Cif               string `json:"cif"`
-	PtkNo             string `json:"ptkNo"`
-	Currency          string `json:"currency"`
-	Plafond           string `json:"plafond"`
-	ReservationAmount float64  `json:"reservationAmount"`
-	OutstandingAmount float64  `json:"outstandingAmount"`
+	CustomerLimitId   string  `json:"customerLimitId"`
+	Code              string  `json:"code"`
+	Fullname          string  `json:"fullname"`
+	Cif               string  `json:"cif"`
+	PtkNo             string  `json:"ptkNo"`
+	Currency          string  `json:"currency"`
+	Plafond           string  `json:"plafond"`
+	ReservationAmount float64 `json:"reservationAmount"`
+	OutstandingAmount float64 `json:"outstandingAmount"`
 	AvailableAmount   float64 `json:"availableAmount"`
-	ExpiryDate   string `json:"expiryDate"`
-	PnRm         string `json:"pnRm"`
-	NameRm       string `json:"nameRm"`
-	CreatedDate  string `json:"createdDate"`
-	ModifiedDate string `json:"modifiedDate"`
-	Status       string `json:"status"`
+	ExpiryDate        string  `json:"expiryDate"`
+	PnRm              string  `json:"pnRm"`
+	NameRm            string  `json:"nameRm"`
+	CreatedDate       string  `json:"createdDate"`
+	ModifiedDate      string  `json:"modifiedDate"`
+	Status            string  `json:"status"`
+}
+
+type UploadEncodeData struct {
+	Filename      string `json:"fileName"`
+	DocumentPath  string `json:"documentPath"`
+	UploadDate    string `json:"uploadDate"`
+	UploadFileUrl string `json:"uploadedFileUrl"`
+}
+
+type ApiUploadEncodeRequest struct {
+	ChannelId string `json:"channelId"`
+	Document  string `json:"document"`
+}
+
+type ApiUploadEncodeResponse struct {
+	ResponseCode    string           `json:"responseCode"`
+	ResponseMessage *json.RawMessage `json:"responseMessage"`
+	ResponseData    UploadEncodeData `json:"responseData"`
 }
 
 func GetHttpClient(ctx context.Context) (*http.Client, error) {
@@ -551,7 +569,6 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	}
 
 	if httpResData.ResponseCode != "00" {
-		logrus.Println("Error")
 		return nil, status.Errorf(codes.InvalidArgument, "Error invalid argument")
 	}
 
@@ -585,8 +602,46 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 	var httpResData ApiInquiryLimitIndividualResponse
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
-		logrus.Println("ERROR MARSHAL")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	return &httpResData, nil
+}
+
+func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
+	req.ChannelId = getEnv("UPLOAD_CHANNEL_ID", "03")
+
+	httpReqPayload, err := json.Marshal(req)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/uploadEncode", bytes.NewBuffer(httpReqPayload))
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Content-Type", "application/json")
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	client, err := GetHttpClient(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiUploadEncodeResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if httpResData.ResponseCode != "00" {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*httpResData.ResponseMessage))
 	}
 
 	return &httpResData, nil

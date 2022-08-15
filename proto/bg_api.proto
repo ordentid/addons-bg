@@ -355,4 +355,16 @@ service ApiService {
             description: "This API for check BG Issuing status which has been sent to Portal"
         };
     }
+
+    rpc FileUpload(FileUploadRequest) returns (FileUploadResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/issuing/upload"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Upload File"
+            description: "This API for file upload"
+        };
+    }
 }
