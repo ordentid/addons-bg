@@ -97,6 +97,17 @@ service ApiService {
         };
     };
 
+    rpc GetCustomerLimit(GetCustomerLimitRequest) returns (GetCustomerLimitResponse) {
+        option (google.api.http) = {
+            get: "/api/bg/customer-limit"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["Customer Limit"]
+            summary: "Customer Limit"
+            description: "This API for Customer Limit"
+        };
+    }
+
     rpc GetTaskMappingFile(GetTaskMappingFileRequest) returns (google.api.HttpBody) {
         option (google.api.http) = {
             get: "/api/bg/mapping/task/template/{fileFormat}"

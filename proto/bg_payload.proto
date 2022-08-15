@@ -367,6 +367,35 @@ message GetBeneficiaryNameResponse {
     repeated BeneficiaryName data = 4;
 }
 
+message CustomerLimit {
+    string customerLimitId = 1;
+	string code = 2;
+	string fullname = 3;
+	string cif = 4;
+	string ptkNo = 5;
+	string currency = 6;
+	string plafond = 7;
+	double reservationAmount = 8;
+	double outstandingAmount = 9;
+	double availableAmount = 10;
+	string expiryDate = 11;
+	string pnRm = 12;
+	string nameRm = 13;
+	string createdDate = 14;
+	string modifiedDate = 15;
+	string status = 16;
+}
+
+message GetCustomerLimitRequest {
+}
+
+message GetCustomerLimitResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    repeated CustomerLimit data = 4;
+}
+
 message ApplicantName {
     string name = 1;
 }

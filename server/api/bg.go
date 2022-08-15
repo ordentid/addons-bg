@@ -323,6 +323,50 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 	return result, nil
 }
 
+func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitRequest) (*pb.GetCustomerLimitResponse, error) {
+	result := &pb.GetCustomerLimitResponse{
+		Error:   false,
+		Code:    200,
+		Message: "List Data",
+		Data:    []*pb.CustomerLimit{},
+	}
+
+	apiReq := &ApiInquiryLimitIndividualRequest{}
+
+	res, err := ApiInquiryLimitIndividual(ctx, apiReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if res.ResponseCode != "00" {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*res.ResponseMessage))
+	}
+
+	for _, v := range res.ResponseData {
+		result.Data = append(result.Data, &pb.CustomerLimit{
+			CustomerLimitId:   v.CustomerLimitId,
+			Code:              v.Code,
+			Fullname:          v.Fullname,
+			Cif:               v.Cif,
+			PtkNo:             v.PtkNo,
+			Currency:          v.Currency,
+			Plafond:           v.Plafond,
+			ReservationAmount: v.ReservationAmount,
+			OutstandingAmount: v.OutstandingAmount,
+			// AvailableAmount:   v.AvailableAmount,
+			ExpiryDate:   v.ExpiryDate,
+			PnRm:         v.PnRm,
+			NameRm:       v.NameRm,
+			CreatedDate:  v.CreatedDate,
+			ModifiedDate: v.ModifiedDate,
+			Status:       v.Status,
+		})
+	}
+
+	return result, nil
+
+}
+
 func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransactionAttachmentRequest) (*pb.GetTransactionAttachmentResponse, error) {
 	result := &pb.GetTransactionAttachmentResponse{
 		Error:   false,
