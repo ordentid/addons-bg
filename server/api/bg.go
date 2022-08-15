@@ -353,13 +353,13 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 			Plafond:           v.Plafond,
 			ReservationAmount: v.ReservationAmount,
 			OutstandingAmount: v.OutstandingAmount,
-			// AvailableAmount:   v.AvailableAmount,
-			ExpiryDate:   v.ExpiryDate,
-			PnRm:         v.PnRm,
-			NameRm:       v.NameRm,
-			CreatedDate:  v.CreatedDate,
-			ModifiedDate: v.ModifiedDate,
-			Status:       v.Status,
+			AvailableAmount:   v.AvailableAmount,
+			ExpiryDate:        v.ExpiryDate,
+			PnRm:              v.PnRm,
+			NameRm:            v.NameRm,
+			CreatedDate:       v.CreatedDate,
+			ModifiedDate:      v.ModifiedDate,
+			Status:            v.Status,
 		})
 	}
 
