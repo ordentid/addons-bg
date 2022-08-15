@@ -1426,151 +1426,215 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		}
 
 		isIndividu := uint64(issuingData.Applicant.GetApplicantType().Number())
-		dateEstablished := ""
+	dateEstablished := ""
 
-		if isIndividu == 0 {
-			dateEstablished = issuingData.Applicant.GetDateEstablished()
-			if dateEstablished == "" {
-				return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on dateEstablished when isIndividu is true")
-			}
+	if isIndividu == 0 {
+		dateEstablished = issuingData.Applicant.GetDateEstablished()
+		if dateEstablished == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on dateEstablished when isIndividu is true")
 		}
+	}
 
-		var gender string
+	var gender string
 
-		if issuingData.Applicant.GetGender().Number() == 0 {
-			gender = "Laki-laki"
+	if issuingData.Applicant.GetGender().Number() == 0 {
+		gender = "Laki-laki"
+	} else {
+		gender = "Perempuan"
+	}
+
+	contractGuaranteeType := issuingData.Project.GetContractGuaranteeType()
+
+	var counterGuaranteeTypeString map[string]string
+	insuranceLimitId := ""
+	sp3No := ""
+	nonCashAccountNo := ""
+	nonCashAccountAmount := 0.0
+	cashAccountNo := ""
+	cashAccountAmount := 0.0
+	isEndOfYearBg := "0"
+
+	// openingBranchRaw := issuingData.Publishing.GetOpeningBranch()
+	// publishingBranchRaw := issuingData.Publishing.GetPublishingBranch()
+
+	// openingBranchString, err := branchFormatter(openingBranchRaw)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	// }
+	// publishingBranchString, err := branchFormatter(publishingBranchRaw)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	// }
+
+	// openingBranchInt, err := strconv.Atoi(openingBranchString)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
+	// }
+	// publishingBranchInt, err := strconv.Atoi(publishingBranchString)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
+	// }
+
+	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
+	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
+
+	openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetOpeningBranchId()})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 		} else {
-			gender = "Perempuan"
-		}
-
-		contractGuaranteeType := issuingData.Project.GetContractGuaranteeType()
-
-		var contractGuaranteeTypeString map[string]string
-		insuranceLimitId := ""
-		sp3No := ""
-		nonCashAccountNo := ""
-		nonCashAccountAmount := 0.0
-		cashAccountNo := ""
-		cashAccountAmount := 0.0
-
-		openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetOpeningBranchId()})
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
-			} else {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-		}
-
-		publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetPublishingBranchId()})
-		if err != nil {
-			if errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
-			} else {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
-		}
-
-		openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
-		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
+	}
 
-		publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
-		if err != nil {
+	publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: issuingData.Publishing.GetPublishingBranchId()})
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
+		} else {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
+	}
 
-		switch contractGuaranteeType {
-		case pb.ContractGuaranteeType_Insurance: // Insurance
-			contractGuaranteeTypeString = map[string]string{"0": "insurance limit"}
-			insuranceLimitId = issuingData.Project.GetInsuranceLimitId()
-			sp3No = issuingData.Document.GetSp()
-			if insuranceLimitId == "" ||
-				sp3No == "" {
-				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
-			}
-		case pb.ContractGuaranteeType_Cash: // Tunai / Cash
-			contractGuaranteeTypeString = map[string]string{"0": "customer limit"}
-			cashAccountNo = issuingData.Project.GetCashAccountNo()
-			cashAccountAmount = issuingData.Project.GetCashAccountAmount()
-			if cashAccountNo == "" ||
-				cashAccountAmount <= 0.0 {
-				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
-			}
-		case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
-			contractGuaranteeTypeString = map[string]string{"0": "hold account"}
-			nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
-			nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
-			if nonCashAccountNo == "" ||
-				nonCashAccountAmount <= 0.0 {
-				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
-			}
-		case pb.ContractGuaranteeType_Combination: // Combinasi
-			contractGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
-			nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
-			nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
-			cashAccountNo = issuingData.Project.GetCashAccountNo()
-			cashAccountAmount = issuingData.Project.GetCashAccountAmount()
-			if nonCashAccountNo == "" ||
-				nonCashAccountAmount <= 0.0 ||
-				cashAccountNo == "" ||
-				cashAccountAmount <= 0.0 {
-				return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
-			}
-		default:
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
+	openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	// accountConn := &grpc.ClientConn{}
+
+	// if contractGuaranteeType != pb.ContractGuaranteeType_Insurance {
+	// 	var opts []grpc.DialOption
+	// 	opts = append(opts, grpc.WithInsecure())
+
+	// 	accountConn, err = grpc.Dial(getEnv("ACCOUNT_SERVICE", ":9093"), opts...)
+	// 	if err != nil {
+	// 		logrus.Println("Error account service")
+	// 		logrus.Errorln("Failed connect to Account Service: %v", err)
+	// 		return nil, status.Errorf(codes.Internal, "Error Internal")
+	// 	}
+	// 	accountConn.Connect()
+	// 	defer accountConn.Close()
+	// }
+
+	switch contractGuaranteeType {
+	case pb.ContractGuaranteeType_Insurance: // Insurance
+		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
+		insuranceLimitId = issuingData.Project.GetInsuranceLimitId()
+		sp3No = issuingData.Project.GetSp3No()
+		if insuranceLimitId == "" ||
+			sp3No == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
-
-		openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
-		publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
-
-		httpReqData := ApiBgIssuingRequest{
-			AccountNo:              issuingData.Account.GetAccountNumber(),
-			ApplicantName:          issuingData.Applicant.GetName(),
-			ApplicantAddress:       issuingData.Applicant.GetAddress(),
-			IsIndividu:             isIndividu,
-			NIK:                    issuingData.Applicant.GetNik(),
-			BirthDate:              issuingData.Applicant.GetBirthDate(),
-			Gender:                 gender,
-			NPWPNo:                 issuingData.Applicant.GetNpwpNo(),
-			DateEstablished:        dateEstablished,
-			CompanyType:            uint64(issuingData.Applicant.GetCompanyType().Number()),
-			IsPlafond:              0,
-			TransactionType:        uint64(issuingData.Publishing.GetBgType().Number()),
-			IsEndOfYearBg:          "0",
-			NRK:                    issuingData.Project.GetNrkNumber(),
-			ProjectName:            issuingData.Project.GetName(),
-			ThirdPartyId:           issuingData.Publishing.GetThirdPartyID(),
-			BeneficiaryName:        issuingData.Applicant.GetBeneficiaryName(),
-			ProjectAmount:          issuingData.Project.GetProjectAmount(),
-			ContractNo:             issuingData.Project.GetContractNumber(),
-			ContractDate:           issuingData.Project.GetProjectDate(),
-			Currency:               issuingData.Project.GetBgCurrency(),
-			Amount:                 issuingData.Project.GetBgAmount(),
-			EffectiveDate:          issuingData.Publishing.GetEffectiveDate(),
-			MaturityDate:           issuingData.Publishing.GetExpiryDate(),
-			ClaimPeriod:            issuingData.Publishing.GetClaimPeriod(),
-			IssuingBranch:          openingBranchPadded,
-			PublishingBranch:       publishingBranchPadded,
-			ContraGuarantee:        contractGuaranteeTypeString,
-			InsuranceLimitId:       insuranceLimitId,
-			SP3No:                  sp3No,
-			HoldAccountNo:          nonCashAccountNo,
-			HoldAccountAmount:      nonCashAccountAmount,
-			ConsumerLimitId:        cashAccountNo,
-			ConsumerLimitAmount:    cashAccountAmount,
-			ApplicantContactPerson: issuingData.Applicant.GetContactPerson(),
-			ApplicantPhoneNumber:   issuingData.Applicant.GetPhoneNumber(),
-			ApplicantEmail:         issuingData.Applicant.GetEmail(),
-			ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
-			ApplicantCustomerId:    "0",
-			BeneficiaryCustomerId:  "0",
-			LegalDocument:          issuingData.Document.GetBusinessLegal(),
-			ContractDocument:       issuingData.Document.GetBg(),
-			Sp3Document:            issuingData.Document.GetSp(),
-			OthersDocument:         issuingData.Document.GetOther(),
+	case pb.ContractGuaranteeType_Cash: // Tunai / Cash
+		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
+		cashAccountNo = issuingData.Project.GetCashAccountNo()
+		cashAccountAmount = issuingData.Project.GetCashAccountAmount()
+		nonCashAccountNo = issuingData.Project.GetCashAccountNo()
+		nonCashAccountAmount = issuingData.Project.GetCashAccountAmount()
+		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
+		// if !isCashAccountValid || err != nil {
+		// 	logrus.Println("Check account")
+		// 	return nil, err
+		// }
+		if cashAccountNo == "" ||
+			cashAccountAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
+	case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
+		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
+		nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
+		nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
+		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
+		// if !isNonCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
+		if nonCashAccountNo == "" ||
+			nonCashAccountAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
+		}
+	case pb.ContractGuaranteeType_Combination: // Combinasi
+		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
+		nonCashAccountNo = issuingData.Project.GetNonCashAccountNo()
+		nonCashAccountAmount = issuingData.Project.GetNonCashAccountAmount()
+		cashAccountNo = issuingData.Project.GetCashAccountNo()
+		cashAccountAmount = issuingData.Project.GetCashAccountAmount()
+		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
+		// if !isCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
+		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
+		// if !isNonCashAccountValid || err != nil {
+		// 	return nil, err
+		// }
+		isEndOfYearBg = "1"
+		if issuingData.Project.GetNrkNumber() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
+		}
+		if nonCashAccountNo == "" ||
+			nonCashAccountAmount <= 0.0 ||
+			cashAccountNo == "" ||
+			cashAccountAmount <= 0.0 {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
+		}
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
+	}
+
+	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
+	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
+
+	httpReqData := ApiBgIssuingRequest{
+		AccountNo:              issuingData.Account.GetAccountNumber(),
+		ApplicantName:          issuingData.Applicant.GetName(),
+		ApplicantAddress:       issuingData.Applicant.GetAddress(),
+		IsIndividu:             isIndividu,
+		NIK:                    issuingData.Applicant.GetNik(),
+		BirthDate:              issuingData.Applicant.GetBirthDate(),
+		Gender:                 gender,
+		NPWPNo:                 issuingData.Applicant.GetNpwpNo(),
+		DateEstablished:        dateEstablished,
+		CompanyType:            uint64(issuingData.Applicant.GetCompanyType().Number()),
+		IsPlafond:              0,
+		TransactionType:        uint64(issuingData.Publishing.GetBgType().Number()),
+		IsEndOfYearBg:          isEndOfYearBg,
+		NRK:                    issuingData.Project.GetNrkNumber(),
+		ProjectName:            issuingData.Project.GetName(),
+		ThirdPartyId:           issuingData.Publishing.GetThirdPartyID(),
+		BeneficiaryName:        issuingData.Applicant.GetBeneficiaryName(),
+		ProjectAmount:          issuingData.Project.GetProjectAmount(),
+		ContractNo:             issuingData.Project.GetContractNumber(),
+		ContractDate:           issuingData.Project.GetProjectDate(),
+		Currency:               issuingData.Project.GetBgCurrency(),
+		Amount:                 issuingData.Project.GetBgAmount(),
+		EffectiveDate:          issuingData.Publishing.GetEffectiveDate(),
+		MaturityDate:           issuingData.Publishing.GetExpiryDate(),
+		ClaimPeriod:            issuingData.Publishing.GetClaimPeriod(),
+		IssuingBranch:          openingBranchPadded,
+		PublishingBranch:       publishingBranchPadded,
+		ContraGuarantee:        counterGuaranteeTypeString,
+		InsuranceLimitId:       insuranceLimitId,
+		SP3No:                  sp3No,
+		HoldAccountNo:          nonCashAccountNo,
+		HoldAccountAmount:      nonCashAccountAmount,
+		ConsumerLimitId:        cashAccountNo,
+		ConsumerLimitAmount:    cashAccountAmount,
+		ApplicantContactPerson: issuingData.Applicant.GetContactPerson(),
+		ApplicantPhoneNumber:   issuingData.Applicant.GetPhoneNumber(),
+		ApplicantEmail:         issuingData.Applicant.GetEmail(),
+		ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
+		ApplicantCustomerId:    "0",
+		BeneficiaryCustomerId:  "0",
+		LegalDocument:          issuingData.Document.GetBusinessLegal(),
+		ContractDocument:       issuingData.Document.GetBg(),
+		Sp3Document:            issuingData.Document.GetSp(),
+		OthersDocument:         issuingData.Document.GetOther(),
+	}
 
 		logrus.Println("HTTP REQUEST", httpReqData)
 
