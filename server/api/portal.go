@@ -261,6 +261,35 @@ type ApiBgTrackingResponse struct {
 	Data            ApiBgTrackingData `json:"responseData"`
 }
 
+type ApiInquiryLimitIndividualRequest struct {
+	Cif string `url:"cif"`
+}
+
+type ApiInquiryLimitIndividualResponse struct {
+	ResponseCode    string                           `json:"responseCode"`
+	ResponseMessage *json.RawMessage                 `json:"responseMessage"`
+	ResponseData    []*ApiInquiryLimitIndividualData `json:"responseData"`
+}
+
+type ApiInquiryLimitIndividualData struct {
+	CustomerLimitId   string `json:"customerLimitId"`
+	Code              string `json:"code"`
+	Fullname          string `json:"fullname"`
+	Cif               string `json:"cif"`
+	PtkNo             string `json:"ptkNo"`
+	Currency          string `json:"currency"`
+	Plafond           string `json:"plafond"`
+	ReservationAmount float64  `json:"reservationAmount"`
+	OutstandingAmount float64  `json:"outstandingAmount"`
+	AvailableAmount   float64 `json:"availableAmount"`
+	ExpiryDate   string `json:"expiryDate"`
+	PnRm         string `json:"pnRm"`
+	NameRm       string `json:"nameRm"`
+	CreatedDate  string `json:"createdDate"`
+	ModifiedDate string `json:"modifiedDate"`
+	Status       string `json:"status"`
+}
+
 func GetHttpClient(ctx context.Context) (*http.Client, error) {
 	client := &http.Client{}
 	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
@@ -524,6 +553,40 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	if httpResData.ResponseCode != "00" {
 		logrus.Println("Error")
 		return nil, status.Errorf(codes.InvalidArgument, "Error invalid argument")
+	}
+
+	return &httpResData, nil
+}
+
+func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividualRequest) (*ApiInquiryLimitIndividualResponse, error) {
+	client, err := GetHttpClient(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReqParam, err := query.Values(req)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryLimitIndividu?"+httpReqParam.Encode(), nil)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+
+	httpRes, err := client.Do(httpReq)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	defer httpRes.Body.Close()
+
+	var httpResData ApiInquiryLimitIndividualResponse
+	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
+	if err != nil {
+		logrus.Println("ERROR MARSHAL")
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	return &httpResData, nil

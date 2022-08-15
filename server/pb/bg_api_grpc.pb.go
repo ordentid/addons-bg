@@ -29,6 +29,7 @@ type ApiServiceClient interface {
 	GetBeneficiaryName(ctx context.Context, in *GetBeneficiaryNameRequest, opts ...grpc.CallOption) (*GetBeneficiaryNameResponse, error)
 	GetApplicantName(ctx context.Context, in *GetApplicantNameRequest, opts ...grpc.CallOption) (*GetApplicantNameResponse, error)
 	GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error)
+	GetCustomerLimit(ctx context.Context, in *GetCustomerLimitRequest, opts ...grpc.CallOption) (*GetCustomerLimitResponse, error)
 	GetTaskMappingFile(ctx context.Context, in *GetTaskMappingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	GetTaskMapping(ctx context.Context, in *GetTaskMappingRequest, opts ...grpc.CallOption) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(ctx context.Context, in *GetTaskMappingDetailRequest, opts ...grpc.CallOption) (*GetTaskMappingDetailResponse, error)
@@ -108,6 +109,15 @@ func (c *apiServiceClient) GetApplicantName(ctx context.Context, in *GetApplican
 func (c *apiServiceClient) GetThirdParty(ctx context.Context, in *GetThirdPartyRequest, opts ...grpc.CallOption) (*GetThirdPartyResponse, error) {
 	out := new(GetThirdPartyResponse)
 	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetThirdParty", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *apiServiceClient) GetCustomerLimit(ctx context.Context, in *GetCustomerLimitRequest, opts ...grpc.CallOption) (*GetCustomerLimitResponse, error) {
+	out := new(GetCustomerLimitResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/GetCustomerLimit", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +323,7 @@ type ApiServiceServer interface {
 	GetBeneficiaryName(context.Context, *GetBeneficiaryNameRequest) (*GetBeneficiaryNameResponse, error)
 	GetApplicantName(context.Context, *GetApplicantNameRequest) (*GetApplicantNameResponse, error)
 	GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error)
+	GetCustomerLimit(context.Context, *GetCustomerLimitRequest) (*GetCustomerLimitResponse, error)
 	GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error)
 	GetTaskMapping(context.Context, *GetTaskMappingRequest) (*GetTaskMappingResponse, error)
 	GetTaskMappingDetail(context.Context, *GetTaskMappingDetailRequest) (*GetTaskMappingDetailResponse, error)
@@ -358,6 +369,9 @@ func (UnimplementedApiServiceServer) GetApplicantName(context.Context, *GetAppli
 }
 func (UnimplementedApiServiceServer) GetThirdParty(context.Context, *GetThirdPartyRequest) (*GetThirdPartyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetThirdParty not implemented")
+}
+func (UnimplementedApiServiceServer) GetCustomerLimit(context.Context, *GetCustomerLimitRequest) (*GetCustomerLimitResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetCustomerLimit not implemented")
 }
 func (UnimplementedApiServiceServer) GetTaskMappingFile(context.Context, *GetTaskMappingFileRequest) (*httpbody.HttpBody, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTaskMappingFile not implemented")
@@ -539,6 +553,24 @@ func _ApiService_GetThirdParty_Handler(srv interface{}, ctx context.Context, dec
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ApiServiceServer).GetThirdParty(ctx, req.(*GetThirdPartyRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ApiService_GetCustomerLimit_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetCustomerLimitRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ApiServiceServer).GetCustomerLimit(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/bg.service.v1.ApiService/GetCustomerLimit",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ApiServiceServer).GetCustomerLimit(ctx, req.(*GetCustomerLimitRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -951,6 +983,10 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetThirdParty",
 			Handler:    _ApiService_GetThirdParty_Handler,
+		},
+		{
+			MethodName: "GetCustomerLimit",
+			Handler:    _ApiService_GetCustomerLimit_Handler,
 		},
 		{
 			MethodName: "GetTaskMappingFile",
