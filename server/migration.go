@@ -11,7 +11,6 @@ import (
 func migrationStart() {
 	if err := db_main.AutoMigrate(
 		&pb.MappingORM{},
-		&pb.BranchORM{},
 		&pb.CurrencyORM{},
 	); err != nil {
 		logrus.Fatalf("Migration failed: %v", err)

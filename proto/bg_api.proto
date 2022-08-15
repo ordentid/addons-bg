@@ -42,17 +42,6 @@ service ApiService {
         };
     };
 
-    rpc GetBranch(GetBranchRequest) returns (GetBranchResponse) {
-        option (google.api.http) = {
-            get: "/api/bg/branch"
-        };
-        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
-            tags: ["Branch"]
-            summary: "Branch"
-            description: "This API for Branch list"
-        };
-    };
-
     rpc GetCurrency(GetCurrencyRequest) returns (GetCurrencyResponse) {
         option (google.api.http) = {
             get: "/api/bg/currency"

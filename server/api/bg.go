@@ -12,6 +12,7 @@ import (
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
+	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
@@ -21,31 +22,6 @@ import (
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
 )
-
-func (s *Server) GetBranch(ctx context.Context, req *pb.GetBranchRequest) (*pb.GetBranchResponse, error) {
-	result := &pb.GetBranchResponse{
-		Error:   false,
-		Code:    200,
-		Message: "List Data",
-		Data:    []*pb.Branch{},
-	}
-
-	data, err := s.provider.GetBranch(ctx, &db.ListFilter{})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	for _, v := range data {
-		branch, err := v.ToPB(ctx)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		result.Data = append(result.Data, &branch)
-	}
-
-	return result, nil
-}
 
 func (s *Server) GetCurrency(ctx context.Context, req *pb.GetCurrencyRequest) (*pb.GetCurrencyResponse, error) {
 	result := &pb.GetCurrencyResponse{
@@ -1195,6 +1171,28 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
+	var opts []grpc.DialOption
+	opts = append(opts, grpc.WithInsecure())
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	_, md, err := s.manager.GetMeFromMD(ctx)
+	if err != nil {
+		return nil, err
+	}
+	var header, trailer metadata.MD
+
+	systemConn, err := grpc.Dial(getEnv("SYSTEM_SERVICE", ":9101"), opts...)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
+	}
+	defer systemConn.Close()
+
+	systemClient := system_pb.NewApiServiceClient(systemConn)
+
 	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
 	dateEstablished := ""
 
@@ -1248,7 +1246,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
 	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
 
-	openingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetOpeningBranchId()})
+	openingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+		Data: &system_pb.MdBranch{
+			Id: req.Data.Publishing.GetOpeningBranchId(),
+		},
+	}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
@@ -1257,7 +1259,15 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
-	publishingBranchORM, err := s.provider.GetFirst(ctx, &pb.BranchORM{Id: req.Data.Publishing.GetPublishingBranchId()})
+	if len(openingBranchORMs.Data) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+	}
+
+	publishingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+		Data: &system_pb.MdBranch{
+			Id: req.Data.Publishing.GetPublishingBranchId(),
+		},
+	}, grpc.Header(&header), grpc.Trailer(&trailer))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
@@ -1266,15 +1276,13 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 	}
 
-	openingBranch, err := openingBranchORM.(*pb.BranchORM).ToPB(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	if len(publishingBranchORMs.Data) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 	}
 
-	publishingBranch, err := publishingBranchORM.(*pb.BranchORM).ToPB(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+	openingBranch := openingBranchORMs.Data[0]
+
+	publishingBranch := publishingBranchORMs.Data[0]
 
 	// accountConn := &grpc.ClientConn{}
 
