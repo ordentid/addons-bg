@@ -1176,7 +1176,14 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	nonCashAccountAmount := 0.0
 	cashAccountNo := ""
 	cashAccountAmount := 0.0
+	isEndOfYearBg := "0"
 
+	if req.Data.Publishing.GetBgType() == pb.BgType_GovernmentPaymentGuarantee {
+		isEndOfYearBg = "1"
+		if req.Data.Project.GetNrkNumber() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
+		}
+	}
 	// openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
 	// publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
 
@@ -1249,7 +1256,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	case pb.ContractGuaranteeType_Insurance: // Insurance
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
-		sp3No = req.Data.Document.GetSp()
+		sp3No = req.Data.Project.GetSp3No()
 		if insuranceLimitId == "" ||
 			sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
@@ -1319,7 +1326,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		CompanyType:            uint64(req.Data.Applicant.GetCompanyType().Number()),
 		IsPlafond:              0,
 		TransactionType:        uint64(req.Data.Publishing.GetBgType().Number()),
-		IsEndOfYearBg:          "0",
+		IsEndOfYearBg:          isEndOfYearBg,
 		NRK:                    req.Data.Project.GetNrkNumber(),
 		ProjectName:            req.Data.Project.GetName(),
 		ThirdPartyId:           req.Data.Publishing.GetThirdPartyID(),
