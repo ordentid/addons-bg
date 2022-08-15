@@ -1341,9 +1341,9 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		// 	return nil, err
 		// }
 		isEndOfYearBg = "1"
-		// if req.Data.Project.GetNrkNumber() == "" {
-		// 	return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
-		// }
+		if req.Data.Project.GetNrkNumber() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
+		}
 		if nonCashAccountNo == "" ||
 			nonCashAccountAmount <= 0.0 ||
 			cashAccountNo == "" ||
