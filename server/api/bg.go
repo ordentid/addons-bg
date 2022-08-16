@@ -1171,17 +1171,17 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
+	// me, err := s.manager.GetMeFromJWT(ctx, "")
+	// if err != nil {
+	// 	return nil, err
+	// }
+
 	var opts []grpc.DialOption
 	opts = append(opts, grpc.WithInsecure())
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		ctx = metadata.NewOutgoingContext(context.Background(), md)
-	}
-
-	_, md, err := s.manager.GetMeFromMD(ctx)
-	if err != nil {
-		return nil, err
 	}
 	var header, trailer metadata.MD
 
