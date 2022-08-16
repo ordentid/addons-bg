@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Mon Aug 15 14:52:59 2022
+# Make data base, printed on Tue Aug 16 10:50:27 2022
 
 # Variables
 
@@ -49,7 +49,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/addons-system-service
+VSCODE_CWD = /Users/farizrachmanyusuf/Codes/charlie-mobile
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -109,7 +109,7 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
-TERM_SESSION_ID = 4319213B-C8C2-47EE-8C5D-098817A2EC1E
+TERM_SESSION_ID = ED9B6045-E69B-48EB-8B74-9B97416CAFEE
 # environment
 LESS = -R
 # automatic
@@ -141,7 +141,7 @@ MFLAGS = -Rrqp
 # environment
 TERM_PROGRAM_VERSION = 445
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939.54708DD9-5C9D-465B-B104-A3DBD217CC19
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939.45E3BFAE-4F1A-4EFF-9A35-CBB962105697
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -183,7 +183,7 @@ TERM = xterm-256color
 # environment
 _P9K_TTY = /dev/ttys000
 # environment
-VSCODE_PID = 61229
+VSCODE_PID = 96584
 # variable set hash-table stats:
 # Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
 
@@ -424,6 +424,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon Aug 15 14:52:59 2022
+# Finished Make data base on Tue Aug 16 10:50:27 2022
 
  
