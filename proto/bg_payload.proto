@@ -368,16 +368,16 @@ message GetBeneficiaryNameResponse {
 }
 
 message CustomerLimit {
-    string customerLimitId = 1;
+    uint64 customerLimitId = 1;
 	string code = 2;
 	string fullname = 3;
 	string cif = 4;
 	string ptkNo = 5;
 	string currency = 6;
-	string plafond = 7;
-	double reservationAmount = 8;
-	double outstandingAmount = 9;
-	double availableAmount = 10;
+	double plafond = 7;
+	uint32 reservationAmount = 8;
+	uint32 outstandingAmount = 9;
+	uint32 availableAmount = 10;
 	string expiryDate = 11;
 	string pnRm = 12;
 	string nameRm = 13;

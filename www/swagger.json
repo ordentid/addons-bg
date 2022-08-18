@@ -2313,7 +2313,8 @@
       "type": "object",
       "properties": {
         "customerLimitId": {
-          "type": "string"
+          "type": "string",
+          "format": "uint64"
         },
         "code": {
           "type": "string"
@@ -2331,19 +2332,20 @@
           "type": "string"
         },
         "plafond": {
-          "type": "string"
+          "type": "number",
+          "format": "double"
         },
         "reservationAmount": {
-          "type": "number",
-          "format": "double"
+          "type": "integer",
+          "format": "int64"
         },
         "outstandingAmount": {
-          "type": "number",
-          "format": "double"
+          "type": "integer",
+          "format": "int64"
         },
         "availableAmount": {
-          "type": "number",
-          "format": "double"
+          "type": "integer",
+          "format": "int64"
         },
         "expiryDate": {
           "type": "string"
