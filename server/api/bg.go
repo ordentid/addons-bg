@@ -1299,7 +1299,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			if err.Error() == "Not found" {
-				return nil, errors.New("Inquiry Limit Individual Not found")
+				return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
 			}
 			return nil, err
 		}
@@ -1311,7 +1311,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
 		}
 
-	case pb.ContractGuaranteeType_Combination: // Combinasi
+	case pb.ContractGuaranteeType_Combination: // Kombinasi
 
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
 
@@ -1322,6 +1322,9 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
+			if err.Error() == "Not found" {
+				return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
+			}
 			return nil, err
 		}
 
