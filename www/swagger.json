@@ -2336,15 +2336,15 @@
           "format": "double"
         },
         "reservationAmount": {
-          "type": "integer",
+          "type": "string",
           "format": "int64"
         },
         "outstandingAmount": {
-          "type": "integer",
+          "type": "string",
           "format": "int64"
         },
         "availableAmount": {
-          "type": "integer",
+          "type": "string",
           "format": "int64"
         },
         "expiryDate": {

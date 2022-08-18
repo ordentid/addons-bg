@@ -375,9 +375,9 @@ message CustomerLimit {
 	string ptkNo = 5;
 	string currency = 6;
 	double plafond = 7;
-	uint32 reservationAmount = 8;
-	uint32 outstandingAmount = 9;
-	uint32 availableAmount = 10;
+	int64 reservationAmount = 8;
+	int64 outstandingAmount = 9;
+	int64 availableAmount = 10;
 	string expiryDate = 11;
 	string pnRm = 12;
 	string nameRm = 13;

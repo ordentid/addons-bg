@@ -279,9 +279,9 @@ type ApiInquiryLimitIndividualData struct {
 	PtkNo             string  `json:"ptkNo"`
 	Currency          string  `json:"currency"`
 	Plafond           float64 `json:"plafond,string"`
-	ReservationAmount uint32  `json:"reservationAmount"`
-	OutstandingAmount uint32  `json:"outstandingAmount"`
-	AvailableAmount   uint32  `json:"availableAmount"`
+	ReservationAmount int64   `json:"reservationAmount"`
+	OutstandingAmount int64   `json:"outstandingAmount"`
+	AvailableAmount   int64   `json:"availableAmount"`
 	ExpiryDate        string  `json:"expiryDate"`
 	PnRm              string  `json:"pnRm"`
 	NameRm            string  `json:"nameRm"`
