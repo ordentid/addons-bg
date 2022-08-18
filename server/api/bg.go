@@ -1298,7 +1298,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
+			logrus.Println("Error Limit Individual: ", err.Error())
+			return nil, status.Errorf(codes.NotFound, "You are not allowed for Non Cash Loan facility")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
@@ -1319,7 +1320,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
+			logrus.Println("Error Limit Individual: ", err.Error())
+			return nil, status.Errorf(codes.NotFound, "You are not allowed for Combination facility")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
