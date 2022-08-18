@@ -1298,10 +1298,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			if err.Error() == "Not found" {
-				return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
-			}
-			return nil, err
+			return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
@@ -1322,10 +1319,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			if err.Error() == "Not found" {
-				return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
-			}
-			return nil, err
+			return nil, status.Errorf(codes.NotFound, "Inquiry Limit Individual Not found")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
