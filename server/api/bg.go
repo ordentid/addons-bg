@@ -1221,6 +1221,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	cashAccountNo := ""
 	cashAccountAmount := 0.0
 	customerLimitId := ""
+	customerLimitAmount := 0.0
 	isEndOfYearBg := "0"
 
 	openingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
@@ -1297,10 +1298,14 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
+			if err.Error() == "Not found" {
+				return nil, errors.New("Inquiry Limit Individual Not found")
+			}
 			return nil, err
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
+		customerLimitAmount = float64(inquiryLimit.ResponseData[0].AvailableAmount)
 
 		if nonCashAccountNo == "" || nonCashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
@@ -1321,6 +1326,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
+		customerLimitAmount = float64(inquiryLimit.ResponseData[0].AvailableAmount)
 
 		isEndOfYearBg = "1"
 		if req.Data.Project.GetNrkNumber() == "" {
@@ -1371,10 +1377,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ContraGuarantee:        counterGuaranteeTypeString,
 		InsuranceLimitId:       insuranceLimitId,
 		SP3No:                  sp3No,
-		HoldAccountNo:          nonCashAccountNo,
-		HoldAccountAmount:      nonCashAccountAmount,
+		HoldAccountNo:          cashAccountNo,
+		HoldAccountAmount:      cashAccountAmount,
 		ConsumerLimitId:        customerLimitId,
-		ConsumerLimitAmount:    cashAccountAmount,
+		ConsumerLimitAmount:    customerLimitAmount,
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
 		ApplicantPhoneNumber:   req.Data.Applicant.GetPhoneNumber(),
 		ApplicantEmail:         req.Data.Applicant.GetEmail(),
