@@ -256,9 +256,9 @@ type ApiBgTrackingRequest struct {
 }
 
 type ApiBgTrackingResponse struct {
-	ResponseCode    string            `json:"responseCode"`
-	ResponseMessage string            `json:"responseMessage"`
-	Data            ApiBgTrackingData `json:"responseData"`
+	ResponseCode    string             `json:"responseCode"`
+	ResponseMessage *json.RawMessage   `json:"responseMessage"`
+	Data            *ApiBgTrackingData `json:"responseData"`
 }
 
 type ApiInquiryLimitIndividualRequest struct {
@@ -272,16 +272,16 @@ type ApiInquiryLimitIndividualResponse struct {
 }
 
 type ApiInquiryLimitIndividualData struct {
-	CustomerLimitId   string  `json:"customerLimitId"`
+	CustomerLimitId   uint64  `json:"customerLimitId,string"`
 	Code              string  `json:"code"`
 	Fullname          string  `json:"fullname"`
 	Cif               string  `json:"cif"`
 	PtkNo             string  `json:"ptkNo"`
 	Currency          string  `json:"currency"`
-	Plafond           string  `json:"plafond"`
-	ReservationAmount float64 `json:"reservationAmount"`
-	OutstandingAmount float64 `json:"outstandingAmount"`
-	AvailableAmount   float64 `json:"availableAmount"`
+	Plafond           float64 `json:"plafond,string"`
+	ReservationAmount uint32  `json:"reservationAmount"`
+	OutstandingAmount uint32  `json:"outstandingAmount"`
+	AvailableAmount   uint32  `json:"availableAmount"`
 	ExpiryDate        string  `json:"expiryDate"`
 	PnRm              string  `json:"pnRm"`
 	NameRm            string  `json:"nameRm"`
@@ -569,7 +569,7 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	}
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.InvalidArgument, "Error invalid argument")
+		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
 	}
 
 	return &httpResData, nil
@@ -603,6 +603,10 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if httpResData.ResponseCode != "00" {
+		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
 	}
 
 	return &httpResData, nil

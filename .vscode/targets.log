@@ -8,7 +8,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This program built for i386-apple-darwin11.3.0
  
 
-# Make data base, printed on Tue Aug 16 10:50:27 2022
+# Make data base, printed on Thu Aug 18 07:10:03 2022
 
 # Variables
 
@@ -16,10 +16,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 <D = $(patsubst %/,%,$(dir $<))
 # automatic
 ?F = $(notdir $?)
-# environment
-ELECTRON_NO_ATTACH_CONSOLE = 1
-# environment
-LC_CTYPE = UTF-8
+ 
 # automatic
 ?D = $(patsubst %/,%,$(dir $?))
 # automatic
@@ -49,7 +46,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/charlie-mobile
+VSCODE_CWD = /
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -59,13 +56,11 @@ LSCOLORS = Gxfxcxdxbxegedabagacad
 # environment
 GOPATH = /Users/farizrachmanyusuf/go
 # environment
-LaunchInstanceID = A8FEA76B-4191-4212-90E7-9770937C3EF1
-# environment
 ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.BIi5nJTBGj/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.kDsuvJVVSE/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -78,8 +73,8 @@ GOMODCACHE = /Users/farizrachmanyusuf/go/pkg/mod
 HOME = /Users/farizrachmanyusuf
 # default
 MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
-# environment
-VSCODE_CLI = 1
+# makefile (from `Makefile', line 12)
+BINARY = addons-bg-service
 # environment
 VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Code/CachedData/6d9b74a70ca9c7733b29f0456fd8195364076dda
 # environment
@@ -99,7 +94,7 @@ MAKE = $(MAKE_COMMAND)
 # default
 MAKECMDGOALS := all
 # environment
-SHLVL = 3
+SHLVL = 1
 # default
 MAKE_VERSION := 3.81
 # environment
@@ -109,8 +104,6 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
-TERM_SESSION_ID = ED9B6045-E69B-48EB-8B74-9B97416CAFEE
-# environment
 LESS = -R
 # automatic
 %D = $(patsubst %/,%,$(dir $%))
@@ -118,8 +111,6 @@ LESS = -R
 MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
 # makefile (from `Makefile', line 5)
 DOCKER_BUILD_ARGS = 
-# environment
-TERM_PROGRAM = Apple_Terminal
 # default
 .VARIABLES := 
 # environment
@@ -139,9 +130,7 @@ MFLAGS = -Rrqp
 # automatic
 *D = $(patsubst %/,%,$(dir $*))
 # environment
-TERM_PROGRAM_VERSION = 445
-# environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939.45E3BFAE-4F1A-4EFF-9A35-CBB962105697
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.29040933.29040939
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -156,18 +145,13 @@ COMMAND_MODE = unix2003
 MAKEFILES := 
 # automatic
 <F = $(notdir $<)
-# makefile (from `Makefile', line 12)
-BINARY = addons-bg-service
 # environment
 PAGER = less
 # environment
 LC_ALL = C
 # makefile (from `Makefile', line 9)
 BUILD_VERSION = 0.1.0
-# environment
-SECURITYSESSIONID = 186a3
-# environment
-P9K_TTY = old
+ 
 # automatic
 ^F = $(notdir $^)
 # default
@@ -179,13 +163,9 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-TERM = xterm-256color
-# environment
-_P9K_TTY = /dev/ttys000
-# environment
-VSCODE_PID = 96584
+VSCODE_PID = 23328
 # variable set hash-table stats:
-# Load=86/1024=8%, Rehash=0, Collisions=3/118=3%
+# Load=75/1024=7%, Rehash=0, Collisions=2/107=2%
 
 # Pattern-specific Variable Values
 
@@ -298,7 +278,6 @@ vet:
 #  File does not exist.
 #  File has not been updated.
 #  commands to execute (from `Makefile', line 36):
- 
 	@echo "Running Go static code analysis with go vet"
 	go vet -asmdecl -atomic -bool -buildtags -copylocks -httpresponse -loopclosure -lostcancel -methods -nilfunc -printf -rangeloops -shift -structtag -tests -unreachable -unsafeptr ./...
 	@echo "go vet complete"
@@ -334,6 +313,7 @@ depend:
 # @ := depend
 # automatic
 # % := 
+ 
 # automatic
 # * := 
 # automatic
@@ -424,6 +404,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Tue Aug 16 10:50:27 2022
+# Finished Make data base on Thu Aug 18 07:10:03 2022
 
  

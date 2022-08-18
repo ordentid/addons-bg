@@ -1220,31 +1220,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	nonCashAccountAmount := 0.0
 	cashAccountNo := ""
 	cashAccountAmount := 0.0
+	customerLimitId := ""
 	isEndOfYearBg := "0"
-
-	// openingBranchRaw := req.Data.Publishing.GetOpeningBranch()
-	// publishingBranchRaw := req.Data.Publishing.GetPublishingBranch()
-
-	// openingBranchString, err := branchFormatter(openingBranchRaw)
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
-	// }
-	// publishingBranchString, err := branchFormatter(publishingBranchRaw)
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
-	// }
-
-	// openingBranchInt, err := strconv.Atoi(openingBranchString)
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on openingBranch field")
-	// }
-	// publishingBranchInt, err := strconv.Atoi(publishingBranchString)
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "Error parsing on publishingBranch field")
-	// }
-
-	// openingBranch := fmt.Sprintf("%05d", openingBranchInt)
-	// publishingBranch := fmt.Sprintf("%05d", publishingBranchInt)
 
 	openingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
 		Data: &system_pb.MdBranch{
@@ -1263,6 +1240,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 	}
 
+	openingBranch := openingBranchORMs.Data[0]
+
 	publishingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
 		Data: &system_pb.MdBranch{
 			Id: req.Data.Publishing.GetPublishingBranchId(),
@@ -1280,88 +1259,82 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 	}
 
-	openingBranch := openingBranchORMs.Data[0]
-
 	publishingBranch := publishingBranchORMs.Data[0]
-
-	// accountConn := &grpc.ClientConn{}
-
-	// if contractGuaranteeType != pb.ContractGuaranteeType_Insurance {
-	// 	var opts []grpc.DialOption
-	// 	opts = append(opts, grpc.WithInsecure())
-
-	// 	accountConn, err = grpc.Dial(getEnv("ACCOUNT_SERVICE", ":9093"), opts...)
-	// 	if err != nil {
-	// 		logrus.Println("Error account service")
-	// 		logrus.Errorln("Failed connect to Account Service: %v", err)
-	// 		return nil, status.Errorf(codes.Internal, "Error Internal")
-	// 	}
-	// 	accountConn.Connect()
-	// 	defer accountConn.Close()
-	// }
 
 	switch contractGuaranteeType {
 	case pb.ContractGuaranteeType_Insurance: // Insurance
+
 		counterGuaranteeTypeString = map[string]string{"0": "insurance limit"}
+
 		insuranceLimitId = req.Data.Project.GetInsuranceLimitId()
 		sp3No = req.Data.Project.GetSp3No()
-		if insuranceLimitId == "" ||
-			sp3No == "" {
+
+		if insuranceLimitId == "" || sp3No == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when insurance limit is selected")
 		}
+
 	case pb.ContractGuaranteeType_Cash: // Tunai / Cash
+
 		counterGuaranteeTypeString = map[string]string{"0": "hold account"}
+
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
-		nonCashAccountNo = req.Data.Project.GetCashAccountNo()
-		nonCashAccountAmount = req.Data.Project.GetCashAccountAmount()
-		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
-		// if !isCashAccountValid || err != nil {
-		// 	logrus.Println("Check account")
-		// 	return nil, err
-		// }
-		if cashAccountNo == "" ||
-			cashAccountAmount <= 0.0 {
+		// nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
+		// nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+
+		if cashAccountNo == "" || cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
 		}
+
 	case pb.ContractGuaranteeType_NonCashLoan: // Non Cash Loan
+
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
+
+		// cashAccountNo = req.Data.Project.GetCashAccountNo()
+		// cashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
-		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
-		// if !isNonCashAccountValid || err != nil {
-		// 	return nil, err
-		// }
-		if nonCashAccountNo == "" ||
-			nonCashAccountAmount <= 0.0 {
+
+		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
+		if err != nil {
+			return nil, err
+		}
+
+		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
+
+		if nonCashAccountNo == "" || nonCashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when customer limit is selected")
 		}
+
 	case pb.ContractGuaranteeType_Combination: // Combinasi
+
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit", "1": "hold account"}
-		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
-		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
-		// isCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, cashAccountNo)
-		// if !isCashAccountValid || err != nil {
-		// 	return nil, err
-		// }
-		// isNonCashAccountValid, err := s.checkAccountNoIsValid(ctx, accountConn, nonCashAccountNo)
-		// if !isNonCashAccountValid || err != nil {
-		// 	return nil, err
-		// }
+		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
+		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+
+		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
+		if err != nil {
+			return nil, err
+		}
+
+		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
+
 		isEndOfYearBg = "1"
 		if req.Data.Project.GetNrkNumber() == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
 		}
-		if nonCashAccountNo == "" ||
-			nonCashAccountAmount <= 0.0 ||
-			cashAccountNo == "" ||
-			cashAccountAmount <= 0.0 {
+
+		if nonCashAccountNo == "" || nonCashAccountAmount <= 0.0 || cashAccountNo == "" || cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
 		}
+
 	default:
+
 		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
+
 	}
 
 	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
@@ -1400,7 +1373,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		SP3No:                  sp3No,
 		HoldAccountNo:          nonCashAccountNo,
 		HoldAccountAmount:      nonCashAccountAmount,
-		ConsumerLimitId:        cashAccountNo,
+		ConsumerLimitId:        customerLimitId,
 		ConsumerLimitAmount:    cashAccountAmount,
 		ApplicantContactPerson: req.Data.Applicant.GetContactPerson(),
 		ApplicantPhoneNumber:   req.Data.Applicant.GetPhoneNumber(),
