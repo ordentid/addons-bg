@@ -1262,6 +1262,12 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	publishingBranch := publishingBranchORMs.Data[0]
 
+	if req.Data.Publishing.BgType == pb.BgType_GovernmentPaymentGuarantee {
+		if req.Data.Project.GetNrkNumber() == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
+		}
+	}
+
 	switch contractGuaranteeType {
 	case pb.ContractGuaranteeType_Insurance: // Insurance
 
@@ -1328,9 +1334,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		customerLimitAmount = float64(inquiryLimit.ResponseData[0].AvailableAmount)
 
 		isEndOfYearBg = "1"
-		if req.Data.Project.GetNrkNumber() == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
-		}
 
 		if nonCashAccountNo == "" || nonCashAccountAmount <= 0.0 || cashAccountNo == "" || cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")

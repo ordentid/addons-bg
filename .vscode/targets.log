@@ -6,8 +6,9 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # PARTICULAR PURPOSE.
 
 # This program built for i386-apple-darwin11.3.0
+ 
 
-# Make data base, printed on Mon Aug 22 10:29:26 2022
+# Make data base, printed on Tue Aug 23 06:55:19 2022
 
 # Variables
 
@@ -48,7 +49,7 @@ __CFBundleIdentifier = com.microsoft.VSCode
 # environment
 P9K_SSH = 0
 # environment
-VSCODE_CWD = /Users/farizrachmanyusuf/Codes/addons-bg-service
+VSCODE_CWD = /Users/farizrachmanyusuf/Codes/charlie-mobile
 # environment
 GOPROXY = https://proxy.golang.org,direct
 # environment
@@ -62,7 +63,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.jvS0f4UX6G/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.n94HD0jZXv/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -106,7 +107,7 @@ USER = farizrachmanyusuf
 # makefile (from `Makefile', line 4)
 DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
 # environment
-TERM_SESSION_ID = 400A02A1-6119-4A26-8C8F-EE665F4386DA
+TERM_SESSION_ID = 27C1E92C-43F8-4425-8768-06925C8DE093
 # environment
 LESS = -R
 # automatic
@@ -138,7 +139,7 @@ MFLAGS = -Rrqp
 # environment
 TERM_PROGRAM_VERSION = 445
 # environment
-XPC_SERVICE_NAME = application.com.microsoft.VSCode.29819524.29819530.BEF873F0-6582-4440-8B71-444E555AA287
+XPC_SERVICE_NAME = application.com.microsoft.VSCode.29819524.29819530.0832E7D8-FC83-4182-A95A-A5FF1AE73A9D
 # automatic
 +D = $(patsubst %/,%,$(dir $+))
 # makefile (from `Makefile', line 6)
@@ -178,7 +179,7 @@ TERM = xterm-256color
 # environment
 _P9K_TTY = /dev/ttys000
 # environment
-VSCODE_PID = 90152
+VSCODE_PID = 1382
 # variable set hash-table stats:
 # Load=84/1024=8%, Rehash=0, Collisions=3/116=3%
 
@@ -188,7 +189,7 @@ VSCODE_PID = 90152
 
 # Directories
 
-# . (device 16777221, inode 22680524): 24 files, no impossibilities.
+# . (device 16777223, inode 22680524): 24 files, no impossibilities.
 
 # 24 files, no impossibilities in 1 directories.
 
@@ -268,6 +269,7 @@ Makefile:
 #  File has been updated.
 #  Successfully updated.
 # variable set hash-table stats:
+ 
 # Load=0/32=0%, Rehash=0, Collisions=0/0=0%
 
 generates:
@@ -289,7 +291,6 @@ build:
 
 vet:
 #  Phony target (prerequisite of .PHONY).
- 
 #  Implicit rule search has not been done.
 #  File does not exist.
 #  File has not been updated.
@@ -419,6 +420,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Mon Aug 22 10:29:26 2022
+# Finished Make data base on Tue Aug 23 06:55:19 2022
 
  
