@@ -6,7 +6,14 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 # This is free software: you are free to change and redistribute it.
 # There is NO WARRANTY, to the extent permitted by law.
 
+<<<<<<< HEAD
 # Make data base, printed on Tue Aug 23 09:56:08 2022
+=======
+# This program built for i386-apple-darwin11.3.0
+ 
+
+# Make data base, printed on Tue Aug 23 09:47:43 2022
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 
 # Variables
 
@@ -31,9 +38,75 @@ GOPATH = /home/septian/go
 # makefile (from 'Makefile', line 3)
 DOCKER_CONTAINER_NAME = addons-bg-service
 # environment
+<<<<<<< HEAD
 VSCODE_HANDLES_UNCAUGHT_ERRORS = true
 # makefile (from 'Makefile', line 12)
 BINARY = addons-bg-service
+=======
+__CFBundleIdentifier = com.microsoft.VSCode
+# environment
+VSCODE_CWD = /
+# environment
+GOPROXY = https://proxy.golang.org,direct
+# environment
+PATH = /usr/local/Cellar/go/1.19/libexec/bin:/usr/bin:/bin:/usr/sbin:/sbin
+# environment
+GOPATH = /Users/farizrachmanyusuf/go
+# environment
+LaunchInstanceID = BD400D55-F19A-4091-B754-C588AE5D6834
+# environment
+ELECTRON_RUN_AS_NODE = 1
+# default
+.FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
+# environment
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.OFHyQIJbqy/Listeners
+# automatic
+%F = $(notdir $%)
+# environment
+PWD = /Users/farizrachmanyusuf/Codes/addons-bg-service
+# environment
+ORIGINAL_XDG_CURRENT_DESKTOP = undefined
+# environment
+GOMODCACHE = /Users/farizrachmanyusuf/go/pkg/mod
+# environment
+HOME = /Users/farizrachmanyusuf
+# default
+MAKEFILEPATH := /Applications/Xcode.app/Contents/Developer/Makefiles
+# makefile (from `Makefile', line 12)
+BINARY = addons-bg-service
+# environment
+VSCODE_CODE_CACHE_PATH = /Users/farizrachmanyusuf/Library/Application Support/Code/CachedData/e4503b30fc78200f846c62cf8091b76ff5547662
+# environment
+LOGNAME = farizrachmanyusuf
+# environment
+APPLICATION_INSIGHTS_NO_DIAGNOSTIC_CHANNEL = true
+# environment
+VSCODE_HANDLES_UNCAUGHT_ERRORS = true
+# automatic
+^D = $(patsubst %/,%,$(dir $^))
+# environment
+XPC_FLAGS = 0x0
+# default
+MAKE = $(MAKE_COMMAND)
+# default
+MAKECMDGOALS := all
+# environment
+SHLVL = 1
+# default
+MAKE_VERSION := 3.81
+# environment
+USER = farizrachmanyusuf
+# makefile
+.DEFAULT_GOAL := build
+# makefile (from `Makefile', line 4)
+DOCKER_CONTAINER_IMAGE = addons-bg-service:latest
+# automatic
+%D = $(patsubst %/,%,$(dir $%))
+# default
+MAKE_COMMAND := /Applications/Xcode.app/Contents/Developer/usr/bin/make
+# makefile (from `Makefile', line 5)
+DOCKER_BUILD_ARGS = 
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 # default
 .VARIABLES := 
 # environment
@@ -105,6 +178,17 @@ PATH = /home/septian/.vscode-server/bin/e4503b30fc78200f846c62cf8091b76ff5547662
 # default
 MAKEFILES := 
 # automatic
+<<<<<<< HEAD
+=======
+<F = $(notdir $<)
+# environment
+LC_ALL = C
+# makefile (from `Makefile', line 9)
+BUILD_VERSION = 0.1.0
+# environment
+SECURITYSESSIONID = 186a3
+# automatic
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 ^F = $(notdir $^)
 # environment
 LESSCLOSE = /usr/bin/lesspipe %s %s
@@ -169,9 +253,21 @@ SUFFIXES :=
 # environment
 WSL_DISTRO_NAME = Ubuntu-22.04
 # default
+<<<<<<< HEAD
 .FEATURES := target-specific order-only second-expansion else-if shortest-stem undefine oneshell nocomment grouped-target extra-prereqs archives jobserver output-sync check-symlink load
 # variable set hash-table stats:
 # Load=80/1024=8%, Rehash=0, Collisions=2/119=2%
+=======
+.INCLUDE_DIRS = /usr/local/include
+# environment
+MAKELEVEL := 0
+# environment
+LANG = C
+# environment
+VSCODE_PID = 431
+# variable set hash-table stats:
+# Load=72/1024=7%, Rehash=0, Collisions=2/104=2%
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 
 # Pattern-specific Variable Values
 
@@ -179,7 +275,11 @@ WSL_DISTRO_NAME = Ubuntu-22.04
 
 # Directories
 
+<<<<<<< HEAD
 # . (device 2064, inode 122512): 24 files, no impossibilities.
+=======
+# . (device 16777225, inode 22680524): 24 files, no impossibilities.
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 
 # 24 files, no impossibilities in 1 directories.
 
@@ -216,6 +316,7 @@ depend:
 # automatic
 # | := 
 # variable set hash-table stats:
+<<<<<<< HEAD
 # Load=8/32=25%, Rehash=0, Collisions=1/11=9%
 #  recipe to execute (from 'Makefile', line 55):
 	@echo "Pulling all Go dependencies"
@@ -223,11 +324,113 @@ depend:
 	go mod verify
 	go mod tidy
 	@echo "You can now run 'make build' to compile all packages"
+=======
+# Load=0/32=0%, Rehash=0, Collisions=0/2=0%
+
+proto-gen:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 75):
+	protoc --proto_path=./proto ./proto/*.proto \
+	--proto_path=./proto/libs \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-go.exe \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-govalidators.exe \
+	--go_out=./server/pb --go_opt paths=source_relative \
+	--govalidators_out=./server
+	protoc --proto_path=./proto ./proto/bg_api.proto \
+	--proto_path=./proto/libs \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-grpc-gateway.exe \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-openapiv2.exe \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-go-grpc.exe \
+	--go-grpc_out=./server/pb --go-grpc_opt paths=source_relative \
+	--grpc-gateway_out ./server/pb \
+	--grpc-gateway_opt allow_delete_body=true,logtostderr=true,paths=source_relative,repeated_path_param_separator=ssv \
+	--openapiv2_out ./proto \
+	--openapiv2_opt logtostderr=true,repeated_path_param_separator=ssv
+	mv ./proto/bg_api.swagger.json ./www/swagger.json
+	protoc --proto_path=./proto ./proto/bg_gorm_db.proto \
+	--proto_path=./proto/libs \
+	--plugin=$(go env GOPATH)/bin/protoc-gen-gorm.exe \
+	--gorm_out=./server
+	
+
+docker-build:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 62):
+	$(DOCKERCMD) build -t $(DOCKER_CONTAINER_IMAGE) --build-arg GOPROXY=$(GOPROXY) --build-arg GOSUMDB=$(GOSUMDB) --build-arg BUILD_VERSION=$(BUILD_VERSION) $(DOCKER_BUILD_ARGS) .
+	
+
+.PHONY: build vet unit-test generates depend docker-build solr clean install all .FORCE
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+.SUFFIXES:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+# Not a target:
+Makefile:
+#  Implicit rule search has been done.
+#  Last modified 2022-07-06 11:20:46
+#  File has been updated.
+#  Successfully updated.
+# variable set hash-table stats:
+# Load=0/32=0%, Rehash=0, Collisions=0/0=0%
+
+generates:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+
+build:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 31):
+	@echo "Executing go build"
+	go build -v -buildmode=pie -ldflags "-X main.version=$(BUILD_VERSION)" -o app ./server/
+	@echo "Binary ready"
+	
+
+vet:
+#  Phony target (prerequisite of .PHONY).
+#  Implicit rule search has not been done.
+#  File does not exist.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 36):
+	@echo "Running Go static code analysis with go vet"
+	go vet -asmdecl -atomic -bool -buildtags -copylocks -httpresponse -loopclosure -lostcancel -methods -nilfunc -printf -rangeloops -shift -structtag -tests -unreachable -unsafeptr ./...
+	@echo "go vet complete"
+	
+
+default: depend
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+
+generate:
+#  Implicit rule search has not been done.
+#  Modification time never checked.
+#  File has not been updated.
+#  commands to execute (from `Makefile', line 46):
+	go generate ./...
+	
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 
 solr:
 #  Phony target (prerequisite of .PHONY).
 #  Implicit rule search has not been done.
 #  File does not exist.
+ 
 #  File has not been updated.
 
 generate:
@@ -395,9 +598,13 @@ docker-build:
 # strcache buffers: 1 (0) / strings = 46 / storage = 422 B / avg = 9 B
 # current buf: size = 8162 B / used = 422 B / count = 46 / avg = 9 B
 
+<<<<<<< HEAD
 # strcache performance: lookups = 103 / hit rate = 55%
 # hash-table stats:
 # Load=46/8192=1%, Rehash=0, Collisions=0/103=0%
 # Finished Make data base on Tue Aug 23 09:56:08 2022
+=======
+# Finished Make data base on Tue Aug 23 09:47:43 2022
+>>>>>>> 7684fa7eabdb599a40d1c85f1da8a29a041c7cf1
 
  
