@@ -1526,7 +1526,7 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 	result := &pb.FileUploadResponse{
 		Error:   false,
 		Code:    200,
-		Message: "Data",
+		Message: "Success",
 	}
 
 	decodedBytes, err := base64.StdEncoding.DecodeString(req.GetData())

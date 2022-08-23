@@ -1099,6 +1099,12 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	workflow := pb.ValidateWorkflowData{}
+	err = json.Unmarshal([]byte(taskRes.Data.GetWorkflowDoc()), &workflow)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
 	task := &pb.Task{
 		TaskID:             taskRes.Data.GetTaskID(),
 		Type:               taskRes.Data.GetType(),
@@ -1147,9 +1153,10 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	}
 
 	result.Data = &pb.TaskIssuingData{
-		Task:    task,
-		Company: company,
-		Data:    &taskData,
+		Task:     task,
+		Company:  company,
+		Data:     &taskData,
+		Workflow: &workflow,
 	}
 
 	return result, nil
