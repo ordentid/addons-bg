@@ -1193,7 +1193,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 	pdf := gofpdf.New("L", "mm", "Letter", "")
 
 	fields := []string{"No", "Reference Number", "Registration Number", "Applicant Name", "Beneficiary Name", "Created By", "Reviewed By", "BG Type", "Amount", "Workflow Status"}
-	widths := []float64{8, 20, 20, 20, 25, 20, 20, 25, 20, 30}
+	widths := []float64{8, 20, 20, 25, 25, 20, 20, 25, 20, 35}
 	align := []string{"TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL", "TL"}
 
 	var (
