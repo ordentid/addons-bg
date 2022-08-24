@@ -321,7 +321,7 @@ service ApiService {
 
     rpc TaskAction (TaskActionRequest) returns (TaskActionResponse) {
         option (google.api.http) = {
-            put: "/api/bg/issuing/task/action/{taskID}"
+            post: "/api/bg/issuing/task/action/{taskID}"
             body: "*"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {

@@ -1744,5 +1744,4 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	}
 
 	return res, nil
-
 }

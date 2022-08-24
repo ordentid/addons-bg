@@ -345,7 +345,7 @@
       }
     },
     "/api/bg/issuing/task/action/{taskID}": {
-      "put": {
+      "post": {
         "summary": "Set action task",
         "description": "set task action. Action: 'approve', 'rework', 'reject', 'delete'",
         "operationId": "ApiService_TaskAction",
