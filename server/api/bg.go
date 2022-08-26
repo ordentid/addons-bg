@@ -1395,8 +1395,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		OthersDocument:         req.Data.Document.GetOther(),
 	}
 
-	logrus.Println("HTTP REQUEST", httpReqData)
-
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
 		return nil, err

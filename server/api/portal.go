@@ -322,6 +322,7 @@ func GetHttpClient(ctx context.Context) (*http.Client, error) {
 }
 
 func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest) (*ApiInquiryBenficiaryResponse, error) {
+
 	client, err := GetHttpClient(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -331,6 +332,8 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", httpReqParam.Encode())
 
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
 	if err != nil {
@@ -351,6 +354,13 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	return &httpResData, nil
 }
 
@@ -364,6 +374,8 @@ func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdParty
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -385,6 +397,13 @@ func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdParty
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	return &httpResData, nil
 }
 
@@ -398,6 +417,8 @@ func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByID
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -419,6 +440,13 @@ func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByID
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	return &httpResData, nil
 }
 
@@ -432,6 +460,8 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -453,6 +483,13 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	return &httpResData, nil
 }
 
@@ -467,9 +504,7 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println("---------------------------")
-	logrus.Println(httpReqParams.Encode())
-	logrus.Println("---------------------------")
+	logrus.Println("Request:", httpReqParams.Encode())
 
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
@@ -490,15 +525,29 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	return &httpResData, nil
 }
 
 func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
+	client, err := GetHttpClient(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
 	httpReqPayload, err := json.Marshal(req)
 	logrus.Println(string(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/applyBG", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -508,10 +557,6 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
 		logrus.Println("client.Do")
@@ -525,6 +570,13 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	if httpResData.ResponseCode != "00" {
 		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
 	}
@@ -535,6 +587,11 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 }
 
 func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
+	client, err := GetHttpClient(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
 	httpReqData := ApiBgIssuingData{
 		RegistrationNo: req.RegistrationNo,
 	}
@@ -544,6 +601,8 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	logrus.Println("Request:", string(httpReqPayload))
+
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -552,10 +611,6 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -567,6 +622,13 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
 		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
@@ -585,6 +647,8 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", httpReqParam.Encode())
 
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryLimitIndividu?"+httpReqParam.Encode(), nil)
 	if err != nil {
@@ -605,6 +669,13 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
+
 	if httpResData.ResponseCode != "00" {
 		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
 	}
@@ -613,12 +684,19 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 }
 
 func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
+	client, err := GetHttpClient(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
 	req.ChannelId = getEnv("UPLOAD_CHANNEL_ID", "03")
 
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/uploadEncode", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -628,10 +706,6 @@ func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUplo
 	httpReq.Header.Add("Content-Type", "application/json")
 	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -643,6 +717,13 @@ func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUplo
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
+
+	httpResPayload, err := json.Marshal(httpResData)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*httpResData.ResponseMessage))

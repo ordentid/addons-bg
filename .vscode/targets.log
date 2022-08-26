@@ -7,7 +7,7 @@ make all --print-data-base --no-builtin-variables --no-builtin-rules --question
 
 # This program built for i386-apple-darwin11.3.0
 
-# Make data base, printed on Wed Aug 24 10:42:24 2022
+# Make data base, printed on Fri Aug 26 14:05:44 2022
 
 # Variables
 
@@ -58,7 +58,7 @@ ELECTRON_RUN_AS_NODE = 1
 # default
 .FEATURES := target-specific order-only second-expansion else-if archives jobserver check-symlink
 # environment
-SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.OFHyQIJbqy/Listeners
+SSH_AUTH_SOCK = /private/tmp/com.apple.launchd.xkANoAufHE/Listeners
 # automatic
 %F = $(notdir $%)
 # environment
@@ -160,7 +160,7 @@ MAKELEVEL := 0
 # environment
 LANG = C
 # environment
-VSCODE_PID = 46900
+VSCODE_PID = 20143
 # variable set hash-table stats:
 # Load=75/1024=7%, Rehash=0, Collisions=2/107=2%
 
@@ -170,7 +170,7 @@ VSCODE_PID = 46900
 
 # Directories
 
-# . (device 16777225, inode 22680524): 24 files, no impossibilities.
+# . (device 16777223, inode 22680524): 24 files, no impossibilities.
 
 # 24 files, no impossibilities in 1 directories.
 
@@ -401,6 +401,6 @@ install: depend build
 # strcache size: total = 4096 / max = 4096 / min = 4096 / avg = 4096
 # strcache free: total = 4087 / max = 4087 / min = 4087 / avg = 4087
 
-# Finished Make data base on Wed Aug 24 10:42:24 2022
+# Finished Make data base on Fri Aug 26 14:05:44 2022
 
  
