@@ -1404,77 +1404,93 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		// OthersDocument:         req.Data.Document.GetOther(),
 	}
 
-	businessLegalFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-		ObjectName:         req.Data.Document.GetBusinessLegal(),
-		ContentDisposition: "inline",
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	if req.Data.Document.GetBusinessLegal() != "" {
+
+		businessLegalFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
+			ObjectName:         req.Data.Document.GetBusinessLegal(),
+			ContentDisposition: "inline",
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		legalDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
+			ChannelId: getEnv("BG_CHANNEL_ID", "2"),
+			Document:  base64.RawStdEncoding.EncodeToString(businessLegalFile.Data),
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReqData.LegalDocument = legalDocument.ResponseData.Filename
+
 	}
 
-	legalDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-		Document:  base64.RawStdEncoding.EncodeToString(businessLegalFile.Data),
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	if req.Data.Document.GetBg() != "" {
+
+		bgFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
+			ObjectName:         req.Data.Document.GetBg(),
+			ContentDisposition: "inline",
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		contractDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
+			ChannelId: getEnv("BG_CHANNEL_ID", "2"),
+			Document:  base64.RawStdEncoding.EncodeToString(bgFile.Data),
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReqData.ContractDocument = contractDocument.ResponseData.Filename
+
 	}
 
-	httpReqData.LegalDocument = legalDocument.ResponseData.Filename
+	if req.Data.Document.GetSp() != "" {
 
-	bgFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-		ObjectName:         req.Data.Document.GetBg(),
-		ContentDisposition: "inline",
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		spFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
+			ObjectName:         req.Data.Document.GetSp(),
+			ContentDisposition: "inline",
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		sp3Document, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
+			ChannelId: getEnv("BG_CHANNEL_ID", "2"),
+			Document:  base64.RawStdEncoding.EncodeToString(spFile.Data),
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReqData.Sp3Document = sp3Document.ResponseData.Filename
+
 	}
 
-	contractDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-		Document:  base64.RawStdEncoding.EncodeToString(bgFile.Data),
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	if req.Data.Document.GetOther() != "" {
+
+		otherFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
+			ObjectName:         req.Data.Document.GetOther(),
+			ContentDisposition: "inline",
+		}, grpc.Header(&header), grpc.Trailer(&trailer))
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		otherDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
+			ChannelId: getEnv("BG_CHANNEL_ID", "2"),
+			Document:  base64.RawStdEncoding.EncodeToString(otherFile.Data),
+		})
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
+		httpReqData.OthersDocument = otherDocument.ResponseData.Filename
+
 	}
-
-	httpReqData.ContractDocument = contractDocument.ResponseData.Filename
-
-	spFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-		ObjectName:         req.Data.Document.GetSp(),
-		ContentDisposition: "inline",
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	sp3Document, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-		Document:  base64.RawStdEncoding.EncodeToString(spFile.Data),
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReqData.Sp3Document = sp3Document.ResponseData.Filename
-
-	otherFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-		ObjectName:         req.Data.Document.GetOther(),
-		ContentDisposition: "inline",
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	otherDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-		Document:  base64.RawStdEncoding.EncodeToString(otherFile.Data),
-	})
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	httpReqData.OthersDocument = otherDocument.ResponseData.Filename
 
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
