@@ -1407,8 +1407,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	if req.Data.Document.GetBusinessLegal() != "" {
 
 		businessLegalFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName:         req.Data.Document.GetBusinessLegal(),
-			ContentDisposition: "inline",
+			ObjectName: req.Data.Document.GetBusinessLegal(),
+			// ContentDisposition: "inline",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1429,8 +1429,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	if req.Data.Document.GetBg() != "" {
 
 		bgFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName:         req.Data.Document.GetBg(),
-			ContentDisposition: "inline",
+			ObjectName: req.Data.Document.GetBg(),
+			// ContentDisposition: "inline",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1451,8 +1451,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	if req.Data.Document.GetSp() != "" {
 
 		spFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName:         req.Data.Document.GetSp(),
-			ContentDisposition: "inline",
+			ObjectName: req.Data.Document.GetSp(),
+			// ContentDisposition: "inline",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1473,8 +1473,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	if req.Data.Document.GetOther() != "" {
 
 		otherFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName:         req.Data.Document.GetOther(),
-			ContentDisposition: "inline",
+			ObjectName: req.Data.Document.GetOther(),
+			// ContentDisposition: "inline",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
