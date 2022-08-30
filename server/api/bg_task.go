@@ -1452,7 +1452,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			return nil, status.Error(codes.Internal, "internal error")
 		}
 
-		_, err := s.CreateIssuing(ctx, &pb.CreateIssuingRequest{
+		createIssuing, err := s.CreateIssuing(ctx, &pb.CreateIssuingRequest{
 			TaskID: task.Data.TaskID,
 			Data:   issuingData,
 		})
@@ -1460,6 +1460,9 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			logrus.Errorln("[api][func: TaskAction] failed to transfer data: ", err)
 			return nil, status.Error(codes.Internal, "internal error")
 		}
+
+		issuingData.RegistrationNo = createIssuing.Data.RegistrationNo
+		issuingData.ReferenceNo = createIssuing.Data.ReferenceNo
 
 		dataToSave, err = json.Marshal(issuingData)
 		if err != nil {
