@@ -384,10 +384,15 @@ message ProjectData {
 
 message DocumentData {
     string businessLegal = 1;
-    string tender = 2;
-    string sp = 3;
-    string bg = 4;
-    string other = 5;
+    string fileBusinessLegal = 2;
+    string tender = 3;
+    string fileTender = 4;
+    string sp = 5;
+    string fileSp = 6;
+    string bg = 7;
+    string fileBg = 8;
+    string other = 9;
+    string fileOther = 10;
 }
 
 message FileUploadData {
