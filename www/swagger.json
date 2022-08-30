@@ -554,7 +554,7 @@
           "BG Issuing"
         ]
       },
-      "put": {
+      "post": {
         "summary": "Update Or Create BG Issuing",
         "description": "This API for update or create BG Issuing",
         "operationId": "ApiService_CreateTaskIssuing2",
@@ -925,7 +925,7 @@
           "BG Mapping Digital"
         ]
       },
-      "put": {
+      "post": {
         "summary": "Update Or Create BG Mapping Digital",
         "description": "This API for update or create BG Mapping Digital",
         "operationId": "ApiService_CreateTaskMappingDigital2",
@@ -1269,7 +1269,7 @@
           "BG Mapping"
         ]
       },
-      "put": {
+      "post": {
         "summary": "Update Or Create Mapping",
         "description": "This API for update or create BG Mapping",
         "operationId": "ApiService_CreateTaskMapping2",
