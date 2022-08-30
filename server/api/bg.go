@@ -1409,8 +1409,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		logrus.Println("File: ", req.Data.Document.GetBusinessLegal())
 
 		businessLegalFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName: req.Data.Document.GetBusinessLegal(),
-			// ContentDisposition: "inline",
+			ObjectName:         req.Data.Document.GetBusinessLegal(),
+			ContentDisposition: "attachment",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			logrus.Println("Failed to download data: ", err)
@@ -1437,8 +1437,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		logrus.Println("File: ", req.Data.Document.GetBg())
 
 		bgFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName: req.Data.Document.GetBg(),
-			// ContentDisposition: "inline",
+			ObjectName:         req.Data.Document.GetBg(),
+			ContentDisposition: "attachment",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			logrus.Println("Failed to download data: ", err)
@@ -1465,8 +1465,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		logrus.Println("File: ", req.Data.Document.GetSp())
 
 		spFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName: req.Data.Document.GetSp(),
-			// ContentDisposition: "inline",
+			ObjectName:         req.Data.Document.GetSp(),
+			ContentDisposition: "attachment",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			logrus.Println("Failed to download data: ", err)
@@ -1493,8 +1493,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		logrus.Println("File: ", req.Data.Document.GetOther())
 
 		otherFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-			ObjectName: req.Data.Document.GetOther(),
-			// ContentDisposition: "inline",
+			ObjectName:         req.Data.Document.GetOther(),
+			ContentDisposition: "attachment",
 		}, grpc.Header(&header), grpc.Trailer(&trailer))
 		if err != nil {
 			logrus.Println("Failed to download data: ", err)
