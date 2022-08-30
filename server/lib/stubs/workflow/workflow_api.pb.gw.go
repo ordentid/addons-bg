@@ -709,12 +709,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/HealthCheck", runtime.WithHTTPPathPattern("/api/workflow/health"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/HealthCheck", runtime.WithHTTPPathPattern("/api/workflow/health"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_HealthCheck_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_HealthCheck_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -732,12 +733,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListWorkflow", runtime.WithHTTPPathPattern("/api/workflow/data"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListWorkflow", runtime.WithHTTPPathPattern("/api/workflow/data"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ListWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ListWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -755,12 +757,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflow", runtime.WithHTTPPathPattern("/api/workflow"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflow", runtime.WithHTTPPathPattern("/api/workflow"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_CreateWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_CreateWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -778,12 +781,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_CreateWorkflowTask_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_CreateWorkflowTask_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -795,18 +799,19 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("PUT", pattern_ApiService_CreateWorkflowTask_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_CreateWorkflowTask_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/edit/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_CreateWorkflowTask_1(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_CreateWorkflowTask_1(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -824,12 +829,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GetWorkflowTask_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GetWorkflowTask_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -841,18 +847,19 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("DELETE", pattern_ApiService_RequestDeleteWorkflowTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_RequestDeleteWorkflowTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/RequestDeleteWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/RequestDeleteWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/delete/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_RequestDeleteWorkflowTask_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_RequestDeleteWorkflowTask_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -870,12 +877,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/DownloadListWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/file/{fileFormat}"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/DownloadListWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/file/{fileFormat}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_DownloadListWorkflowTask_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_DownloadListWorkflowTask_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -893,12 +901,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/me"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/me"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ListMyWorkflowTask_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ListMyWorkflowTask_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -916,12 +925,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ListMyWorkflowTask_1(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ListMyWorkflowTask_1(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -939,12 +949,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ValidateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/validate"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ValidateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/validate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ValidateWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ValidateWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -962,12 +973,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GenerateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/generate"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GenerateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/generate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GenerateWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GenerateWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -985,12 +997,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ListCompanyWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ListCompanyWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1008,12 +1021,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company/{companyID}"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company/{companyID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GetCompanyWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GetCompanyWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1031,12 +1045,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_CreateCompanyWorkflow_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_CreateCompanyWorkflow_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1054,12 +1069,13 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetAvailableCurrency", runtime.WithHTTPPathPattern("/api/workflow/currency"))
+		var err error
+		ctx, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetAvailableCurrency", runtime.WithHTTPPathPattern("/api/workflow/currency"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_GetAvailableCurrency_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_GetAvailableCurrency_0(ctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1116,12 +1132,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/HealthCheck", runtime.WithHTTPPathPattern("/api/workflow/health"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/HealthCheck", runtime.WithHTTPPathPattern("/api/workflow/health"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_HealthCheck_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_HealthCheck_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1136,12 +1153,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListWorkflow", runtime.WithHTTPPathPattern("/api/workflow/data"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListWorkflow", runtime.WithHTTPPathPattern("/api/workflow/data"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ListWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ListWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1156,12 +1174,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflow", runtime.WithHTTPPathPattern("/api/workflow"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflow", runtime.WithHTTPPathPattern("/api/workflow"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_CreateWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_CreateWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1176,12 +1195,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_CreateWorkflowTask_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_CreateWorkflowTask_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1192,16 +1212,17 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("PUT", pattern_ApiService_CreateWorkflowTask_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_CreateWorkflowTask_1, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/edit/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_CreateWorkflowTask_1(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_CreateWorkflowTask_1(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1216,12 +1237,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GetWorkflowTask_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GetWorkflowTask_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1232,16 +1254,17 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("DELETE", pattern_ApiService_RequestDeleteWorkflowTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_RequestDeleteWorkflowTask_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/RequestDeleteWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/{taskID}"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/RequestDeleteWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/delete/{taskID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_RequestDeleteWorkflowTask_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_RequestDeleteWorkflowTask_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1256,12 +1279,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/DownloadListWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/file/{fileFormat}"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/DownloadListWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/file/{fileFormat}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_DownloadListWorkflowTask_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_DownloadListWorkflowTask_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1276,12 +1300,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/me"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task/me"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ListMyWorkflowTask_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ListMyWorkflowTask_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1296,12 +1321,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListMyWorkflowTask", runtime.WithHTTPPathPattern("/api/workflow/task"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ListMyWorkflowTask_1(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ListMyWorkflowTask_1(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1316,12 +1342,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ValidateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/validate"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ValidateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/validate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ValidateWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ValidateWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1336,12 +1363,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GenerateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/generate"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GenerateWorkflow", runtime.WithHTTPPathPattern("/api/workflow/generate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GenerateWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GenerateWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1356,12 +1384,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/ListCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ListCompanyWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ListCompanyWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1376,12 +1405,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company/{companyID}"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company/{companyID}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GetCompanyWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GetCompanyWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1396,12 +1426,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/CreateCompanyWorkflow", runtime.WithHTTPPathPattern("/api/workflow/company"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_CreateCompanyWorkflow_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_CreateCompanyWorkflow_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1416,12 +1447,13 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetAvailableCurrency", runtime.WithHTTPPathPattern("/api/workflow/currency"))
+		var err error
+		ctx, err = runtime.AnnotateContext(ctx, mux, req, "/workflow.service.v1.ApiService/GetAvailableCurrency", runtime.WithHTTPPathPattern("/api/workflow/currency"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_GetAvailableCurrency_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_GetAvailableCurrency_0(ctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
@@ -1444,11 +1476,11 @@ var (
 
 	pattern_ApiService_CreateWorkflowTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "workflow", "task"}, ""))
 
-	pattern_ApiService_CreateWorkflowTask_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "workflow", "task", "taskID"}, ""))
+	pattern_ApiService_CreateWorkflowTask_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "workflow", "task", "edit", "taskID"}, ""))
 
 	pattern_ApiService_GetWorkflowTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "workflow", "task", "taskID"}, ""))
 
-	pattern_ApiService_RequestDeleteWorkflowTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "workflow", "task", "taskID"}, ""))
+	pattern_ApiService_RequestDeleteWorkflowTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "workflow", "task", "delete", "taskID"}, ""))
 
 	pattern_ApiService_DownloadListWorkflowTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "workflow", "task", "file", "fileFormat"}, ""))
 

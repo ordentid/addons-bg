@@ -1305,6 +1305,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 }
 
 func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb.TaskActionResponse, error) {
+
 	if req.GetAction() == "" || req.GetTaskID() < 1 {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -1388,35 +1389,27 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	switch action := strings.ToLower(req.GetAction()); action {
 	case "approve":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_APPROVE
-		taskData.Status = 4
-		taskData.Step = 3
-		taskData.LastApprovedByID = currentUser.UserID
-		taskData.LastApprovedByName = currentUser.Username
+		task.Data.LastApprovedByID = currentUser.UserID
+		task.Data.LastApprovedByName = currentUser.Username
 
 	case "reject":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REJECT
-		taskData.Status = 5
-		taskData.Step = 3
-		taskData.Comment = req.GetComment()
-		taskData.Reasons = req.GetReasons()
-		taskData.LastRejectedByID = currentUser.UserID
-		taskData.LastRejectedByName = currentUser.Username
+		task.Data.Comment = req.GetComment()
+		task.Data.Reasons = req.GetReasons()
+		task.Data.LastRejectedByID = currentUser.UserID
+		task.Data.LastRejectedByName = currentUser.Username
 
 	case "rework":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_CHANGE
-		taskData.Status = 3
-		taskData.Step = 1
-		taskData.Comment = req.GetComment()
-		taskData.Reasons = req.GetReasons()
-		taskData.LastRejectedByID = currentUser.UserID
-		taskData.LastRejectedByName = currentUser.Username
+		task.Data.Comment = req.GetComment()
+		task.Data.Reasons = req.GetReasons()
+		task.Data.LastRejectedByID = currentUser.UserID
+		task.Data.LastRejectedByName = currentUser.Username
 
 	case "delete":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_DELETE
-		taskData.Status = 7
-		taskData.Step = 1
-		taskData.Comment = req.GetComment()
-		taskData.Reasons = req.GetReasons()
+		task.Data.Comment = req.GetComment()
+		task.Data.Reasons = req.GetReasons()
 
 	default:
 		return nil, status.Error(codes.InvalidArgument, "invalid action")
@@ -1446,6 +1439,8 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	var dataToSave []byte
 
+	logrus.Println("Task Status ===> ", task.GetData().GetStatus())
+
 	if currentStep == "complete" && task.GetData().GetStatus() != task_pb.Statuses_Approved {
 
 		logrus.Println("[api][func: TaskAction] exec BG Issuing Portal Request")
@@ -1467,6 +1462,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 			logrus.Errorln("[api][func: TaskAction] error marshal saved data: ", err)
 			return nil, status.Error(codes.Internal, "internal error")
 		}
+
 	}
 
 	if len(dataToSave) > 0 {
