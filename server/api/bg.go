@@ -12,7 +12,6 @@ import (
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
-	filelistener_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/filelistener"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -1194,13 +1193,13 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	systemClient := system_pb.NewApiServiceClient(systemConn)
 
-	fileConn, err := grpc.Dial(getEnv("FILELISTENER_SERVICE", ":9201"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
-	}
-	defer fileConn.Close()
+	// fileConn, err := grpc.Dial(getEnv("FILELISTENER_SERVICE", ":9201"), opts...)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
+	// }
+	// defer fileConn.Close()
 
-	fileClient := filelistener_pb.NewFileProcessorServiceClient(fileConn)
+	// fileClient := filelistener_pb.NewFileProcessorServiceClient(fileConn)
 
 	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
 	dateEstablished := ""
