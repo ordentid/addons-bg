@@ -689,7 +689,7 @@ func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUplo
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	req.ChannelId = getEnv("UPLOAD_CHANNEL_ID", "03")
+	req.ChannelId = getEnv("BG_CHANNEL_ID", "2")
 
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
