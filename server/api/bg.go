@@ -1257,7 +1257,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	}
 
 	if len(publishingBranchORMs.Data) == 0 {
-		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+		return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
 	}
 
 	publishingBranch := publishingBranchORMs.Data[0]
