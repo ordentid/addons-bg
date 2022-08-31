@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/url"
 
@@ -578,7 +579,7 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
+		return nil, errors.New(string(*httpResData.ResponseMessage))
 	}
 
 	result := &httpResData
@@ -631,7 +632,7 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
+		return nil, errors.New(string(*httpResData.ResponseMessage))
 	}
 
 	return &httpResData, nil

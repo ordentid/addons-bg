@@ -1518,7 +1518,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
 		logrus.Println("Failed to create issuing: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	httpReqParamsOpt := ApiBgTrackingRequest{
@@ -1530,7 +1530,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	checkIssuingRes, err := ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
 		logrus.Println("Failed to check issuing: ", err)
-		return nil, err
+		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
 	result.Data = &pb.IssuingPortal{
