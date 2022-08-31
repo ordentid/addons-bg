@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/url"
 
@@ -235,7 +234,7 @@ type ApiBgIssuingRequest struct {
 
 type ApiBgIssuingResponse struct {
 	ResponseCode    string           `json:"responseCode"`
-	ResponseMessage *json.RawMessage `json:"responseMessage"`
+	ResponseMessage string           `json:"responseMessage"`
 	Data            ApiBgIssuingData `json:"responseData"`
 }
 
@@ -258,7 +257,7 @@ type ApiBgTrackingRequest struct {
 
 type ApiBgTrackingResponse struct {
 	ResponseCode    string             `json:"responseCode"`
-	ResponseMessage *json.RawMessage   `json:"responseMessage"`
+	ResponseMessage string             `json:"responseMessage"`
 	Data            *ApiBgTrackingData `json:"responseData"`
 }
 
@@ -268,7 +267,7 @@ type ApiInquiryLimitIndividualRequest struct {
 
 type ApiInquiryLimitIndividualResponse struct {
 	ResponseCode    string                           `json:"responseCode"`
-	ResponseMessage *json.RawMessage                 `json:"responseMessage"`
+	ResponseMessage string                           `json:"responseMessage"`
 	ResponseData    []*ApiInquiryLimitIndividualData `json:"responseData"`
 }
 
@@ -305,7 +304,7 @@ type ApiUploadEncodeRequest struct {
 
 type ApiUploadEncodeResponse struct {
 	ResponseCode    string           `json:"responseCode"`
-	ResponseMessage *json.RawMessage `json:"responseMessage"`
+	ResponseMessage string           `json:"responseMessage"`
 	ResponseData    UploadEncodeData `json:"responseData"`
 }
 
@@ -579,7 +578,7 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, errors.New(string(*httpResData.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, httpResData.ResponseMessage)
 	}
 
 	result := &httpResData
@@ -632,7 +631,7 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, errors.New(string(*httpResData.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, httpResData.ResponseMessage)
 	}
 
 	return &httpResData, nil
@@ -678,7 +677,7 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, string(*httpResData.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, httpResData.ResponseMessage)
 	}
 
 	return &httpResData, nil
@@ -727,7 +726,7 @@ func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUplo
 	logrus.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*httpResData.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, httpResData.ResponseMessage)
 	}
 
 	return &httpResData, nil

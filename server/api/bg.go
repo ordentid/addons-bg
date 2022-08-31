@@ -317,7 +317,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 	}
 
 	if res.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", string(*res.ResponseMessage))
+		return nil, status.Errorf(codes.Internal, res.ResponseMessage)
 	}
 
 	for _, v := range res.ResponseData {
@@ -1193,14 +1193,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	systemClient := system_pb.NewApiServiceClient(systemConn)
 
-	// fileConn, err := grpc.Dial(getEnv("FILELISTENER_SERVICE", ":9201"), opts...)
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
-	// }
-	// defer fileConn.Close()
-
-	// fileClient := filelistener_pb.NewFileProcessorServiceClient(fileConn)
-
 	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
 	dateEstablished := ""
 
@@ -1402,118 +1394,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Sp3Document:            req.Data.Document.GetFileSp(),
 		OthersDocument:         req.Data.Document.GetFileOther(),
 	}
-
-	// if req.Data.Document.GetBusinessLegal() != "" {
-
-	// 	logrus.Println("File: ", req.Data.Document.GetBusinessLegal())
-
-	// 	businessLegalFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-	// 		ObjectName:         req.Data.Document.GetBusinessLegal(),
-	// 		ContentDisposition: "attachment",
-	// 	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	// 	if err != nil {
-	// 		logrus.Println("Failed to download data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	logrus.Println("Downloaded: ", businessLegalFile.Data)
-
-	// 	legalDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-	// 		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-	// 		Document:  base64.RawStdEncoding.EncodeToString(businessLegalFile.Data),
-	// 	})
-	// 	if err != nil {
-	// 		logrus.Println("Failed to upload data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	httpReqData.LegalDocument = legalDocument.ResponseData.Filename
-
-	// }
-
-	// if req.Data.Document.GetBg() != "" {
-
-	// 	logrus.Println("File: ", req.Data.Document.GetBg())
-
-	// 	bgFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-	// 		ObjectName:         req.Data.Document.GetBg(),
-	// 		ContentDisposition: "attachment",
-	// 	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	// 	if err != nil {
-	// 		logrus.Println("Failed to download data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	logrus.Println("Downloaded: ", bgFile.Data)
-
-	// 	contractDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-	// 		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-	// 		Document:  base64.RawStdEncoding.EncodeToString(bgFile.Data),
-	// 	})
-	// 	if err != nil {
-	// 		logrus.Println("Failed to upload data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	httpReqData.ContractDocument = contractDocument.ResponseData.Filename
-
-	// }
-
-	// if req.Data.Document.GetSp() != "" {
-
-	// 	logrus.Println("File: ", req.Data.Document.GetSp())
-
-	// 	spFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-	// 		ObjectName:         req.Data.Document.GetSp(),
-	// 		ContentDisposition: "attachment",
-	// 	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	// 	if err != nil {
-	// 		logrus.Println("Failed to download data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	logrus.Println("Downloaded: ", spFile.Data)
-
-	// 	sp3Document, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-	// 		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-	// 		Document:  base64.RawStdEncoding.EncodeToString(spFile.Data),
-	// 	})
-	// 	if err != nil {
-	// 		logrus.Println("Failed to upload data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	httpReqData.Sp3Document = sp3Document.ResponseData.Filename
-
-	// }
-
-	// if req.Data.Document.GetOther() != "" {
-
-	// 	logrus.Println("File: ", req.Data.Document.GetOther())
-
-	// 	otherFile, err := fileClient.FileDownloadHandler(ctx, &filelistener_pb.FileDownloadHandlerRequest{
-	// 		ObjectName:         req.Data.Document.GetOther(),
-	// 		ContentDisposition: "attachment",
-	// 	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	// 	if err != nil {
-	// 		logrus.Println("Failed to download data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	logrus.Println("Downloaded: ", otherFile.Data)
-
-	// 	otherDocument, err := ApiUploadEncode(ctx, &ApiUploadEncodeRequest{
-	// 		ChannelId: getEnv("BG_CHANNEL_ID", "2"),
-	// 		Document:  base64.RawStdEncoding.EncodeToString(otherFile.Data),
-	// 	})
-	// 	if err != nil {
-	// 		logrus.Println("Failed to upload data: ", err)
-	// 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	// 	}
-
-	// 	httpReqData.OthersDocument = otherDocument.ResponseData.Filename
-
-	// }
 
 	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {

@@ -1307,7 +1307,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb.TaskActionResponse, error) {
 
 	if req.GetAction() == "" || req.GetTaskID() < 1 {
-		return nil, status.Error(codes.InvalidArgument, "invalid request")
+		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
 	currentUser, _, err := s.manager.GetMeFromMD(ctx)
@@ -1327,7 +1327,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
 	if err != nil {
 		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 	taskConn.Connect()
 	defer taskConn.Close()
@@ -1337,7 +1337,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	workflowConn, err := grpc.Dial(getEnv("WORKFLOW_SERVICE", ":9099"), opts...)
 	if err != nil {
 		logrus.Errorln("Failed connect to Workflow Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 	taskConn.Connect()
 	defer taskConn.Close()
@@ -1359,29 +1359,29 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	logrus.Println("task ===> ", task)
 	if err != nil {
 		logrus.Errorln("[api][func: TaskAction] error get task by ID: ", err)
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	if task.GetData() == nil {
-		return nil, status.Error(codes.NotFound, "task not found")
+		return nil, status.Error(codes.NotFound, "Task not found")
 	}
 
 	taskData := task.GetData()
 	logrus.Println("taskData ===> ", taskData)
 	if taskData.GetWorkflowDoc() == "{}" || taskData.GetWorkflowDoc() == "" {
 		logrus.Errorln("[api][func: TaskAction] error workflow empty")
-		return nil, status.Error(codes.InvalidArgument, "invalid request, workflow is empty")
+		return nil, status.Error(codes.InvalidArgument, "Bad Request: Workflow is empty")
 	}
 
 	var workflow *workflow_pb.ValidateWorkflowData
 	err = json.Unmarshal([]byte(taskData.WorkflowDoc), &workflow)
 	if err != nil {
 		logrus.Errorln("[api][func: TaskAction] error unmarshal workflow: ", err)
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 	if workflow == nil {
 		logrus.Errorln("[api][func: TaskAction] error workflow is nil")
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	var workflowAction workflow_pb.ValidateWorkflowRequest_Action
@@ -1412,7 +1412,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		task.Data.Reasons = req.GetReasons()
 
 	default:
-		return nil, status.Error(codes.InvalidArgument, "invalid action")
+		return nil, status.Error(codes.InvalidArgument, "Bad Request: Invalid Action")
 	}
 
 	send, _ := metadata.FromOutgoingContext(ctx)
@@ -1449,7 +1449,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		err = json.Unmarshal([]byte(taskData.Data), &issuingData)
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] error unmarshal issuing: ", err)
-			return nil, status.Error(codes.Internal, "internal error")
+			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
 		createIssuing, err := s.CreateIssuing(ctx, &pb.CreateIssuingRequest{
@@ -1458,7 +1458,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		})
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] failed to transfer data: ", err)
-			return nil, status.Error(codes.Internal, "internal error")
+			return nil, status.Errorf(codes.Internal, "Internal Error:", err)
 		}
 
 		issuingData.RegistrationNo = createIssuing.Data.RegistrationNo
@@ -1467,7 +1467,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		dataToSave, err = json.Marshal(issuingData)
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] error marshal saved data: ", err)
-			return nil, status.Error(codes.Internal, "internal error")
+			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
 	}
@@ -1478,12 +1478,10 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		taskData.Data = task.GetData().GetData()
 	}
 
-	// TODO: update task dengan workflow yang sekarang
-
 	currentWorkflow, err := json.Marshal(validateWorkflow.GetData())
 	if err != nil {
 		logrus.Errorln("[api][func: TaskAction] error marshal current workflow: ", err)
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 	taskData.WorkflowDoc = string(currentWorkflow)
 
@@ -1500,7 +1498,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	logrus.Println("savedTask ===> ", savedTask)
 	if err != nil {
 		logrus.Errorln("[api][func: TaskAction] error save task: ", err)
-		return nil, status.Error(codes.Internal, "internal error")
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	res := &pb.TaskActionResponse{
