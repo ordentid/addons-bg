@@ -1199,7 +1199,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	if isIndividu == 0 {
 		dateEstablished = req.Data.Applicant.GetDateEstablished()
 		if dateEstablished == "" {
-			return nil, status.Errorf(codes.InvalidArgument, "Internal Error: %v", "Empty value on dateEstablished when isIndividu is true")
+			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on dateEstablished when isIndividu is true")
 		}
 	}
 
@@ -1286,8 +1286,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		cashAccountNo = req.Data.Project.GetCashAccountNo()
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
-		// nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
-		// nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 
 		if cashAccountNo == "" || cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when hold account is selected")
@@ -1297,15 +1295,13 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		counterGuaranteeTypeString = map[string]string{"0": "customer limit"}
 
-		// cashAccountNo = req.Data.Project.GetCashAccountNo()
-		// cashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			logrus.Println("Error Limit Individual: ", err.Error())
-			return nil, status.Errorf(codes.NotFound, "You are not allowed for Non Cash Loan facility")
+			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
@@ -1327,7 +1323,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			logrus.Println("Error Limit Individual: ", err.Error())
-			return nil, status.Errorf(codes.NotFound, "You are not allowed for Combination facility")
+			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Combination facility")
 		}
 
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)

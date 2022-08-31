@@ -1458,7 +1458,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		})
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] failed to transfer data: ", err)
-			return nil, status.Errorf(codes.Internal, "Internal Error:", err)
+			return nil, err
 		}
 
 		issuingData.RegistrationNo = createIssuing.Data.RegistrationNo
