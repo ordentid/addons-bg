@@ -317,7 +317,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 	}
 
 	if res.ResponseCode != "00" {
-		return nil, status.Errorf(codes.Internal, res.ResponseMessage)
+		return nil, status.Errorf(codes.Internal, string(*res.ResponseMessage))
 	}
 
 	for _, v := range res.ResponseData {
