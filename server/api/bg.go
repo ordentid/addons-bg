@@ -1562,6 +1562,27 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 	return result, nil
 }
 
+func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividualLimitRequest) (*pb.CheckIndividualLimitResponse, error) {
+	result := &pb.CheckIndividualLimitResponse{
+		Error:    false,
+		Code:     200,
+		Message:  "Success",
+		HasLimit: false,
+	}
+
+	inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
+	if err != nil {
+		logrus.Println("Error Limit Individual: ", err.Error())
+		return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
+	}
+
+	if inquiryLimit.ResponseCode == "00" {
+		result.HasLimit = true
+	}
+
+	return result, nil
+}
+
 func (s *Server) checkAccountNoIsValid(ctx context.Context, accountConn *grpc.ClientConn, accountNo string) (bool, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {

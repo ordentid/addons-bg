@@ -356,4 +356,16 @@ service ApiService {
             description: "This API for file upload"
         };
     }
+
+    rpc CheckIndividualLimit(CheckIndividualLimitRequest) returns (CheckIndividualLimitResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/individual-limit/check"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Check Individual Limit"
+            description: "This API for check individual limit"
+        };
+    }
 }

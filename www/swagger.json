@@ -172,6 +172,40 @@
         "security": []
       }
     },
+    "/api/bg/individual-limit/check": {
+      "post": {
+        "summary": "Check Individual Limit",
+        "description": "This API for check individual limit",
+        "operationId": "ApiService_CheckIndividualLimit",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1CheckIndividualLimitResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1CheckIndividualLimitRequest"
+            }
+          }
+        ],
+        "tags": [
+          "BG Issuing"
+        ]
+      }
+    },
     "/api/bg/issuing/check": {
       "get": {
         "summary": "Check BG Issuing Status",
@@ -2054,6 +2088,32 @@
         "CustomsBond"
       ],
       "default": "BidBond"
+    },
+    "v1CheckIndividualLimitRequest": {
+      "type": "object",
+      "properties": {
+        "cif": {
+          "type": "string"
+        }
+      }
+    },
+    "v1CheckIndividualLimitResponse": {
+      "type": "object",
+      "properties": {
+        "error": {
+          "type": "boolean"
+        },
+        "code": {
+          "type": "integer",
+          "format": "int64"
+        },
+        "message": {
+          "type": "string"
+        },
+        "hasLimit": {
+          "type": "boolean"
+        }
+      }
     },
     "v1CheckIssuingResponse": {
       "type": "object",
