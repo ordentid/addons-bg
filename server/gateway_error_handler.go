@@ -7,7 +7,9 @@ import (
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
-	"google.golang.org/grpc"
+	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -15,12 +17,23 @@ func CustomHTTPError(ctx context.Context, _ *runtime.ServeMux, marshaler runtime
 	const fallback = `{"error": "failed to marshal error message"}`
 
 	w.Header().Set("Content-type", "application/json")
-	w.WriteHeader(runtime.HTTPStatusFromCode(grpc.Code(err)))
+	grpcErrorCode := status.Code(err)
+	httpErrorCode := runtime.HTTPStatusFromCode(grpcErrorCode)
+	msg := status.Convert(err).Message()
+	w.WriteHeader(httpErrorCode)
+
+	if grpcErrorCode == codes.InvalidArgument {
+		msg = "Invalid argument"
+	}
+
+	logrus.Println("[Debug info] Error gateway: ", err)
+	logrus.Println("[Debug info] Grpc Error code: ", grpcErrorCode)
+	logrus.Println("[Debug info] Http Error code: ", httpErrorCode)
 
 	body := &pb.ErrorBodyResponse{
 		Error:   true,
-		Code:    uint32(runtime.HTTPStatusFromCode(grpc.Code(err))),
-		Message: grpc.ErrorDesc(err),
+		Code:    uint32(httpErrorCode),
+		Message: msg,
 	}
 
 	jErr := json.NewEncoder(w).Encode(body)
