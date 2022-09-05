@@ -2,11 +2,9 @@ package api
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"strconv"
 	"strings"
 
@@ -1386,7 +1384,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ApplicantCustomerId:    "0",
 		BeneficiaryCustomerId:  "0",
 		LegalDocument:          req.Data.Document.GetFileBusinessLegal(),
-		ContractDocument:       req.Data.Document.GetFileBg(),
+		ContractDocument:       req.Data.Document.GetFileTender(),
 		Sp3Document:            req.Data.Document.GetFileSp(),
 		OthersDocument:         req.Data.Document.GetFileOther(),
 	}
@@ -1528,16 +1526,16 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 		Message: "Success",
 	}
 
-	decodedBytes, err := base64.StdEncoding.DecodeString(req.GetData())
-	if err != nil {
-		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: File is corrupted")
-	}
+	// decodedBytes, err := base64.StdEncoding.DecodeString(req.GetData())
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Bad Request: File is corrupted")
+	// }
 
-	contentType := http.DetectContentType(decodedBytes)
+	// contentType := http.DetectContentType(decodedBytes)
 
-	if contentType != "application/pdf" {
-		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Invalid filetype")
-	}
+	// if contentType != "application/pdf" {
+	// 	return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Invalid filetype")
+	// }
 
 	httpReqParamsOpt := ApiUploadEncodeRequest{
 		Document: req.GetData(),
