@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1526,10 +1527,10 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 		Message: "Success",
 	}
 
-	// decodedBytes, err := base64.StdEncoding.DecodeString(req.GetData())
-	// if err != nil {
-	// 	return nil, status.Errorf(codes.InvalidArgument, "Bad Request: File is corrupted")
-	// }
+	_, err := base64.StdEncoding.DecodeString(req.GetData())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: File is corrupted")
+	}
 
 	// contentType := http.DetectContentType(decodedBytes)
 
