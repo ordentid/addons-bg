@@ -1020,6 +1020,12 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
+		workflow := pb.ValidateWorkflowData{}
+		err = json.Unmarshal([]byte(v.GetWorkflowDoc()), &workflow)
+		if err != nil {
+			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		}
+
 		if len(companyRes.GetData()) > 0 {
 			company = &pb.Company{
 				CompanyID:          companyRes.Data[0].GetCompanyID(),
