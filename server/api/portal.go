@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
-	"net/url"
 
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
@@ -138,53 +137,6 @@ type ApiInquiryBenficiaryResponse struct {
 	ResponseData    []*ApiBeneficiary `json:"responseData"`
 }
 
-// type ApiBgIssuingRequest struct {
-// 	AccountNo              string  `json:"account_no"`
-// 	ApplicantName          string  `json:"applicant_name"`
-// 	ApplicantAddress       string  `json:"applicant_address"`
-// 	IsIndividu             uint64  `json:"is_individu,string"`
-// 	NIK                    string  `json:"nik"`
-// 	BirthDate              string  `json:"birth_date"`
-// 	Gender                 string  `json:"gender"`
-// 	NPWPNo                 string  `json:"npwp_no"`
-// 	DateEstablished        string  `json:"tanggal_berdiri"`
-// 	CompanyType            string  `json:"company_type"`
-// 	IsPlafond              string  `json:"is_plafond"`
-// 	TransactionType        string  `json:"transaction_type"`
-// 	IsEndOfYearBg          string  `json:"is_bg_akhir_tahun"`
-// 	NRK                    string  `json:"nrk"`
-// 	ProjectName            string  `json:"project_name"`
-// 	ThirdPartyId           uint64  `json:"third_party_id,string"`
-// 	BeneficiaryName        string  `json:"beneficiary_name"`
-// 	ProjectAmount          float64 `json:"project_amount,string"`
-// 	ContractNo             string  `json:"contract_no"`
-// 	ContractDate           string  `json:"contract_date"`
-// 	Currency               string  `json:"currency"`
-// 	Amount                 float64 `json:"amount,string"`
-// 	EffectiveDate          string  `json:"effective_date"`
-// 	MaturityDate           string  `json:"maturity_date"`
-// 	ClaimPeriod            uint64  `json:"claim_periode,string"`
-// 	IssuingBranch          string  `json:"issuing_branch"`
-// 	BranchPrinter          string  `json:"pencetak_branch"`
-// 	ContraGuarantee        string  `json:"contra_guarantee"`
-// 	InsuranceLimitId       string  `json:"insurance_limit_id"`
-// 	SP3No                  string  `json:"sp3_no"`
-// 	HoldAccountNo          string  `json:"hold_account_no"`
-// 	HoldAccountAmount      float64 `json:"hold_account_amount,string"`
-// 	ConsumerLimitId        string  `json:"consumer_limit_id"`
-// 	ConsumerLimitAmount    string  `json:"consumer_limit_amount"`
-// 	ApplicantContactPerson string  `json:"applicant_contact_person"`
-// 	ApplicantPhoneNumber   string  `json:"applicant_phone_number"`
-// 	ApplicantEmail         string  `json:"applicant_email"`
-// 	ChannelId              string  `json:"channel_id"`
-// 	ApplicantCustomerId    string  `json:"applicant_customer_id"`
-// 	BeneficiaryCustomerId  string  `json:"beneficiary_customer_id"`
-// 	LegalDocument          string  `json:"document_legalitas"`
-// 	ContractDocument       string  `json:"document_contract"`
-// 	Sp3Document            string  `json:"document_sp3"`
-// 	OthersDocument         string  `json:"document_others"`
-// }
-
 type ApiBgIssuingRequest struct {
 	AccountNo              string            `json:"accountNumber"`
 	ApplicantName          string            `json:"applicantName"`
@@ -309,25 +261,9 @@ type ApiUploadEncodeResponse struct {
 	ResponseData    UploadEncodeData `json:"responseData"`
 }
 
-func GetHttpClient(ctx context.Context) (*http.Client, error) {
-	client := &http.Client{}
-	if getEnv("ENV", "PRODUCTION") != "PRODUCTION" {
-		proxyURL, err := url.Parse("http://localhost:5100")
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
-
-		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
-	}
-	return client, nil
-}
-
 func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest) (*ApiInquiryBenficiaryResponse, error) {
 
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+	client := &http.Client{}
 
 	httpReqParam, err := query.Values(req)
 	if err != nil {
@@ -363,13 +299,12 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 	logrus.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
+
 }
 
 func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdPartyByStatusRequest) (*ApiInquiryThirdPartyByStatusResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
@@ -406,13 +341,12 @@ func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdParty
 	logrus.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
+
 }
 
 func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByIDRequest) (*ApiInquiryThirdPartyByIDResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
@@ -449,13 +383,12 @@ func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByID
 	logrus.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
+
 }
 
 func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqPayload, err := json.Marshal(req)
 	if err != nil {
@@ -492,13 +425,12 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 	logrus.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
+
 }
 
 func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*ApiListTransactionResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
+
+	client := &http.Client{}
 
 	httpReqParams, err := query.Values(req)
 	if err != nil {
@@ -534,13 +466,12 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 	logrus.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
+
 }
 
 func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqPayload, err := json.Marshal(req)
 	logrus.Println(string(httpReqPayload))
@@ -584,13 +515,12 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 	result := &httpResData
 
 	return result, nil
+
 }
 
 func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqData := ApiBgIssuingData{
 		RegistrationNo: req.RegistrationNo,
@@ -635,13 +565,12 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 	}
 
 	return &httpResData, nil
+
 }
 
 func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividualRequest) (*ApiInquiryLimitIndividualResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	httpReqParam, err := query.Values(req)
 	if err != nil {
@@ -681,13 +610,12 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 	}
 
 	return &httpResData, nil
+
 }
 
 func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
-	client, err := GetHttpClient(ctx)
-	if err != nil {
-		return nil, err
-	}
+
+	client := &http.Client{}
 
 	req.ChannelId = getEnv("BG_CHANNEL_ID", "2")
 
@@ -730,4 +658,5 @@ func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUplo
 	}
 
 	return &httpResData, nil
+
 }
