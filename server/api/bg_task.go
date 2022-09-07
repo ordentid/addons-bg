@@ -1041,9 +1041,10 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		}
 
 		result.Data = append(result.Data, &pb.TaskIssuingData{
-			Task:    task,
-			Company: company,
-			Data:    &taskData,
+			Task:     task,
+			Company:  company,
+			Data:     &taskData,
+			Workflow: &workflow,
 		})
 	}
 
