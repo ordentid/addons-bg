@@ -136,7 +136,7 @@ service ApiService {
             body: "*"
             additional_bindings: [
 				{
-					put: "/api/bg/mapping/task/{taskID}"
+					post: "/api/bg/mapping/task/{taskID}"
 					body: "*"
 				}
 			]
@@ -187,7 +187,7 @@ service ApiService {
             body: "*"
             additional_bindings: [
 				{
-					put: "/api/bg/mapping-digital/task/{taskID}"
+					post: "/api/bg/mapping-digital/task/{taskID}"
 					body: "*"
 				}
 			]
@@ -307,7 +307,7 @@ service ApiService {
             body: "*"
             additional_bindings: [
 				{
-					put: "/api/bg/issuing/task/{taskID}"
+					post: "/api/bg/issuing/task/{taskID}"
 					body: "*"
 				}
 			]
@@ -354,6 +354,18 @@ service ApiService {
             tags: ["BG Issuing"]
             summary: "Upload File"
             description: "This API for file upload"
+        };
+    }
+
+    rpc CheckIndividualLimit(CheckIndividualLimitRequest) returns (CheckIndividualLimitResponse) {
+        option (google.api.http) = {
+            post: "/api/bg/individual-limit/check"
+            body: "*"
+        };
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            tags: ["BG Issuing"]
+            summary: "Check Individual Limit"
+            description: "This API for check individual limit"
         };
     }
 }

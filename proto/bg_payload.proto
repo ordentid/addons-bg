@@ -384,10 +384,15 @@ message ProjectData {
 
 message DocumentData {
     string businessLegal = 1;
-    string tender = 2;
-    string sp = 3;
-    string bg = 4;
-    string other = 5;
+    string fileBusinessLegal = 2;
+    string tender = 3;
+    string fileTender = 4;
+    string sp = 5;
+    string fileSp = 6;
+    string bg = 7;
+    string fileBg = 8;
+    string other = 9;
+    string fileOther = 10;
 }
 
 message FileUploadData {
@@ -881,7 +886,6 @@ message TaskActionRequest {
     string comment = 3;
     string reasons = 4;
 }
-
 message TaskActionResponse {
     bool error = 1;
     uint32 code = 2;
@@ -892,7 +896,6 @@ message TaskActionResponse {
 message CheckIssuingRequest {
     uint64 taskID = 1;
 }
-
 message CheckIssuingResponse {
     bool error = 1;
     uint32 code = 2;
@@ -903,10 +906,19 @@ message CheckIssuingResponse {
 message FileUploadRequest {
     string data = 1;
 }
-  
 message FileUploadResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
     FileUploadData data = 4;
+}
+
+message CheckIndividualLimitRequest {
+    string cif = 1;
+}
+message CheckIndividualLimitResponse {
+    bool error = 1;
+    uint32 code = 2;
+    string message = 3;
+    bool hasLimit = 4;
 }

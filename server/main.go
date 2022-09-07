@@ -264,7 +264,14 @@ func cors(h http.Handler) http.Handler {
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000")
 
 		if allowedOrigin(r.Header.Get("Origin")) {
-			// w.Header().Set("Content-Security-Policy", "default-src 'self';img-src data: https:;object-src 'none'; upgrade-insecure-requests;")
+			w.Header().Set("Content-Security-Policy", "object-src 'none'; child-src 'none'; script-src 'unsafe-inline' https: http: ")
+			w.Header().Set("X-Content-Type-Options", "nosniff")
+			w.Header().Set("X-Frame-Options", "DENY")
+			w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
+			w.Header().Set("X-XSS-Protection", "1; mode=block")
+			w.Header().Set("Permissions-Policy", "geolocation=()")
+			w.Header().Set("Referrer-Policy", "no-referrer")
+
 			w.Header().Set("Access-Control-Allow-Origin", strings.Join(config.CorsAllowedOrigins, ", "))
 			w.Header().Set("Access-Control-Allow-Methods", strings.Join(config.CorsAllowedMethods, ", "))
 			w.Header().Set("Access-Control-Allow-Headers", strings.Join(config.CorsAllowedHeaders, ", "))
