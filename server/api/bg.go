@@ -165,10 +165,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 
 		if len(res.ResponseData) > 0 {
 
-			for i := 0; i < len(res.ResponseData); i++ {
-
-				v := res.ResponseData[i]
-
+			for _, v := range res.ResponseData {
 				data = append(data, &pb.BeneficiaryName{
 					BeneficiaryId: v.BeneficiaryID,
 					ThirdPartyId:  v.ThirdPartyID,
@@ -176,18 +173,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 					Fullname:      v.FullName,
 					Status:        v.Status,
 				})
-
 			}
-
-			// for _, v := range res.ResponseData {
-			// 	data = append(data, &pb.BeneficiaryName{
-			// 		BeneficiaryId: v.BeneficiaryID,
-			// 		ThirdPartyId:  v.ThirdPartyID,
-			// 		Cif:           v.Cif,
-			// 		Fullname:      v.FullName,
-			// 		Status:        v.Status,
-			// 	})
-			// }
 
 		}
 
@@ -269,20 +255,12 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 
 			if len(res.ResponseData) > 0 {
 
-				for i := 0; i < len(res.ResponseData); i++ {
-					v := res.ResponseData[i]
+				for _, v := range res.ResponseData {
 					result.Data = append(result.Data, &pb.ThirdParty{
 						Id:   v.ThirdPartyID,
 						Name: v.FullName,
 					})
 				}
-
-				// for _, v := range res.ResponseData {
-				// 	result.Data = append(result.Data, &pb.ThirdParty{
-				// 		Id:   v.ThirdPartyID,
-				// 		Name: v.FullName,
-				// 	})
-				// }
 
 			}
 
@@ -381,10 +359,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 
 	if len(res.ResponseData) > 0 {
 
-		for i := 0; i < len(res.ResponseData); i++ {
-
-			v := res.ResponseData[i]
-
+		for _, v := range res.ResponseData {
 			result.Data = append(result.Data, &pb.CustomerLimit{
 				CustomerLimitId:   v.CustomerLimitId,
 				Code:              v.Code,
@@ -403,29 +378,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 				ModifiedDate:      v.ModifiedDate,
 				Status:            v.Status,
 			})
-
 		}
-
-		// for _, v := range res.ResponseData {
-		// 	result.Data = append(result.Data, &pb.CustomerLimit{
-		// 		CustomerLimitId:   v.CustomerLimitId,
-		// 		Code:              v.Code,
-		// 		Fullname:          v.Fullname,
-		// 		Cif:               v.Cif,
-		// 		PtkNo:             v.PtkNo,
-		// 		Currency:          v.Currency,
-		// 		Plafond:           v.Plafond,
-		// 		ReservationAmount: v.ReservationAmount,
-		// 		OutstandingAmount: v.OutstandingAmount,
-		// 		AvailableAmount:   v.AvailableAmount,
-		// 		ExpiryDate:        v.ExpiryDate,
-		// 		PnRm:              v.PnRm,
-		// 		NameRm:            v.NameRm,
-		// 		CreatedDate:       v.CreatedDate,
-		// 		ModifiedDate:      v.ModifiedDate,
-		// 		Status:            v.Status,
-		// 	})
-		// }
 
 	}
 
@@ -458,14 +411,9 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 
 		if len(res.ResponseData) > 0 {
 
-			for i := 0; i < len(res.ResponseData); i++ {
-				v := res.ResponseData[i]
+			for _, v := range res.ResponseData {
 				result.Data = append(result.Data, v.Url)
 			}
-
-			// for _, v := range res.ResponseData {
-			// 	result.Data = append(result.Data, v.Url)
-			// }
 
 		}
 
@@ -531,18 +479,11 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 				if len(res.Data) > 0 {
 
-					for i := 0; i < len(res.Data); i++ {
-						d := res.Data[i]
+					for _, d := range res.Data {
 						if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
 							beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
 						}
 					}
-
-					// for _, d := range res.Data {
-					// 	if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
-					// 		beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
-					// 	}
-					// }
 
 				}
 
@@ -621,9 +562,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 		if len(res.ResponseData) > 0 {
 
-			for i := 0; i < len(res.ResponseData); i++ {
-
-				d := res.ResponseData[i]
+			for _, d := range res.ResponseData {
 
 				transactionPB := &pb.Transaction{
 					TransactionID:     d.TransactionId,
@@ -653,37 +592,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 				result.Data = append(result.Data, transactionPB)
 
 			}
-
-			// for _, d := range res.ResponseData {
-
-			// 	transactionPB := &pb.Transaction{
-			// 		TransactionID:     d.TransactionId,
-			// 		ThirdPartyID:      d.ThirdPartyId,
-			// 		ThirdPartyName:    d.ThirdPartyName,
-			// 		ReferenceNo:       d.ReferenceNo,
-			// 		RegistrationNo:    d.RegistrationNo,
-			// 		ApplicantName:     d.ApplicantName,
-			// 		BeneficiaryID:     d.BeneficiaryId,
-			// 		BeneficiaryName:   d.BeneficiaryName,
-			// 		IssueDate:         d.IssueDate,
-			// 		EffectiveDate:     d.EffectiveDate,
-			// 		ExpiryDate:        d.ExpiryDate,
-			// 		ClaimPeriod:       d.ClaimPeriod,
-			// 		ClosingDate:       d.ClosingDate,
-			// 		Currency:          d.Currency,
-			// 		Amount:            d.Amount,
-			// 		CreatedDate:       d.CreatedDate,
-			// 		ModifiedDate:      d.ModifiedDate,
-			// 		Remark:            d.Remark,
-			// 		Status:            d.Status,
-			// 		ChannelID:         d.ChannelId,
-			// 		ChannelName:       d.ChannelName,
-			// 		TransactionTypeID: pb.BgType(d.TransactionTypeId),
-			// 	}
-
-			// 	result.Data = append(result.Data, transactionPB)
-
-			// }
 
 		}
 
