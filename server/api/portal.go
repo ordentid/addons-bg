@@ -9,8 +9,6 @@ import (
 
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 type ApiTransaction struct {
@@ -261,7 +259,7 @@ type ApiUploadEncodeResponse struct {
 	ResponseData    UploadEncodeData `json:"responseData"`
 }
 
-func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest) (*ApiInquiryBenficiaryResponse, error) {
+func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest) (*ApiInquiryBenficiaryResponse, error) {
 
 	client := &http.Client{}
 
@@ -302,7 +300,7 @@ func ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest
 
 }
 
-func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdPartyByStatusRequest) (*ApiInquiryThirdPartyByStatusResponse, error) {
+func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdPartyByStatusRequest) (*ApiInquiryThirdPartyByStatusResponse, error) {
 
 	client := &http.Client{}
 
@@ -344,7 +342,7 @@ func ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdParty
 
 }
 
-func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByIDRequest) (*ApiInquiryThirdPartyByIDResponse, error) {
+func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByIDRequest) (*ApiInquiryThirdPartyByIDResponse, error) {
 
 	client := &http.Client{}
 
@@ -386,7 +384,7 @@ func ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByID
 
 }
 
-func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResponse, error) {
+func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResponse, error) {
 
 	client := &http.Client{}
 
@@ -428,39 +426,39 @@ func ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResp
 
 }
 
-func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*ApiListTransactionResponse, error) {
+func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*ApiListTransactionResponse, error) {
 
 	client := &http.Client{}
 
 	httpReqParams, err := query.Values(req)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	logrus.Println("Request:", httpReqParams.Encode())
 
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 	defer httpRes.Body.Close()
 
 	var httpResData ApiListTransactionResponse
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	httpResPayload, err := json.Marshal(httpResData)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		return nil, err
 	}
 
 	logrus.Println("Response:", string(httpResPayload))
@@ -469,12 +467,11 @@ func ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*A
 
 }
 
-func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
+func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
 
 	client := &http.Client{}
 
 	httpReqPayload, err := json.Marshal(req)
-	logrus.Println(string(httpReqPayload))
 	if err != nil {
 		return nil, err
 	}
@@ -518,7 +515,7 @@ func ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssu
 
 }
 
-func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
+func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
 
 	client := &http.Client{}
 
@@ -568,7 +565,7 @@ func ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*Api
 
 }
 
-func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividualRequest) (*ApiInquiryLimitIndividualResponse, error) {
+func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividualRequest) (*ApiInquiryLimitIndividualResponse, error) {
 
 	client := &http.Client{}
 
@@ -613,7 +610,7 @@ func ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividu
 
 }
 
-func ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
+func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
 
 	client := &http.Client{}
 

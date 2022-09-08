@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
-	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -23,6 +22,7 @@ import (
 )
 
 func (s *Server) GetCurrency(ctx context.Context, req *pb.GetCurrencyRequest) (*pb.GetCurrencyResponse, error) {
+
 	result := &pb.GetCurrencyResponse{
 		Error:   false,
 		Code:    200,
@@ -45,9 +45,11 @@ func (s *Server) GetCurrency(ctx context.Context, req *pb.GetCurrencyRequest) (*
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameRequest) (*pb.GetApplicantNameResponse, error) {
+
 	result := &pb.GetApplicantNameResponse{
 		Error:   false,
 		Code:    200,
@@ -116,16 +118,16 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 
 	for _, v := range names {
 
-		result.Data = append(result.Data, &pb.ApplicantName{
-			Name: v,
-		})
+		result.Data = append(result.Data, &pb.ApplicantName{Name: v})
 
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryNameRequest) (*pb.GetBeneficiaryNameResponse, error) {
+
 	result := &pb.GetBeneficiaryNameResponse{
 		Error:   false,
 		Code:    200,
@@ -142,7 +144,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		ThirdPartyID: req.ThirdPartyID,
 	}
 
-	res, err := ApiInquiryBeneficiary(ctx, apiReq)
+	res, err := s.ApiInquiryBeneficiary(ctx, apiReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -150,7 +152,10 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 	data := []*pb.BeneficiaryName{}
 
 	if res.ResponseCode == "00" {
-		for _, v := range res.ResponseData {
+
+		responseData := res.ResponseData
+
+		for _, v := range responseData {
 			data = append(data, &pb.BeneficiaryName{
 				BeneficiaryId: v.BeneficiaryID,
 				ThirdPartyId:  v.ThirdPartyID,
@@ -159,6 +164,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 				Status:        v.Status,
 			})
 		}
+
 	}
 
 	if req.Type == 0 {
@@ -201,9 +207,11 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest) (*pb.GetThirdPartyResponse, error) {
+
 	result := &pb.GetThirdPartyResponse{
 		Error:   false,
 		Code:    200,
@@ -222,18 +230,22 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			Status: "Active",
 		}
 
-		res, err := ApiInquiryThirdPartyByStatus(ctx, apiReq)
+		res, err := s.ApiInquiryThirdPartyByStatus(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
 		if res.ResponseCode == "00" {
-			for _, v := range res.ResponseData {
+
+			responseData := res.ResponseData
+
+			for _, v := range responseData {
 				result.Data = append(result.Data, &pb.ThirdParty{
 					Id:   v.ThirdPartyID,
 					Name: v.FullName,
 				})
 			}
+
 		}
 
 	} else {
@@ -279,7 +291,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 				ThirdPartyID: id,
 			}
 
-			res, err := ApiInquiryThirdPartyByID(ctx, apiReq)
+			res, err := s.ApiInquiryThirdPartyByID(ctx, apiReq)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
@@ -298,9 +310,11 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitRequest) (*pb.GetCustomerLimitResponse, error) {
+
 	result := &pb.GetCustomerLimitResponse{
 		Error:   false,
 		Code:    200,
@@ -310,7 +324,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 
 	apiReq := &ApiInquiryLimitIndividualRequest{}
 
-	res, err := ApiInquiryLimitIndividual(ctx, apiReq)
+	res, err := s.ApiInquiryLimitIndividual(ctx, apiReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -319,7 +333,9 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 		return nil, status.Errorf(codes.Internal, string(*res.ResponseMessage))
 	}
 
-	for _, v := range res.ResponseData {
+	responseData := res.ResponseData
+
+	for _, v := range responseData {
 		result.Data = append(result.Data, &pb.CustomerLimit{
 			CustomerLimitId:   v.CustomerLimitId,
 			Code:              v.Code,
@@ -345,6 +361,7 @@ func (s *Server) GetCustomerLimit(ctx context.Context, req *pb.GetCustomerLimitR
 }
 
 func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransactionAttachmentRequest) (*pb.GetTransactionAttachmentResponse, error) {
+
 	result := &pb.GetTransactionAttachmentResponse{
 		Error:   false,
 		Code:    200,
@@ -357,7 +374,7 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 			ReferenceNo: req.ReferenceNo,
 		}
 
-		res, err := ApiDownload(ctx, apiReq)
+		res, err := s.ApiDownload(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -366,16 +383,20 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
-		for _, v := range res.ResponseData {
+		responseData := res.ResponseData
+
+		for _, v := range responseData {
 			result.Data = append(result.Data, v.Url)
 		}
 
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionRequest) (*pb.GetTransactionResponse, error) {
+
 	result := &pb.GetTransactionResponse{
 		Error:   false,
 		Code:    200,
@@ -408,10 +429,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Filter: strings.Join(filterData, ","),
 	}
 
-	logrus.Println("---------------------------")
-	logrus.Println(filter.Filter)
-	logrus.Println("---------------------------")
-
 	mappingORM, err := s.provider.GetMapping(ctx, filter)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -427,7 +444,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 				}
 			}
 
-			for _, d := range res.Data {
+			benefs := res.Data
+
+			for _, d := range benefs {
 				if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
 					beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
 				}
@@ -443,10 +462,6 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		Page:  uint64(req.Page),
 		Limit: uint64(req.Limit),
 	}
-
-	logrus.Println("---------------------------")
-	logrus.Println(strings.Join(beneficiaryIDs, ","))
-	logrus.Println("---------------------------")
 
 	if len(beneficiaryIDs) > 0 {
 		httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
@@ -493,7 +508,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	apiReq := &httpReqParamsOpt
 
-	res, err := ApiListTransaction(ctx, apiReq)
+	res, err := s.ApiListTransaction(ctx, apiReq)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -504,7 +519,9 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	} else {
 
-		for _, d := range res.ResponseData {
+		responseData := res.ResponseData
+
+		for _, d := range responseData {
 
 			transactionPB := &pb.Transaction{
 				TransactionID:     d.TransactionId,
@@ -545,9 +562,11 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactionDetailRequest) (*pb.GetTransactionDetailResponse, error) {
+
 	result := &pb.GetTransactionDetailResponse{
 		Error:   false,
 		Code:    200,
@@ -564,7 +583,7 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 
 		apiReq := &httpReqParamsOpt
 
-		res, err := ApiListTransaction(ctx, apiReq)
+		res, err := s.ApiListTransaction(ctx, apiReq)
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -604,9 +623,11 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactionRequest) (*pb.CreateTransactionResponse, error) {
+
 	result := &pb.CreateTransactionResponse{
 		Error:   false,
 		Code:    200,
@@ -640,10 +661,6 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 	switch req.Type {
 	case "BG Mapping":
 
-		logrus.Println("----------------------")
-		logrus.Println("Save BG Mapping")
-		logrus.Println("----------------------")
-
 		taskData := req.MappingData
 		taskDataBak := req.MappingDataBackup
 
@@ -665,14 +682,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			}
 
-			logrus.Println(needDelete)
-
 			if needDelete {
-
-				logrus.Println("----------------------")
-				logrus.Println("Get Mapping Digital Task Data")
-				logrus.Println(v)
-				logrus.Println("----------------------")
 
 				filter := []string{
 					"company_id:" + strconv.FormatUint(v.CompanyID, 10),
@@ -686,11 +696,6 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 					}
 				}
 
-				logrus.Println("----------------------")
-				logrus.Println("Mapping Digital Task Response:")
-				logrus.Println(taskMappingDigitalRes.Data)
-				logrus.Println("----------------------")
-
 				for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
 
 					taskMappingDigitalData := []*pb.MappingDigitalData{}
@@ -698,10 +703,6 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
-
-					logrus.Println("----------------------")
-					logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
-					logrus.Println("----------------------")
 
 					_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
 					if err != nil {
@@ -736,11 +737,6 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 				}
 
-				logrus.Println("----------------------")
-				logrus.Println("To Delete Mapping Digital Data:")
-				logrus.Println(ids)
-				logrus.Println("----------------------")
-
 			}
 
 			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
@@ -757,11 +753,6 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 			}
 
 		}
-
-		logrus.Println("----------------------")
-		logrus.Println("To Delete Mapping Data:")
-		logrus.Println(ids)
-		logrus.Println("----------------------")
 
 		err = s.provider.DeleteMapping(ctx, ids)
 		if err != nil {
@@ -916,9 +907,11 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactionRequest) (*pb.DeleteTransactionResponse, error) {
+
 	result := &pb.DeleteTransactionResponse{
 		Error:   false,
 		Code:    200,
@@ -952,21 +945,12 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 	switch req.Type {
 	case "BG Mapping":
 
-		logrus.Println("----------------------")
-		logrus.Println("Save BG Mapping")
-		logrus.Println("----------------------")
-
 		taskData := req.MappingData
 		// taskDataBak := req.MappingDataBackup
 
 		ids := []string{}
 
 		for _, v := range taskData {
-
-			logrus.Println("----------------------")
-			logrus.Println("Get Mapping Digital Task Data")
-			logrus.Println(v)
-			logrus.Println("----------------------")
 
 			filter := []string{
 				"company_id:" + strconv.FormatUint(v.CompanyID, 10),
@@ -980,11 +964,6 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 				}
 			}
 
-			logrus.Println("----------------------")
-			logrus.Println("Mapping Digital Task Response:")
-			logrus.Println(taskMappingDigitalRes.Data)
-			logrus.Println("----------------------")
-
 			for _, taskMappingDigitalResData := range taskMappingDigitalRes.Data {
 
 				taskMappingDigitalData := []*pb.MappingDigitalData{}
@@ -992,10 +971,6 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 				if err != nil {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 				}
-
-				logrus.Println("----------------------")
-				logrus.Println("To Delete Mapping Digital Task ID: " + strconv.FormatUint(taskMappingDigitalResData.TaskID, 10))
-				logrus.Println("----------------------")
 
 				_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
 				if err != nil {
@@ -1030,11 +1005,6 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 			}
 
-			logrus.Println("----------------------")
-			logrus.Println("To Delete Mapping Digital Data:")
-			logrus.Println(ids)
-			logrus.Println("----------------------")
-
 			mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
 			if err != nil {
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -1049,11 +1019,6 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 			}
 
 		}
-
-		logrus.Println("----------------------")
-		logrus.Println("To Delete Mapping Data:")
-		logrus.Println(ids)
-		logrus.Println("----------------------")
 
 		err = s.provider.DeleteMapping(ctx, ids)
 		if err != nil {
@@ -1161,9 +1126,11 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest) (*pb.CreateIssuingResponse, error) {
+
 	result := &pb.CreateIssuingResponse{
 		Error:   false,
 		Code:    200,
@@ -1297,7 +1264,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 
-		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
+		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			logrus.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
@@ -1319,7 +1286,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 
-		inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
+		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			logrus.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Combination facility")
@@ -1390,7 +1357,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		OthersDocument:         req.Data.Document.GetFileOther(),
 	}
 
-	createIssuingRes, err := ApiCreateIssuing(ctx, &httpReqData)
+	createIssuingRes, err := s.ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
 		logrus.Println("Failed to create issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1402,7 +1369,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	apiReq := &httpReqParamsOpt
 
-	checkIssuingRes, err := ApiCheckIssuingStatus(ctx, apiReq)
+	checkIssuingRes, err := s.ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
 		logrus.Println("Failed to check issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1418,9 +1385,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingRequest) (*pb.CheckIssuingResponse, error) {
+
 	result := &pb.CheckIssuingResponse{
 		Error:   false,
 		Code:    200,
@@ -1465,7 +1434,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	apiReq := &httpReqParamsOpt
 
-	res, err := ApiCheckIssuingStatus(ctx, apiReq)
+	res, err := s.ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
 		return nil, err
 	}
@@ -1518,9 +1487,11 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb.FileUploadResponse, error) {
+
 	result := &pb.FileUploadResponse{
 		Error:   false,
 		Code:    200,
@@ -1544,7 +1515,7 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 
 	apiReq := &httpReqParamsOpt
 
-	res, err := ApiUploadEncode(ctx, apiReq)
+	res, err := s.ApiUploadEncode(ctx, apiReq)
 	if err != nil {
 		return nil, err
 	}
@@ -1559,9 +1530,11 @@ func (s *Server) FileUpload(ctx context.Context, req *pb.FileUploadRequest) (*pb
 	result.Data = resultData
 
 	return result, nil
+
 }
 
 func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividualLimitRequest) (*pb.CheckIndividualLimitResponse, error) {
+
 	result := &pb.CheckIndividualLimitResponse{
 		Error:    false,
 		Code:     200,
@@ -1569,7 +1542,7 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 		HasLimit: false,
 	}
 
-	inquiryLimit, err := ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
+	inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
 	if err != nil {
 		logrus.Println("Error Limit Individual: ", err.Error())
 		return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
@@ -1580,32 +1553,5 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 	}
 
 	return result, nil
-}
 
-func (s *Server) checkAccountNoIsValid(ctx context.Context, accountConn *grpc.ClientConn, accountNo string) (bool, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
-	}
-	var header, trailer metadata.MD
-
-	accountClient := account_pb.NewApiServiceClient(accountConn)
-	account, err := accountClient.ValidateAccount(ctx, &account_pb.ValidateAccountRequest{
-		AccountNo: accountNo,
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
-	if err != nil {
-		logrus.Println("Error rpc", err)
-		return false, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	if account.Error {
-		if account.Code == 404 {
-			logrus.Println("Error not found 2")
-			return false, status.Errorf(codes.NotFound, "Bad Request: Account not found")
-		}
-		logrus.Println("Error internal")
-		return false, status.Errorf(codes.Internal, "Internal Error: %v", err)
-	}
-
-	return true, nil
 }
