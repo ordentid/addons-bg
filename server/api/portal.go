@@ -6,7 +6,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"errors"
+	"net"
 	"net/http"
+	"time"
 
 	"github.com/google/go-querystring/query"
 	"github.com/sirupsen/logrus"
@@ -262,10 +264,16 @@ type ApiUploadEncodeResponse struct {
 
 func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenficiaryRequest) (*ApiInquiryBenficiaryResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqParam, err := query.Values(req)
@@ -307,10 +315,16 @@ func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenfi
 
 func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInquiryThirdPartyByStatusRequest) (*ApiInquiryThirdPartyByStatusResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqPayload, err := json.Marshal(req)
@@ -353,10 +367,16 @@ func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInqui
 
 func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryThirdPartyByIDRequest) (*ApiInquiryThirdPartyByIDResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqPayload, err := json.Marshal(req)
@@ -399,10 +419,16 @@ func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryTh
 
 func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*ApiDownloadResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqPayload, err := json.Marshal(req)
@@ -445,10 +471,16 @@ func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*Api
 
 func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransactionRequest) (*ApiListTransactionResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqParams, err := query.Values(req)
@@ -490,10 +522,16 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 
 func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqPayload, err := json.Marshal(req)
@@ -542,10 +580,16 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 
 func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRequest) (*ApiBgTrackingResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqData := ApiBgIssuingData{
@@ -596,10 +640,16 @@ func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRe
 
 func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryLimitIndividualRequest) (*ApiInquiryLimitIndividualResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	httpReqParam, err := query.Values(req)
@@ -645,10 +695,16 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 
 func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeRequest) (*ApiUploadEncodeResponse, error) {
 
+	var transport = &http.Transport{
+		Dial: (&net.Dialer{
+			Timeout: 15 * time.Second,
+		}).Dial,
+		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
+		TLSHandshakeTimeout: 15 * time.Second,
+	}
 	client := &http.Client{
-		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
-		},
+		Transport: transport,
+		Timeout:   15 * time.Second,
 	}
 
 	req.ChannelId = getEnv("BG_CHANNEL_ID", "2")
