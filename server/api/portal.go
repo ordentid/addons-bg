@@ -693,9 +693,9 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 
 	logrus.Println("Response:", string(httpResPayload))
 
-	if httpResData.ResponseCode != "00" {
-		return nil, errors.New(string(*httpResData.ResponseMessage))
-	}
+	// if httpResData.ResponseCode != "00" {
+	// 	return nil, errors.New(string(*httpResData.ResponseMessage))
+	// }
 
 	return &httpResData, nil
 
