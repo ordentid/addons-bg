@@ -271,6 +271,7 @@ func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenfi
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -322,6 +323,7 @@ func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInqui
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -374,6 +376,7 @@ func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryTh
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -426,6 +429,7 @@ func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*Api
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -478,6 +482,7 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -529,6 +534,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -587,6 +593,7 @@ func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRe
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -647,6 +654,7 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,
@@ -702,6 +710,7 @@ func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeReques
 		TLSClientConfig:     &tls.Config{InsecureSkipVerify: true},
 		TLSHandshakeTimeout: 15 * time.Second,
 	}
+
 	client := &http.Client{
 		Transport: transport,
 		Timeout:   15 * time.Second,

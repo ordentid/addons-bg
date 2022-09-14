@@ -1646,7 +1646,6 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 	inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
 	if err != nil {
 		logrus.Println("Error Limit Individual: ", err.Error())
-		return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
 	}
 
 	if inquiryLimit.ResponseCode == "00" {
