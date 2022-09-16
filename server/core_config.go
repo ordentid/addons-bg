@@ -25,7 +25,6 @@ type Config struct {
 
 	TaskService     string `config:"TASK_SERVICE"`
 	AuthService     string `config:"AUTH_SERVICE"`
-	UserService     string `config:"USER_SERVICE"`
 	CompanyService  string `config:"COMPANY_SERVICE"`
 	WorkflowService string `config:"WORKFLOW_SERVICE"`
 }

@@ -195,7 +195,6 @@ func grpcServer(port int) error {
 		"",
 		config.TaskService,
 		config.AuthService,
-		config.UserService,
 		config.CompanyService,
 		config.WorkflowService,
 	)
