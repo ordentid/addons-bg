@@ -1011,29 +1011,23 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		Message: "Data",
 	}
 
-	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
+	}
+	var trailer metadata.MD
 
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
+	taskClient := s.scvConn.TaskServiceClient()
 
 	switch req.Type {
 	case "BG Mapping":
@@ -1050,7 +1044,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 				"data.0.thirdPartyID:" + strconv.FormatUint(v.ThirdPartyID, 10),
 			}
 
-			taskMappingDigitalRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
+			taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 			if err != nil {
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1067,7 +1061,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
 
-					_, err := taskClient.SetTask(ctx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&header), grpc.Trailer(&trailer))
+					_, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 					if err != nil {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
@@ -1184,7 +1178,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 					"company_id:" + strconv.FormatUint(v.CompanyID, 10),
 				}
 
-				taskMappingRes, err := taskClient.GetListTask(ctx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&header), grpc.Trailer(&trailer))
+				taskMappingRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1207,10 +1201,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 								if v.ThirdPartyID == dd.ThirdPartyID {
 
-									userID, err := strconv.ParseUint(currentUser.UserID, 10, 64)
-									if err != nil {
-										return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-									}
+									userID := currentUser.UserID
 
 									data := &pb.MappingORM{
 										CompanyID:     v.CompanyID,
