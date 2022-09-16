@@ -1238,7 +1238,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	// systemClient := system_pb.NewApiServiceClient(systemConn)
 
-	task, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{
+	task, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{
 		Type: "BG Issuing",
 		ID:   req.GetTaskID(),
 	})
