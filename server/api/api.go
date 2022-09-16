@@ -11,6 +11,7 @@ import (
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
+	svc "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 )
@@ -21,6 +22,7 @@ const apiServicePath string = "/announcement.service.v1.ApiService/"
 type Server struct {
 	provider *db.GormProvider
 	manager  *manager.JWTManager
+	scvConn  *svc.ServiceConnection
 
 	pb.ApiServiceServer
 }
@@ -34,6 +36,7 @@ func New(
 	jwt_secret string,
 	jwt_duration string,
 	db01 *gorm.DB,
+	svcConn *svc.ServiceConnection,
 ) *Server {
 	secret := jwt_secret
 	tokenDuration, err := time.ParseDuration(jwt_duration)
@@ -43,7 +46,8 @@ func New(
 
 	return &Server{
 		provider:         db.NewProvider(db01),
-		manager:          manager.NewJWTManager(secret, tokenDuration),
+		manager:          manager.NewJWTManager(secret, tokenDuration, svcConn),
+		scvConn:          svcConn,
 		ApiServiceServer: nil,
 	}
 }
@@ -54,6 +58,11 @@ func (s *Server) GetManager() *manager.JWTManager {
 
 func (s *Server) notImplementedError() error {
 	st := status.New(codes.Unimplemented, "Not implemented yet")
+	return st.Err()
+}
+
+func (s *Server) unauthorizedError() error {
+	st := status.New(codes.Unauthenticated, "Unauthorized")
 	return st.Err()
 }
 

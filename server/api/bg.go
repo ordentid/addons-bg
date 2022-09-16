@@ -59,32 +59,27 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		Data:    []*pb.ApplicantName{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
+	}
+	var trailer metadata.MD
 
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
+	taskClient := s.scvConn.TaskServiceClient()
 
 	taskFilter := &task_pb.Task{
-		Type: "BG Issuing",
+		Type:      "BG Issuing",
+		CompanyID: currentUser.CompanyID,
 	}
 
 	filter := []string{
@@ -94,10 +89,9 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 	dataReq := &task_pb.ListTaskRequest{
 		Task:   taskFilter,
 		Filter: strings.Join(filter, ","),
-		In:     me.CompanyIDs,
 	}
 
-	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	dataList, err := taskClient.GetListTask(newCtx, dataReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -145,7 +139,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		Data:    []*pb.BeneficiaryName{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
+	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
 	}
@@ -188,7 +182,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		mappedBeneficiaryIDs := []string{}
 
 		mappingFilter := []string{
-			"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+			"company_id:" + currentUser.CompanyID,
 			"third_party_id:" + strconv.FormatUint(req.ThirdPartyID, 10),
 			"is_mapped:true",
 		}
@@ -235,12 +229,12 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		Data:    []*pb.ThirdParty{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
+	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
-	if me.UserType == "ba" {
+	if currentUser.UserType == "ba" {
 
 		apiReq := &ApiInquiryThirdPartyByStatusRequest{
 			Status: "Active",
@@ -271,7 +265,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		filter := &db.ListFilter{}
 
 		filterMapped := []string{
-			"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+			"company_id:" + currentUser.CompanyID,
 		}
 		if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
 			filterMapped = append(filterMapped, "is_mapped:false")
@@ -439,13 +433,13 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		TotalPages: 0,
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
+	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
 	}
 
 	filterData := []string{
-		"company_id:" + strconv.FormatUint(me.CompanyID, 10),
+		"company_id:" + currentUser.CompanyID,
 		"is_mapped:true",
 	}
 
@@ -681,7 +675,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 		Message: "Data",
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
+	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
 	}
@@ -828,13 +822,18 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			for _, v := range taskData {
 
+				userID, err := strconv.ParseUint(currentUser.UserID, 10, 64)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
 				data := &pb.MappingORM{
 					CompanyID:     v.CompanyID,
 					ThirdPartyID:  v.ThirdPartyID,
 					BeneficiaryID: 10101010,
 					IsMapped:      false,
-					CreatedByID:   me.UserID,
-					UpdatedByID:   me.UserID,
+					CreatedByID:   userID,
+					UpdatedByID:   userID,
 				}
 
 				if v.IsAllowAllBeneficiary {
@@ -957,13 +956,18 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 			for _, v := range taskData {
 
+				userID, err := strconv.ParseUint(currentUser.UserID, 10, 64)
+				if err != nil {
+					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+				}
+
 				data := &pb.MappingORM{
 					CompanyID:     v.CompanyID,
 					ThirdPartyID:  v.ThirdPartyID,
 					BeneficiaryID: v.BeneficiaryId,
 					IsMapped:      true,
-					CreatedByID:   me.UserID,
-					UpdatedByID:   me.UserID,
+					CreatedByID:   userID,
+					UpdatedByID:   userID,
 				}
 
 				mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: v.BeneficiaryId, CompanyID: v.CompanyID})
@@ -1007,7 +1011,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		Message: "Data",
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
+	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
 	}
@@ -1203,13 +1207,18 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 								if v.ThirdPartyID == dd.ThirdPartyID {
 
+									userID, err := strconv.ParseUint(currentUser.UserID, 10, 64)
+									if err != nil {
+										return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+									}
+
 									data := &pb.MappingORM{
 										CompanyID:     v.CompanyID,
 										ThirdPartyID:  v.ThirdPartyID,
 										BeneficiaryID: 10101010,
 										IsMapped:      dd.IsAllowAllBeneficiary,
-										CreatedByID:   me.UserID,
-										UpdatedByID:   me.UserID,
+										CreatedByID:   userID,
+										UpdatedByID:   userID,
 									}
 
 									mappingORM, err := s.provider.GetMappingDetail(ctx, &pb.MappingORM{ThirdPartyID: v.ThirdPartyID, BeneficiaryID: 10101010, CompanyID: v.CompanyID})
@@ -1256,7 +1265,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
-	// me, err := s.manager.GetMeFromJWT(ctx, "")
+	// currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	// if err != nil {
 	// 	return nil, err
 	// }

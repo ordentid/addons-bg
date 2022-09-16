@@ -23,7 +23,11 @@ type Config struct {
 	JWTDuration string `config:"JWT_DURATION"`
 	Dsn         string `config:"DB_DSN"`
 
-	TaskService string `config:"TASK_SERVICE"`
+	TaskService     string `config:"TASK_SERVICE"`
+	AuthService     string `config:"AUTH_SERVICE"`
+	UserService     string `config:"USER_SERVICE"`
+	CompanyService  string `config:"COMPANY_SERVICE"`
+	WorkflowService string `config:"WORKFLOW_SERVICE"`
 }
 
 var config *Config

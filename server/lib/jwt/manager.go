@@ -12,11 +12,11 @@ import (
 	customAES "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/aes"
 	authPb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/auth"
 
+	svc "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
@@ -24,27 +24,27 @@ import (
 type JWTManager struct {
 	secretKey     string
 	tokenDuration time.Duration
+	svcConn       *svc.ServiceConnection
 }
 
 type UserClaims struct {
 	jwt.StandardClaims
-	UserType     string              `json:"user_type"`
-	ProductRoles []*ProductAuthority `json:"product_roles"`
-	Authorities  []string            `json:"authorities"`
-	CompanyIDs   string              `json:"company_ids"`
-	P            string              `json:"p"`
-	E            string              `json:"e"`
+	UserType            string              `json:"user_type"`
+	ProductRoles        []*ProductAuthority `json:"product_roles"`
+	Authorities         []string            `json:"authorities"`
+	EncryptedCompanyIDs string              `json:"company_ids"`
+	P                   string              `json:"p"`
+	E                   string              `json:"e"`
 }
 
 type CurrentUser struct {
 	UserClaims
-	FilterMe          string   `json:"filter_me"`
-	StatusOrder       []string `json:"status_order"`
-	TaskFilter        string   `json:"task_filter"`
-	GroupIDs          []uint64
-	CompanyID         uint64
-	UserID            uint64
-	TaskCompanyFilter string `json:"task_company_filter"`
+	FilterMe    string   `json:"filter_me"`
+	StatusOrder []string `json:"status_order"`
+	TaskFilter  string   `json:"task_filter"`
+	UserID      string
+	CompanyID   string
+	CompanyIDs  []uint64
 }
 
 type VerifyTokenRes struct {
@@ -61,8 +61,8 @@ type ProductAuthority struct {
 	Authorities []string `protobuf:"bytes,2,rep,name=authorities,proto3" json:"authorities,omitempty"`
 }
 
-func NewJWTManager(secretKey string, tokenDuration time.Duration) *JWTManager {
-	return &JWTManager{secretKey, tokenDuration}
+func NewJWTManager(secretKey string, tokenDuration time.Duration, svcConn *svc.ServiceConnection) *JWTManager {
+	return &JWTManager{secretKey, tokenDuration, svcConn}
 }
 
 func (manager *JWTManager) Generate(username string, userID uint64, sessionID string, dateTime string) (string, error) {
@@ -105,7 +105,6 @@ func (manager *JWTManager) Verify(accessToken string) (*UserClaims, error) {
 func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string) (*CurrentUser, error) {
 
 	md, ok := metadata.FromIncomingContext(ctx)
-	// logrus.Println(md)
 	if ok {
 		values := md["authorization"]
 		if len(values) > 0 {
@@ -115,6 +114,7 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 				accessToken = split[1]
 			}
 		}
+
 	}
 
 	if accessToken == "" {
@@ -135,7 +135,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 		return nil, status.Errorf(codes.Unauthenticated, "Session expired")
 	}
 
-	logrus.Println(userClaims.ProductRoles)
 	for _, v := range userClaims.ProductRoles {
 		if v.ProductName == "User" {
 			for _, j := range v.Authorities {
@@ -147,7 +146,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 			}
 		}
 	}
-	logrus.Println(userClaims.Authorities)
 
 	currentUser := &CurrentUser{
 		UserClaims: *userClaims,
@@ -171,46 +169,14 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 		return nil, status.Errorf(codes.PermissionDenied, "Authority Denied")
 	}
 
-	currentUser.UserType = strings.ReplaceAll(currentUser.UserType, " ", "")
-
 	key := getEnv("JWT_AES_KEY", "Odj12345*12345678901234567890123")
 	aes := customAES.NewCustomAES(key)
 
-	if currentUser.P != "" {
-		userID, err := aes.Decrypt(currentUser.P)
-		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt UserID: %v", err)
-			return nil, status.Errorf(codes.Internal, "Server error")
-		}
-		if userID != "" {
-			currentUser.UserID, err = strconv.ParseUint(userID, 10, 64)
-			if err != nil {
-				logrus.Errorf("[api.auth][func:VerifyToken][06] Failed to parse UserID: %v", err)
-				currentUser.UserID = 0
-			}
-		}
-	}
-
-	if currentUser.E != "" {
-		companyID, err := aes.Decrypt(currentUser.E)
-		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][07] Failed to decrypt CompanyID: %v", err)
-			return nil, status.Errorf(codes.Internal, "Server error")
-		}
-		if companyID != "" {
-			currentUser.CompanyID, err = strconv.ParseUint(companyID, 10, 64)
-			if err != nil {
-				logrus.Errorf("[api.auth][func:VerifyToken][08] Failed to parse CompanyID: %v", err)
-				currentUser.CompanyID = 0
-			}
-		}
-	}
-
 	currentUser.TaskFilter = ""
 	if currentUser.UserType == "ca" || currentUser.UserType == "cu" {
-		currentUser.TaskFilter = "data.companyID:"
+		currentUser.TaskFilter = "data.user.companyID:"
 
-		decrypted, err := aes.Decrypt(userClaims.CompanyIDs)
+		decrypted, err := aes.Decrypt(userClaims.EncryptedCompanyIDs)
 		if err != nil {
 			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt companyIDs: %v", err)
 			return nil, status.Errorf(codes.Internal, "Server error")
@@ -223,6 +189,9 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 				logrus.Errorf("[api.auth][func:VerifyToken][06] Failed to unmarshal companyIDs: %v", err)
 				return nil, status.Errorf(codes.Internal, "Server error")
 			}
+
+			currentUser.CompanyIDs = ids
+
 			for i, v := range ids {
 				if i == 0 {
 					currentUser.TaskFilter = currentUser.TaskFilter + fmt.Sprintf("%d", v)
@@ -230,64 +199,34 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 					currentUser.TaskFilter = currentUser.TaskFilter + fmt.Sprintf(",%d", v)
 				}
 			}
-			currentUser.GroupIDs = ids
 		}
 	}
 
-	currentUser.TaskCompanyFilter = ""
-	if currentUser.UserType == "ca" || currentUser.UserType == "cu" {
-		currentUser.TaskCompanyFilter = "data.company.companyID:"
-
-		decrypted, err := aes.Decrypt(userClaims.CompanyIDs)
+	if userClaims.P != "" {
+		currentUser.UserID, err = aes.Decrypt(userClaims.P)
 		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt companyIDs: %v", err)
+			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt Principal: %v", err)
 			return nil, status.Errorf(codes.Internal, "Server error")
 		}
+	}
 
-		if decrypted != "" {
-			var ids []uint64
-			err = json.Unmarshal([]byte(decrypted), &ids)
-			if err != nil {
-				logrus.Errorf("[api.auth][func:VerifyToken][06] Failed to unmarshal companyIDs: %v", err)
-				return nil, status.Errorf(codes.Internal, "Server error")
-			}
-			for i, v := range ids {
-				if i == 0 {
-					currentUser.TaskCompanyFilter = currentUser.TaskCompanyFilter + fmt.Sprintf("%d", v)
-				} else {
-					currentUser.TaskCompanyFilter = currentUser.TaskCompanyFilter + fmt.Sprintf(",%d", v)
-				}
-			}
-			currentUser.GroupIDs = ids
+	if userClaims.E != "" {
+		currentUser.CompanyID, err = aes.Decrypt(userClaims.E)
+		if err != nil {
+			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt Entity: %v", err)
+			return nil, status.Errorf(codes.Internal, "Server error")
 		}
 	}
 
 	return currentUser, nil
 }
 
-func (manager *JWTManager) GetMeFromAuthService(ctx context.Context) (*VerifyTokenRes, error) {
-
-	md, ok := metadata.FromIncomingContext(ctx)
-	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
-	}
-	var header, trailer metadata.MD
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
-
-	authConn, err := grpc.Dial(getEnv("AUTH_SERVICE", ":9105"), opts...)
-	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
-	}
-	defer authConn.Close()
-
-	authClient := authPb.NewApiServiceClient(authConn)
+func (manager *JWTManager) GetMeFromAuthService(ctx context.Context, accessToken string) (*VerifyTokenRes, error) {
+	authClient := manager.svcConn.AuthServiceClient()
 
 	dataUser, err := authClient.VerifyToken(ctx, &authPb.VerifyTokenReq{
-		AccessToken: "",
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
+		AccessToken: accessToken,
+	})
 	if err != nil {
 		return nil, err
 	}
@@ -314,6 +253,7 @@ func (manager *JWTManager) GetMeFromAuthService(ctx context.Context) (*VerifyTok
 }
 
 func (manager *JWTManager) GetUserMD(ctx context.Context) (metadata.MD, error) {
+
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		if len(md["user-userid"]) > 0 {
@@ -324,25 +264,16 @@ func (manager *JWTManager) GetUserMD(ctx context.Context) (metadata.MD, error) {
 
 	}
 
+	// Make RPC using the context with the metadata.
 	var trailer metadata.MD
 
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	authClient := manager.svcConn.AuthServiceClient()
 
-	authConn, err := grpc.Dial(getEnv("AUTH_SERVICE", ":9105"), opts...)
+	_, err := authClient.SetMe(ctx, &authPb.VerifyTokenReq{}, grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
-	}
-	defer authConn.Close()
-
-	authClient := authPb.NewApiServiceClient(authConn)
-
-	_, err = authClient.SetMe(ctx, &authPb.VerifyTokenReq{}, grpc.Trailer(&trailer))
-	if err != nil {
+		logrus.Errorln("[jwtManager][func:GetUserMD][01] Failed to get user from auth service: ", err)
 		return nil, err
 	}
-
 	md = metadata.Join(md, trailer)
 
 	return md, nil
@@ -371,12 +302,12 @@ func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md 
 	user = &UserData{}
 	user.UserID, err = strconv.ParseUint(md["user-userid"][0], 10, 64)
 	if err != nil {
-		logrus.Errorln("Failed to parse userID: %v", err)
+		logrus.Errorln("[jwtManager][func:GetMeFromMD][01] Failed to parse userID: ", err)
 		return nil, nil, status.Errorf(codes.Internal, "Error Internal")
 	}
 	user.CompanyID, err = strconv.ParseUint(md["user-companyid"][0], 10, 64)
 	if err != nil {
-		logrus.Errorln("Failed to parse companyID: %v", err)
+		logrus.Errorln("[jwtManager][func:GetMeFromMD][02] Failed to parse companyID: ", err)
 		return nil, nil, status.Errorf(codes.Internal, "Error Internal")
 	}
 
@@ -391,8 +322,7 @@ func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md 
 		if len(v) > 0 {
 			id, err := strconv.ParseUint(v, 10, 64)
 			if err != nil {
-				logrus.Errorln("Failed to parse groupID: %v", err)
-				logrus.Println("GroupIDs: ", ids)
+				logrus.Errorf("[jwtManager][func:GetMeFromMD][03] Failed to parse groupID: %s, error: %v ", ids, err)
 				return nil, nil, status.Errorf(codes.Internal, "Error Internal")
 			}
 			user.GroupIDs = append(user.GroupIDs, id)
@@ -404,8 +334,7 @@ func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md 
 		if len(v) > 0 {
 			id, err := strconv.ParseUint(v, 10, 64)
 			if err != nil {
-				logrus.Errorln("Failed to parse roleID: %v", err)
-				logrus.Println("RoleIDs: ", ids)
+				logrus.Errorf("[jwtManager][func:GetMeFromMD][04] Failed to parse roleID: %s, error: %v ", ids, err)
 				return nil, nil, status.Errorf(codes.Internal, "Error Internal")
 			}
 			user.RoleIDs = append(user.RoleIDs, id)
@@ -415,6 +344,7 @@ func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md 
 	user.SessionID = md["user-sessionid"][0]
 	user.DateTime = md["user-datetime"][0]
 	user.TokenCreatedAt = md["user-tokencreatedat"][0]
+	// user.Fcm = md["user-fcm"][0]
 
 	return user, md, nil
 }

@@ -15,12 +15,12 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 )
 
 func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingRequest) (*pb.GetTaskMappingResponse, error) {
+
 	result := &pb.GetTaskMappingResponse{
 		Error:   false,
 		Code:    200,
@@ -28,43 +28,28 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 		Data:    []*pb.TaskMappingData{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		ctx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
 	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
-	if len(me.Authorities) > 0 {
-		switch strings.ToLower(me.Authorities[0]) {
+	if len(currentUser.Authorities) > 0 {
+		switch strings.ToLower(currentUser.Authorities[0]) {
 		case "maker":
 			statuses = []string{"2", "3", "1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
@@ -120,7 +105,7 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 		CustomOrder: customOrder,
 	}
 
-	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -154,7 +139,7 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -188,48 +173,35 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappingDetailRequest) (*pb.GetTaskMappingDetailResponse, error) {
+
 	result := &pb.GetTaskMappingDetailResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
 	}
 
-	// me, err := s.manager.GetMeFromJWT(ctx, "")
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
-
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		ctx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -262,7 +234,7 @@ func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappin
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: taskRes.Data.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: taskRes.Data.GetCompanyID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -288,18 +260,15 @@ func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappin
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappingRequest) (*pb.CreateTaskMappingResponse, error) {
+
 	result := &pb.CreateTaskMappingResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
-	}
-
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
 	}
 
 	client := &http.Client{}
@@ -312,39 +281,32 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 		client = &http.Client{Transport: &http.Transport{Proxy: http.ProxyURL(proxyURL)}}
 	}
 
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+		return nil, err
 	}
-	defer companyConn.Close()
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
+	}
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: req.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: req.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 	if !(len(company.GetData()) > 0) {
 		return nil, status.Errorf(codes.NotFound, "Company not found.")
 	}
-
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
-	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
-	}
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
 
 	taskData := []*pb.MappingData{}
 	for _, v := range req.Data {
@@ -405,7 +367,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 		Task: &task_pb.Task{
 			Type:        "BG Mapping",
 			Data:        string(data),
-			CreatedByID: me.UserID,
+			CreatedByID: currentUser.UserID,
 			CompanyID:   req.GetCompanyID(),
 		},
 	}
@@ -414,7 +376,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 		taskReq.IsDraft = true
 	}
 
-	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		logrus.Error("Failed To Transfer Data : ", "FAK")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -441,9 +403,11 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappingDigitalRequest) (*pb.GetTaskMappingDigitalResponse, error) {
+
 	result := &pb.GetTaskMappingDigitalResponse{
 		Error:   false,
 		Code:    200,
@@ -451,43 +415,30 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 		Data:    []*pb.TaskMappingDigitalData{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
 	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
-	if len(me.Authorities) > 0 {
-		switch strings.ToLower(me.Authorities[0]) {
+	if len(currentUser.Authorities) > 0 {
+		switch strings.ToLower(currentUser.Authorities[0]) {
 		case "maker":
 			statuses = []string{"2", "3", "1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
@@ -523,12 +474,8 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 
 	filter := &task_pb.Task{
 		Type:      "BG Mapping Digital",
-		CompanyID: me.CompanyID,
+		CompanyID: currentUser.CompanyID,
 	}
-
-	logrus.Println("-------------------")
-	logrus.Println(me.TaskFilter)
-	logrus.Println("-------------------")
 
 	if req.Status.Number() > 0 {
 		filter.Status = task_pb.Statuses(req.Status.Number())
@@ -548,7 +495,7 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 		CustomOrder: customOrder,
 	}
 
-	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	dataList, err := taskClient.GetListTask(newCtx, dataReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -582,7 +529,7 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: v.GetCompanyID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -616,48 +563,37 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTaskMappingDigitalDetailRequest) (*pb.GetTaskMappingDigitalDetailResponse, error) {
+
 	result := &pb.GetTaskMappingDigitalDetailResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
 	}
 
-	// me, err := s.manager.GetMeFromJWT(ctx, "")
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -690,7 +626,7 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -716,47 +652,37 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTaskMappingDigitalRequest) (*pb.CreateTaskMappingDigitalResponse, error) {
+
 	result := &pb.CreateTaskMappingDigitalResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -841,8 +767,8 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		Task: &task_pb.Task{
 			Type:        "BG Mapping Digital",
 			Data:        string(data),
-			CreatedByID: me.UserID,
-			CompanyID:   me.CompanyID,
+			CreatedByID: currentUser.UserID,
+			CompanyID:   currentUser.CompanyID,
 		},
 	}
 
@@ -850,7 +776,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		taskReq.IsDraft = true
 	}
 
-	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -876,6 +802,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingRequest) (*pb.GetTaskIssuingResponse, error) {
@@ -886,43 +813,30 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		Data:    []*pb.TaskIssuingData{},
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
 	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
-	if len(me.Authorities) > 0 {
-		switch strings.ToLower(me.Authorities[0]) {
+	if len(currentUser.Authorities) > 0 {
+		switch strings.ToLower(currentUser.Authorities[0]) {
 		case "maker":
 			statuses = []string{"2", "3", "1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
@@ -958,7 +872,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 	filter := &task_pb.Task{
 		Type:      "BG Issuing",
-		CompanyID: me.CompanyID,
+		CompanyID: currentUser.CompanyID,
 	}
 
 	logrus.Println(filter)
@@ -981,7 +895,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		CustomOrder: customOrder,
 	}
 
-	dataList, err := taskClient.GetListTask(ctx, dataReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	dataList, err := taskClient.GetListTask(newCtx, dataReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1015,7 +929,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 		var company *pb.Company
 
-		companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+		companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
@@ -1056,48 +970,37 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuingDetailRequest) (*pb.GetTaskIssuingDetailResponse, error) {
+
 	result := &pb.GetTaskIssuingDetailResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
 	}
 
-	// me, err := s.manager.GetMeFromJWT(ctx, "")
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1136,7 +1039,7 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 
 	var company *pb.Company
 
-	companyRes, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&header), grpc.Trailer(&trailer))
+	companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: task.GetCompanyID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1163,47 +1066,37 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuingRequest) (*pb.CreateTaskIssuingResponse, error) {
+
 	result := &pb.CreateTaskIssuingResponse{
 		Error:   false,
 		Code:    200,
 		Message: "Success",
 	}
 
-	me, err := s.manager.GetMeFromJWT(ctx, "")
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	companyConn, err := grpc.Dial(getEnv("COMPANY_SERVICE", ":9092"), opts...)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to Company Service: %v", err)
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	defer companyConn.Close()
+	var trailer metadata.MD
 
-	companyClient := company_pb.NewApiServiceClient(companyConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	companyClient := s.scvConn.CompanyServiceClient()
 
-	company, err := companyClient.ListCompanyDataV2(ctx, &company_pb.ListCompanyDataReq{CompanyID: me.CompanyID}, grpc.Header(&header), grpc.Trailer(&trailer))
+	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1273,8 +1166,8 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		Task: &task_pb.Task{
 			Type:        "BG Issuing",
 			Data:        string(taskData),
-			CreatedByID: me.UserID,
-			CompanyID:   me.CompanyID,
+			CreatedByID: currentUser.UserID,
+			CompanyID:   currentUser.CompanyID,
 		},
 		TransactionAmount: req.Data.Project.BgAmount,
 	}
@@ -1283,7 +1176,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		taskReq.IsDraft = true
 	}
 
-	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1309,6 +1202,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	return result, nil
+
 }
 
 func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb.TaskActionResponse, error) {
@@ -1317,39 +1211,24 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
-	currentUser, _, err := s.manager.GetMeFromMD(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Internal Error")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
-
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
-
-	workflowConn, err := grpc.Dial(getEnv("WORKFLOW_SERVICE", ":9099"), opts...)
-	if err != nil {
-		logrus.Errorln("Failed connect to Workflow Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Internal Error")
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
+	var trailer metadata.MD
 
-	workflowClient := workflow_pb.NewApiServiceClient(workflowConn)
+	taskClient := s.scvConn.TaskServiceClient()
+	workflowClient := s.scvConn.WorkflowServiceClient()
 
 	// systemConn, err := grpc.Dial(getEnv("SYSTEM_SERVICE", ":9101"), opts...)
 	// if err != nil {
@@ -1427,10 +1306,10 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	logrus.Println("[api][func: TaskAction] action: ", workflowAction)
 
-	validateWorkflow, err := workflowClient.ValidateWorkflow(ctx, &workflow_pb.ValidateWorkflowRequest{
+	validateWorkflow, err := workflowClient.ValidateWorkflow(newCtx, &workflow_pb.ValidateWorkflowRequest{
 		CurrentWorkflow: workflow.Workflow,
 		Action:          workflowAction,
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, err
 	}
@@ -1501,7 +1380,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	logrus.Println("saveReq ===> ", saveReq)
 
-	savedTask, err := taskClient.SaveTaskWithWorkflow(ctx, saveReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	savedTask, err := taskClient.SaveTaskWithWorkflow(newCtx, saveReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	logrus.Println("savedTask ===> ", savedTask)
 	if err != nil {
 		logrus.Errorln("[api][func: TaskAction] error save task: ", err)
@@ -1532,4 +1411,5 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	}
 
 	return res, nil
+
 }

@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 
+	svc "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/api"
@@ -190,10 +191,21 @@ func grpcServer(port int) error {
 
 	// logrus.Println("===========> %s", taskConn.GetState().String())
 
+	svcConn := svc.InitServicesConn(
+		"",
+		config.TaskService,
+		config.AuthService,
+		config.UserService,
+		config.CompanyService,
+		config.WorkflowService,
+	)
+	defer svcConn.CloseAllServicesConn()
+
 	apiServer := api.New(
 		config.JWTSecret,
 		config.JWTDuration,
 		db_main,
+		svcConn,
 	)
 	authInterceptor := api.NewAuthInterceptor(apiServer.GetManager())
 
