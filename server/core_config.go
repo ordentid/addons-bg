@@ -55,6 +55,9 @@ func initConfig() {
 		JWTDuration:        getEnv("JWT_DURATION", "48h"),
 		Dsn:                getEnv("DB_DSN", ""),
 		TaskService:        getEnv("TASK_SERVICE", ":9090"),
+		AuthService:        getEnv("AUTH_SERVICE", ":9090"),
+		CompanyService:     getEnv("COMPANY_SERVICE", ":9090"),
+		WorkflowService:    getEnv("WORKFLOW_SERVICE", ":9090"),
 	}
 
 }
