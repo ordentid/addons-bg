@@ -27,6 +27,7 @@ type Config struct {
 	AuthService     string `config:"AUTH_SERVICE"`
 	CompanyService  string `config:"COMPANY_SERVICE"`
 	WorkflowService string `config:"WORKFLOW_SERVICE"`
+	SystemService   string `config:"SYSTEM_SERVICE"`
 }
 
 var config *Config
@@ -58,6 +59,7 @@ func initConfig() {
 		AuthService:        getEnv("AUTH_SERVICE", ":9090"),
 		CompanyService:     getEnv("COMPANY_SERVICE", ":9090"),
 		WorkflowService:    getEnv("WORKFLOW_SERVICE", ":9090"),
+		SystemService:      getEnv("SYSTEM_SERVICE", ":9090"),
 	}
 
 }

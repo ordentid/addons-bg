@@ -1061,7 +1061,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		taskReq.IsDraft = true
 	}
 
-	taskRes, err := taskClient.SaveTaskWithData(ctx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}

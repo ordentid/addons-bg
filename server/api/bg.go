@@ -1271,27 +1271,23 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		Message: "Data",
 	}
 
-	// currentUser, err := s.manager.GetMeFromJWT(ctx, "")
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	systemConn, err := grpc.Dial(getEnv("SYSTEM_SERVICE", ":9101"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed connect to System Service: %v", err)
+		return nil, err
 	}
-	defer systemConn.Close()
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
+	}
+	var trailer metadata.MD
 
-	systemClient := system_pb.NewApiServiceClient(systemConn)
+	systemClient := s.scvConn.SystemServiceClient()
 
 	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
 	dateEstablished := ""
@@ -1324,11 +1320,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	customerLimitAmount := 0.0
 	isEndOfYearBg := "0"
 
-	openingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+	openingBranchORMs, err := systemClient.ListMdBranch(newCtx, &system_pb.ListMdBranchRequest{
 		Data: &system_pb.MdBranch{
 			Id: req.Data.Publishing.GetOpeningBranchId(),
 		},
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
@@ -1343,11 +1339,11 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	openingBranch := openingBranchORMs.Data[0]
 
-	publishingBranchORMs, err := systemClient.ListMdBranch(ctx, &system_pb.ListMdBranchRequest{
+	publishingBranchORMs, err := systemClient.ListMdBranch(newCtx, &system_pb.ListMdBranchRequest{
 		Data: &system_pb.MdBranch{
 			Id: req.Data.Publishing.GetPublishingBranchId(),
 		},
-	}, grpc.Header(&header), grpc.Trailer(&trailer))
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
@@ -1530,26 +1526,25 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		Message: "Data",
 	}
 
-	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		ctx = metadata.NewOutgoingContext(context.Background(), md)
 	}
-	var header, trailer metadata.MD
 
-	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
+	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
-		return nil, status.Errorf(codes.Internal, "Error Internal")
+		return nil, err
 	}
-	taskConn.Connect()
-	defer taskConn.Close()
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
+	}
+	var trailer metadata.MD
 
-	taskClient := task_pb.NewTaskServiceClient(taskConn)
+	taskClient := s.scvConn.TaskServiceClient()
 
-	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&header), grpc.Trailer(&trailer))
+	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
@@ -1587,7 +1582,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		Data:   string(data),
 	}
 
-	_, err = taskClient.UpdateTaskData(ctx, taskReq, grpc.Header(&header), grpc.Trailer(&trailer))
+	_, err = taskClient.UpdateTaskData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		logrus.Error("Failed To Transfer Data : ", "FAK")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)

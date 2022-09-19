@@ -11,6 +11,7 @@ import (
 
 	authPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/auth"
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	workflowPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 )
@@ -20,6 +21,7 @@ type ServiceConnection struct {
 	AuthService     *grpc.ClientConn
 	CompanyService  *grpc.ClientConn
 	WorkflowService *grpc.ClientConn
+	SystemService   *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -28,6 +30,7 @@ func InitServicesConn(
 	authAddress string,
 	companyAddress string,
 	workflowAddress string,
+	systemAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -76,6 +79,14 @@ func InitServicesConn(
 		return nil
 	}
 
+	// System Service
+	services.SystemService, err = initGrpcClientConn(systemAddress, "System Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
 	return services
 }
 
@@ -111,11 +122,16 @@ func (s *ServiceConnection) WorkflowServiceClient() workflowPB.ApiServiceClient 
 	return workflowPB.NewApiServiceClient(s.WorkflowService)
 }
 
+func (s *ServiceConnection) SystemServiceClient() systemPB.ApiServiceClient {
+	return systemPB.NewApiServiceClient(s.SystemService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
 	s.CompanyService.Close()
 	s.WorkflowService.Close()
+	s.SystemService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -132,4 +148,8 @@ func (s *ServiceConnection) CloseCompanyServiceConn() error {
 
 func (s *ServiceConnection) CloseWorkflowServiceConn() error {
 	return s.WorkflowService.Close()
+}
+
+func (s *ServiceConnection) CloseSystemServiceConn() error {
+	return s.SystemService.Close()
 }
