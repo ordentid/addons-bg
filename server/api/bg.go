@@ -1394,6 +1394,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
 
+		if req.Data.Account.Cif == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
+		}
+
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
 			logrus.Println("Error Limit Individual: ", err.Error())
@@ -1415,6 +1419,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		cashAccountAmount = req.Data.Project.GetCashAccountAmount()
 		nonCashAccountNo = req.Data.Project.GetNonCashAccountNo()
 		nonCashAccountAmount = req.Data.Project.GetNonCashAccountAmount()
+
+		if req.Data.Account.Cif == "" {
+			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
+		}
 
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
