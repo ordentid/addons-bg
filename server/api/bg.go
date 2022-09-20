@@ -139,6 +139,10 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		Data:    []*pb.BeneficiaryName{},
 	}
 
+	if req.ThirdPartyID == 0 {
+		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Third Party ID is required")
+	}
+
 	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
 	if err != nil {
 		return nil, err
@@ -197,21 +201,41 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		}
 
 		if len(mappingORMs) > 0 {
+
 			for _, v := range mappingORMs {
+
 				if v.BeneficiaryID != 10101010 {
+
 					if !contains(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10)) {
 						mappedBeneficiaryIDs = append(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryID, 10))
 					}
+
+				} else {
+
+					for _, d := range data {
+
+						if !contains(mappedBeneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
+							mappedBeneficiaryIDs = append(mappedBeneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
+						}
+
+					}
+
 				}
+
 			}
+
 		}
 
 		if len(data) > 0 {
+
 			for _, v := range data {
+
 				if contains(mappedBeneficiaryIDs, strconv.FormatUint(v.BeneficiaryId, 10)) {
 					result.Data = append(result.Data, v)
 				}
+
 			}
+
 		}
 
 	}
