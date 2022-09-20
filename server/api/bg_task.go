@@ -743,6 +743,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 }
 
 func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingRequest) (*pb.GetTaskIssuingResponse, error) {
+
 	result := &pb.GetTaskIssuingResponse{
 		Error:   false,
 		Code:    200,

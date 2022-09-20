@@ -1069,7 +1069,7 @@ func (x *Transaction) GetTransactionTypeID() BgType {
 	if x != nil {
 		return x.TransactionTypeID
 	}
-	return BgType_BidBond
+	return BgType_Null
 }
 
 type Participant struct {
@@ -2556,7 +2556,7 @@ func (x *PublishingData) GetBgType() BgType {
 	if x != nil {
 		return x.BgType
 	}
-	return BgType_BidBond
+	return BgType_Null
 }
 
 func (x *PublishingData) GetEffectiveDate() string {

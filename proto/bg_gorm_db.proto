@@ -18,14 +18,15 @@ enum BgStatus {
 }
 
 enum BgType {
-    BidBond = 0;
-    AdvancePayment = 1;
-    PerformanceBond = 2;
-    GovernmentPaymentGuarantee = 3;
-    MaintenanceBond = 4;
-    ProcurementBond = 5;
-    TransactionRiskBond = 6;
-    CustomsBond = 7;
+    Null = 0;
+    BidBond = 1;
+    AdvancePayment = 2;
+    PerformanceBond = 3;
+    GovernmentPaymentGuarantee = 4;
+    MaintenanceBond = 5;
+    ProcurementBond = 6;
+    TransactionRiskBond = 7;
+    CustomsBond = 8;
 }
 
 message Mapping {

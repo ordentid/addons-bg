@@ -2078,6 +2078,7 @@
     "v1BgType": {
       "type": "string",
       "enum": [
+        "Null",
         "BidBond",
         "AdvancePayment",
         "PerformanceBond",
@@ -2087,7 +2088,7 @@
         "TransactionRiskBond",
         "CustomsBond"
       ],
-      "default": "BidBond"
+      "default": "Null"
     },
     "v1CheckIndividualLimitRequest": {
       "type": "object",
