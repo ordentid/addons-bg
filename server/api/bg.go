@@ -302,64 +302,94 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 
 	} else {
 
-		filter := &db.ListFilter{}
+		if req.Type != *pb.ThirdPartyType_All.Enum() {
 
-		filterMapped := []string{
-			"company_id:" + strconv.FormatUint(currentUser.CompanyID, 10),
-		}
-		if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
-			filterMapped = append(filterMapped, "is_mapped:false")
-		} else if req.Type == *pb.ThirdPartyType_IsMapped.Enum() {
-			filterMapped = append(filterMapped, "is_mapped:true")
-		}
+			filter := &db.ListFilter{}
 
-		filter.Filter = strings.Join(filterMapped, ",")
+			filterMapped := []string{
+				"company_id:" + strconv.FormatUint(currentUser.CompanyID, 10),
+			}
+			if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
+				filterMapped = append(filterMapped, "is_mapped:false")
+			} else if req.Type == *pb.ThirdPartyType_IsMapped.Enum() {
+				filterMapped = append(filterMapped, "is_mapped:true")
+			}
 
-		thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
-		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-		}
+			filter.Filter = strings.Join(filterMapped, ",")
 
-		logrus.Print(thirdPartyNameList)
+			thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
 
-		ids := []string{}
+			logrus.Print(thirdPartyNameList)
 
-		if len(thirdPartyNameList) > 0 {
-			for _, v := range thirdPartyNameList {
-				if !contains(ids, strconv.FormatUint(v.ThirdPartyID, 10)) {
-					ids = append(ids, strconv.FormatUint(v.ThirdPartyID, 10))
+			ids := []string{}
+
+			if len(thirdPartyNameList) > 0 {
+				for _, v := range thirdPartyNameList {
+					if !contains(ids, strconv.FormatUint(v.ThirdPartyID, 10)) {
+						ids = append(ids, strconv.FormatUint(v.ThirdPartyID, 10))
+					}
 				}
 			}
-		}
 
-		if len(ids) > 0 {
+			if len(ids) > 0 {
 
-			for _, v := range ids {
+				for _, v := range ids {
 
-				id, err := strconv.ParseUint(v, 10, 64)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					id, err := strconv.ParseUint(v, 10, 64)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					name := ""
+
+					apiReq := &ApiInquiryThirdPartyByIDRequest{
+						ThirdPartyID: id,
+					}
+
+					res, err := s.ApiInquiryThirdPartyByID(ctx, apiReq)
+					if err != nil {
+						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					}
+
+					if res.ResponseCode == "00" {
+						name = res.ResponseData.FullName
+					}
+
+					result.Data = append(result.Data, &pb.ThirdParty{
+						Id:   id,
+						Name: name,
+					})
+
 				}
 
-				name := ""
+			}
 
-				apiReq := &ApiInquiryThirdPartyByIDRequest{
-					ThirdPartyID: id,
+		} else {
+
+			apiReq := &ApiInquiryThirdPartyByStatusRequest{
+				Status: "Active",
+			}
+
+			res, err := s.ApiInquiryThirdPartyByStatus(ctx, apiReq)
+			if err != nil {
+				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			}
+
+			if res.ResponseCode == "00" {
+
+				if len(res.ResponseData) > 0 {
+
+					for _, v := range res.ResponseData {
+						result.Data = append(result.Data, &pb.ThirdParty{
+							Id:   v.ThirdPartyID,
+							Name: v.FullName,
+						})
+					}
+
 				}
-
-				res, err := s.ApiInquiryThirdPartyByID(ctx, apiReq)
-				if err != nil {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-				}
-
-				if res.ResponseCode == "00" {
-					name = res.ResponseData.FullName
-				}
-
-				result.Data = append(result.Data, &pb.ThirdParty{
-					Id:   id,
-					Name: name,
-				})
 
 			}
 
