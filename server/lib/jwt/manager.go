@@ -158,7 +158,15 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 			currentUser.StatusOrder = []string{"2", "3", "1", "6", "4", "5"}
 			currentUser.FilterMe = "status:<>0,status:<>7"
 
+		case "checker":
+			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
+			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
+
 		case "signer":
+			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
+			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		case "releaser":
 			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
 			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
 
