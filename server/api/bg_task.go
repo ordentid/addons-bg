@@ -57,7 +57,21 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 			}
 			req.Filter = req.Filter + "status:<>0,status:<>7"
 
+		case "checker":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
 		case "signer":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		case "releaser":
 			statuses = []string{"1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
 				req.Filter = req.Filter + ","
@@ -419,7 +433,21 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 			}
 			req.Filter = req.Filter + "status:<>0,status:<>7"
 
+		case "checker":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
 		case "signer":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		case "releaser":
 			statuses = []string{"1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
 				req.Filter = req.Filter + ","
@@ -791,7 +819,21 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 			}
 			req.Filter = req.Filter + "status:<>0,status:<>7"
 
+		case "checker":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
 		case "signer":
+			statuses = []string{"1", "6", "4", "5"}
+			if len(req.Filter) > 0 {
+				req.Filter = req.Filter + ","
+			}
+			req.Filter = req.Filter + "status:<>0,status:<>2,status:<>3,status:<>7"
+
+		case "releaser":
 			statuses = []string{"1", "6", "4", "5"}
 			if len(req.Filter) > 0 {
 				req.Filter = req.Filter + ","
