@@ -143,9 +143,17 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Third Party ID is required")
 	}
 
-	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	currentUser, _, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
 
 	apiReq := &ApiInquiryBenficiaryRequest{
@@ -186,7 +194,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		mappedBeneficiaryIDs := []string{}
 
 		mappingFilter := []string{
-			"company_id:" + currentUser.CompanyID,
+			"company_id:" + strconv.FormatUint(currentUser.CompanyID, 10),
 			"third_party_id:" + strconv.FormatUint(req.ThirdPartyID, 10),
 			"is_mapped:true",
 		}
@@ -253,9 +261,17 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		Data:    []*pb.ThirdParty{},
 	}
 
-	currentUser, err := s.manager.GetMeFromJWT(ctx, "")
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		ctx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	currentUser, _, err := s.manager.GetMeFromMD(ctx)
 	if err != nil {
 		return nil, err
+	}
+	if currentUser == nil {
+		return nil, s.unauthorizedError()
 	}
 
 	if currentUser.UserType == "ba" {
@@ -289,7 +305,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		filter := &db.ListFilter{}
 
 		filterMapped := []string{
-			"company_id:" + currentUser.CompanyID,
+			"company_id:" + strconv.FormatUint(currentUser.CompanyID, 10),
 		}
 		if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
 			filterMapped = append(filterMapped, "is_mapped:false")
