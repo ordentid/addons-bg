@@ -1608,7 +1608,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
-		ctx = metadata.NewOutgoingContext(context.Background(), md)
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
 
 	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
