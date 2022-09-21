@@ -42,6 +42,9 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 	taskClient := s.scvConn.TaskServiceClient()
 	companyClient := s.scvConn.CompanyServiceClient()
 
+	logrus.Println("======> Current User: ", currentUser)
+	logrus.Println("======> Authorities: ", currentUser.Authorities)
+
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
 	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
@@ -400,6 +403,9 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 
 	taskClient := s.scvConn.TaskServiceClient()
 	companyClient := s.scvConn.CompanyServiceClient()
+
+	logrus.Println("======> Current User: ", currentUser)
+	logrus.Println("======> Authorities: ", currentUser.Authorities)
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
@@ -769,6 +775,9 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 	taskClient := s.scvConn.TaskServiceClient()
 	companyClient := s.scvConn.CompanyServiceClient()
+
+	logrus.Println("======> Current User: ", currentUser)
+	logrus.Println("======> Authorities: ", currentUser.Authorities)
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
