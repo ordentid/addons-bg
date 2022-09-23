@@ -1503,8 +1503,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		customerLimitId = strconv.FormatUint(inquiryLimit.ResponseData[0].CustomerLimitId, 10)
 		customerLimitAmount = float64(inquiryLimit.ResponseData[0].AvailableAmount)
 
-		isEndOfYearBg = "1"
-
 		if nonCashAccountNo == "" || nonCashAccountAmount <= 0.0 || cashAccountNo == "" || cashAccountAmount <= 0.0 {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required field(s) when combination account is selected")
 		}
@@ -1513,6 +1511,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
 
+	}
+
+	if req.Data.Publishing.BgType == pb.BgType_GovernmentPaymentGuarantee {
+		isEndOfYearBg = "1"
 	}
 
 	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
