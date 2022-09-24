@@ -1429,6 +1429,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	publishingBranch := publishingBranchORMs.Data[0]
 
 	if req.Data.Publishing.BgType == pb.BgType_GovernmentPaymentGuarantee {
+		isEndOfYearBg = "1"
 		if req.Data.Project.GetNrkNumber() == "" {
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Empty value on required NRK Number field when Government Payment Guarantee is selected")
 		}
@@ -1511,10 +1512,6 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: %v", "Invalid Contract Guarantee Type")
 
-	}
-
-	if req.Data.Publishing.BgType == pb.BgType_GovernmentPaymentGuarantee {
-		isEndOfYearBg = "1"
 	}
 
 	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
