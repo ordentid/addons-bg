@@ -310,9 +310,9 @@ message PublishingData {
     string remark = 8;
     uint64 claimPeriod = 9;
     string lawArticle = 10;
-    uint64 openingBranchId = 11;
+    string openingBranchId = 11;
     string openingBranchName = 12 [(google.api.field_behavior) = OUTPUT_ONLY];
-    uint64 publishingBranchId = 13;
+    string publishingBranchId = 13;
     string publishingBranchName = 14 [(google.api.field_behavior) = OUTPUT_ONLY];
 }
 
