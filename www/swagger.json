@@ -3240,16 +3240,14 @@
           "type": "string"
         },
         "openingBranchId": {
-          "type": "string",
-          "format": "uint64"
+          "type": "string"
         },
         "openingBranchName": {
           "type": "string",
           "readOnly": true
         },
         "publishingBranchId": {
-          "type": "string",
-          "format": "uint64"
+          "type": "string"
         },
         "publishingBranchName": {
           "type": "string",
