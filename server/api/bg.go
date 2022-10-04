@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -1399,7 +1398,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 		} else {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			return nil, err
 		}
 	}
 
@@ -1418,7 +1417,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
 		} else {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			return nil, err
 		}
 	}
 
@@ -1514,8 +1513,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	}
 
-	openingBranchPadded := fmt.Sprintf("%05d", openingBranch.Id)
-	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranch.Id)
+	openingBranchPadded := openingBranch.Id
+	publishingBranchPadded := publishingBranch.Id
 
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
