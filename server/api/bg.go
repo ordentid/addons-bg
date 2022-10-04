@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -1513,8 +1514,18 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	}
 
-	openingBranchPadded := openingBranch.Id
-	publishingBranchPadded := publishingBranch.Id
+	openingBranchID, err := strconv.ParseInt(openingBranch.Id, 10, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	publishingBranchID, err := strconv.ParseInt(publishingBranch.Id, 10, 64)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	openingBranchPadded := fmt.Sprintf("%05d", openingBranchID)
+	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranchID)
 
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),

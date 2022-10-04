@@ -3,9 +3,11 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -14,6 +16,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
+	"gorm.io/gorm"
 )
 
 func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingRequest) (*pb.GetTaskMappingResponse, error) {
@@ -1084,6 +1087,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	taskClient := s.scvConn.TaskServiceClient()
 	companyClient := s.scvConn.CompanyServiceClient()
+	systemClient := s.scvConn.SystemServiceClient()
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -1093,7 +1097,50 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		return nil, status.Errorf(codes.NotFound, "Company not found.")
 	}
 
-	taskData, err := json.Marshal(req.Data)
+	data := req.Data
+
+	openingBranchORMs, err := systemClient.ListMdBranch(newCtx, &system_pb.ListMdBranchRequest{
+		Data: &system_pb.MdBranch{
+			Id: req.Data.Publishing.GetOpeningBranchId(),
+		},
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+		} else {
+			return nil, err
+		}
+	}
+
+	if len(openingBranchORMs.Data) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
+	}
+
+	openingBranch := openingBranchORMs.Data[0]
+
+	publishingBranchORMs, err := systemClient.ListMdBranch(newCtx, &system_pb.ListMdBranchRequest{
+		Data: &system_pb.MdBranch{
+			Id: req.Data.Publishing.GetPublishingBranchId(),
+		},
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
+		} else {
+			return nil, err
+		}
+	}
+
+	if len(publishingBranchORMs.Data) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Publishing Branch not found")
+	}
+
+	publishingBranch := publishingBranchORMs.Data[0]
+
+	data.Publishing.OpeningBranchName = openingBranch.GetDescription()
+	data.Publishing.PublishingBranchName = publishingBranch.GetDescription()
+
+	taskData, err := json.Marshal(data)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
