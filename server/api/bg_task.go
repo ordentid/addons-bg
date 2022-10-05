@@ -1267,32 +1267,34 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	case "reject":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REJECT
-		if req.GetComment() != "" {
-			if re.MatchString(req.GetComment()) {
-				logrus.Errorf(`Error ---> Invalid Reject Comment Characters: %s`, req.GetComment())
-				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
-			} else {
-				task.Data.Comment = req.GetComment()
-			}
-		} else {
-			task.Data.Comment = "-"
-		}
+		// if req.GetComment() != "" {
+		// 	if re.MatchString(req.GetComment()) {
+		// 		logrus.Errorf(`Error ---> Invalid Reject Comment Characters: %s`, req.GetComment())
+		// 		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+		// 	} else {
+		// 		task.Data.Comment = req.GetComment()
+		// 	}
+		// } else {
+		// 	task.Data.Comment = "-"
+		// }
+		task.Data.Comment = req.GetComment()
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
 
 	case "rework":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_CHANGE
-		if req.GetComment() != "" {
-			if re.MatchString(req.GetComment()) {
-				logrus.Errorf(`Error ---> Invalid Rework Comment Characters: %s`, req.GetComment())
-				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
-			} else {
-				task.Data.Comment = req.GetComment()
-			}
-		} else {
-			task.Data.Comment = "-"
-		}
+		// if req.GetComment() != "" {
+		// 	if re.MatchString(req.GetComment()) {
+		// 		logrus.Errorf(`Error ---> Invalid Rework Comment Characters: %s`, req.GetComment())
+		// 		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+		// 	} else {
+		// 		task.Data.Comment = req.GetComment()
+		// 	}
+		// } else {
+		// 	task.Data.Comment = "-"
+		// }
+		task.Data.Comment = req.GetComment()
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
