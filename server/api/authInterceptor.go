@@ -27,11 +27,11 @@ func accessibleRoles() map[string][]string {
 	// restricted api
 	return map[string][]string{
 		// HTTP - API
-		apiServicePath + "TaskCreate": {},
-		apiServicePath + "TaskList":   {},
-		apiServicePath + "TaskDetail": {},
-		apiServicePath + "DataList":   {},
-		apiServicePath + "DataDetail": {},
+		// apiServicePath + "TaskCreate": {},
+		// apiServicePath + "TaskList":   {},
+		// apiServicePath + "TaskDetail": {},
+		// apiServicePath + "DataList":   {},
+		// apiServicePath + "DataDetail": {},
 
 		// apiServicePath + "CreateAnnouncementTaskEV": {"data_entry:maker"},
 
