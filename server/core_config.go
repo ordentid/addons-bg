@@ -50,7 +50,7 @@ func initConfig() {
 			"Content-Length", "Authorization", "ResponseType",
 			"X-Requested-With", "X-Forwarded-For",
 		},
-		CorsAllowedMethods: []string{"GET", "POST", "DELETE", "PUT"},
+		CorsAllowedMethods: []string{"GET", "POST"},
 		CorsAllowedOrigins: []string{"*"},
 		JWTSecret:          getEnv("JWT_SECRET", "secret"),
 		JWTDuration:        getEnv("JWT_DURATION", "48h"),

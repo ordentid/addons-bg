@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const apiServicePath string = "/announcement.service.v1.ApiService/"
+const apiServicePath string = "/bg.service.v1.ApiService/"
 
 // Server represents the server implementation of the SW API.
 type Server struct {

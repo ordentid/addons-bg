@@ -245,7 +245,7 @@ func httpGatewayServer(port int, grpcEndpoint string) error {
 
 	// Serve the swagger-ui and swagger file
 	mux := http.NewServeMux()
-	mux.Handle("/", rmux)
+	mux.Handle("/", originMiddleware(rmux))
 
 	mux.HandleFunc("/api/bg/docs/swagger.json", serveSwagger)
 	fs := http.FileServer(http.Dir("www/swagger-ui"))
@@ -259,6 +259,44 @@ func httpGatewayServer(port int, grpcEndpoint string) error {
 
 func serveSwagger(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "www/swagger.json")
+}
+
+func originMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		origin := r.Header.Get("Origin")
+		referer := r.Header.Get("Referer")
+		envOrigin := r.Header.Get("ENV-Allow-Origin")
+		envOrigins := strings.Split(envOrigin, ",")
+		for i, v := range envOrigins {
+			envOrigins[i] = strings.TrimSpace(v)
+		}
+
+		logrus.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
+
+		if getEnv("ENV", "DEV") == "PROD" {
+			pass := false
+			if origin != "" {
+				for _, v := range envOrigins {
+					if origin == v {
+						pass = true
+					}
+				}
+			}
+			if referer != "" {
+				for _, v := range envOrigins {
+					if strings.Contains(referer, v) {
+						pass = true
+					}
+				}
+			}
+			if !pass {
+				http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+				return
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	})
 }
 
 func allowedOrigin(origin string) bool {
@@ -276,15 +314,17 @@ func cors(h http.Handler) http.Handler {
 		w.Header().Set("Strict-Transport-Security", "max-age=31536000")
 
 		if allowedOrigin(r.Header.Get("Origin")) {
-			w.Header().Set("Content-Security-Policy", "object-src 'none'; child-src 'none'; script-src 'unsafe-inline' https: http: ")
-			w.Header().Set("X-Content-Type-Options", "nosniff")
-			w.Header().Set("X-Frame-Options", "DENY")
-			w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
-			w.Header().Set("X-XSS-Protection", "1; mode=block")
-			w.Header().Set("Permissions-Policy", "geolocation=()")
-			w.Header().Set("Referrer-Policy", "no-referrer")
+			if getEnv("ENV", "DEV") != "PROD" {
+				w.Header().Set("Content-Security-Policy", "object-src 'none'; child-src 'none'; script-src 'unsafe-inline' https: http: ")
+				w.Header().Set("X-Content-Type-Options", "nosniff")
+				w.Header().Set("X-Frame-Options", "DENY")
+				w.Header().Set("X-Permitted-Cross-Domain-Policies", "none")
+				w.Header().Set("X-XSS-Protection", "1; mode=block")
+				w.Header().Set("Permissions-Policy", "geolocation=()")
+				w.Header().Set("Referrer-Policy", "no-referrer")
 
-			w.Header().Set("Access-Control-Allow-Origin", strings.Join(config.CorsAllowedOrigins, ", "))
+				w.Header().Set("Access-Control-Allow-Origin", strings.Join(config.CorsAllowedOrigins, ", "))
+			}
 			w.Header().Set("Access-Control-Allow-Methods", strings.Join(config.CorsAllowedMethods, ", "))
 			w.Header().Set("Access-Control-Allow-Headers", strings.Join(config.CorsAllowedHeaders, ", "))
 		}
