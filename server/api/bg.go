@@ -274,6 +274,8 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, s.unauthorizedError()
 	}
 
+	logrus.Println("==========> User Type:", currentUser.UserType)
+
 	if currentUser.UserType == "ba" {
 
 		apiReq := &ApiInquiryThirdPartyByStatusRequest{
@@ -316,13 +318,14 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 
 			filter.Filter = strings.Join(filterMapped, ",")
+			logrus.Println("==========> Mapping Filter:", filter.Filter)
 
 			thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			logrus.Print(thirdPartyNameList)
+			logrus.Println("==========> ThirdParty List:", thirdPartyNameList)
 
 			ids := []string{}
 
