@@ -6,7 +6,6 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.1-0.20200107013213-dc14462fd587+incompatible
 	github.com/google/go-querystring v1.1.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.3.0
-	github.com/grpc-ecosystem/grpc-gateway v1.16.0
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.3
 	github.com/infobloxopen/atlas-app-toolkit v1.1.2
 	github.com/infobloxopen/protoc-gen-gorm v1.0.1

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"regexp"
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
@@ -1195,6 +1196,8 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
+	re := regexp.MustCompile(`(<[a-z,\/]+.*?>)`)
+
 	var newCtx context.Context
 
 	md, ok := metadata.FromIncomingContext(ctx)
@@ -1264,14 +1267,32 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	case "reject":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REJECT
-		task.Data.Comment = req.GetComment()
+		if req.GetComment() != "" {
+			if re.MatchString(req.GetComment()) {
+				logrus.Errorf(`Error ---> Invalid Reject Comment Characters: %s`, req.GetComment())
+				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+			} else {
+				task.Data.Comment = req.GetComment()
+			}
+		} else {
+			task.Data.Comment = "-"
+		}
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
 
 	case "rework":
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_CHANGE
-		task.Data.Comment = req.GetComment()
+		if req.GetComment() != "" {
+			if re.MatchString(req.GetComment()) {
+				logrus.Errorf(`Error ---> Invalid Rework Comment Characters: %s`, req.GetComment())
+				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+			} else {
+				task.Data.Comment = req.GetComment()
+			}
+		} else {
+			task.Data.Comment = "-"
+		}
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
