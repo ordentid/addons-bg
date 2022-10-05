@@ -1277,6 +1277,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		} else {
 			task.Data.Comment = "-"
 		}
+		// task.Data.Comment = req.GetComment()
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
@@ -1293,6 +1294,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		} else {
 			task.Data.Comment = "-"
 		}
+		// task.Data.Comment = req.GetComment()
 		task.Data.Reasons = req.GetReasons()
 		task.Data.LastRejectedByID = currentUser.UserID
 		task.Data.LastRejectedByName = currentUser.Username
