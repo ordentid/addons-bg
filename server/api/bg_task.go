@@ -1196,7 +1196,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
-	// re := regexp.MustCompile(`(<[a-z,\/]+.*?>)`)
+	re := regexp.MustCompile(`(<[a-z,\/]+.*?>)`)
 
 	var newCtx context.Context
 
