@@ -304,16 +304,16 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 
 	} else {
 
-		if req.Type != *pb.ThirdPartyType_All.Enum() {
+		if req.Type != pb.ThirdPartyType_All {
 
 			filter := &db.ListFilter{}
 
 			filterMapped := []string{
 				"company_id:" + strconv.FormatUint(currentUser.CompanyID, 10),
 			}
-			if req.Type == *pb.ThirdPartyType_NeedMapping.Enum() {
+			if req.Type == pb.ThirdPartyType_NeedMapping {
 				filterMapped = append(filterMapped, "is_mapped:false")
-			} else if req.Type == *pb.ThirdPartyType_IsMapped.Enum() {
+			} else if req.Type == pb.ThirdPartyType_IsMapped {
 				filterMapped = append(filterMapped, "is_mapped:true")
 			}
 

@@ -1380,7 +1380,8 @@
             "enum": [
               "All",
               "NeedMapping",
-              "IsMapped"
+              "IsMapped",
+              "AllMapping"
             ],
             "default": "All"
           }
@@ -3438,7 +3439,8 @@
       "enum": [
         "All",
         "NeedMapping",
-        "IsMapped"
+        "IsMapped",
+        "AllMapping"
       ],
       "default": "All"
     },

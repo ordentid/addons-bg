@@ -16,6 +16,7 @@ enum ThirdPartyType {
     All = 0;
     NeedMapping = 1;
     IsMapped = 2;
+    AllMapping = 3;
 }
 
 enum BeneficiaryType {
