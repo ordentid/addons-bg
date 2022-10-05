@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -112,6 +113,11 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 		filter.Step = task_pb.Steps(req.Step.Number())
 	}
 
+	companyFilter := ""
+	if currentUser.UserType != "ba" {
+		companyFilter = fmt.Sprintf("data.companyID:%v", currentUser.CompanyID)
+	}
+
 	dataReq := &task_pb.ListTaskRequest{
 		Task:        filter,
 		Limit:       req.GetLimit(),
@@ -120,6 +126,7 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 		Dir:         task_pb.ListTaskRequestDirection(req.GetDir()),
 		Filter:      req.GetFilter(),
 		Query:       req.GetQuery(),
+		In:          companyFilter,
 		CustomOrder: customOrder,
 	}
 
@@ -601,6 +608,12 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if currentUser.UserType != "ba" {
+		if taskRes.Data.CompanyID != currentUser.CompanyID {
+			return nil, status.Errorf(codes.PermissionDenied, "Permission Denied")
+		}
 	}
 
 	task := &pb.Task{
