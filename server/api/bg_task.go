@@ -38,7 +38,7 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ba" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -211,7 +211,7 @@ func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappin
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ba" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -300,7 +300,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ba" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -414,7 +414,7 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ca" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -590,7 +590,7 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ca" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -601,6 +601,10 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+
+	if taskRes.Data.CompanyID != currentUser.CompanyID {
+		return nil, s.unauthorizedError()
 	}
 
 	task := &pb.Task{
@@ -679,7 +683,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "ca" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -696,6 +700,30 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 
 	name := ""
+
+	// check third party ID and beneficiary name is valid
+	BenefName, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{
+		ThirdPartyID: req.ThirdPartyID,
+		Type: pb.BeneficiaryType_AllBeneficiary,
+	})
+	if err != nil {
+		logrus.Errorln("Failed to get beneficiary name")
+		return nil, err
+	}
+
+	pass := false
+	for _, v := range BenefName.Data {
+		for _, vv := range req.Beneficiary {
+			if vv.BeneficiaryId == v.BeneficiaryId {
+				pass = true
+				break
+			}
+		}
+	}
+	if !pass {
+		logrus.Errorln("Invalid request data")
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+	}
 
 	httpReqData := ApiInquiryThirdPartyByIDRequest{
 		ThirdPartyID: req.ThirdPartyID,
@@ -800,7 +828,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "cu" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -985,7 +1013,7 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "cu" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
@@ -996,6 +1024,10 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+	}
+	
+	if taskRes.Data.CompanyID != currentUser.CompanyID {
+		return nil, s.unauthorizedError()
 	}
 
 	workflow := pb.ValidateWorkflowData{}
@@ -1081,7 +1113,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	if err != nil {
 		return nil, err
 	}
-	if currentUser == nil {
+	if currentUser == nil || currentUser.UserType != "cu" {
 		return nil, s.unauthorizedError()
 	}
 	var trailer metadata.MD
