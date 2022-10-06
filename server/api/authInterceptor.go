@@ -29,8 +29,8 @@ func accessibleRoles() map[string][]string {
 		// HTTP - API
 		apiServicePath + "CreateTaskMapping":        {"data_entry:maker"},
 		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker"},
-		apiServicePath + "CreateTransaction":        {"data_entry:maker"},
-		apiServicePath + "DeleteTransaction":        {"data_entry:maker"},
+		// apiServicePath + "CreateTransaction":        {"data_entry:maker"},
+		// apiServicePath + "DeleteTransaction":        {"data_entry:maker"},
 		apiServicePath + "CreateTaskIssuing":        {"data_entry:maker"},
 		apiServicePath + "GetTaskIssuingFile":       {"download_report:-"},
 	}
