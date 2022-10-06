@@ -27,21 +27,12 @@ func accessibleRoles() map[string][]string {
 	// restricted api
 	return map[string][]string{
 		// HTTP - API
-		// apiServicePath + "TaskCreate": {},
-		// apiServicePath + "TaskList":   {},
-		// apiServicePath + "TaskDetail": {},
-		// apiServicePath + "DataList":   {},
-		// apiServicePath + "DataDetail": {},
-
-		// apiServicePath + "CreateAnnouncementTaskEV": {"data_entry:maker"},
-
-		// RPC - API
-		// apiServicePath + "ListAnnouncementTask":    {},
-		// apiServicePath + "CreateAnnouncement":      {},
-		// apiServicePath + "CreateAnnouncementTask":  {},
-		// apiServicePath + "GetAnnouncementTaskByID": {},
-		// apiServicePath + "ListAnnouncement":        {},
-		// apiServicePath + "ListEventType":           {},
+		apiServicePath + "CreateTaskMapping":        {"data_entry:maker"},
+		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker"},
+		apiServicePath + "CreateTransaction":        {"data_entry:maker"},
+		apiServicePath + "DeleteTransaction":        {"data_entry:maker"},
+		apiServicePath + "CreateTaskIssuing":        {"data_entry:maker"},
+		apiServicePath + "GetTaskIssuingFile":       {"download_report:-"},
 	}
 }
 
