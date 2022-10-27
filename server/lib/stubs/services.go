@@ -13,15 +13,17 @@ import (
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
+	transactionPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
 	workflowPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 )
 
 type ServiceConnection struct {
-	TaskService     *grpc.ClientConn
-	AuthService     *grpc.ClientConn
-	CompanyService  *grpc.ClientConn
-	WorkflowService *grpc.ClientConn
-	SystemService   *grpc.ClientConn
+	TaskService        *grpc.ClientConn
+	AuthService        *grpc.ClientConn
+	CompanyService     *grpc.ClientConn
+	WorkflowService    *grpc.ClientConn
+	SystemService      *grpc.ClientConn
+	TransactionService *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -31,6 +33,7 @@ func InitServicesConn(
 	companyAddress string,
 	workflowAddress string,
 	systemAddress string,
+	transactionAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -88,6 +91,16 @@ func InitServicesConn(
 	}
 
 	return services
+
+	// Transaction Service
+	services.TransactionService, err = initGrpcClientConn(transactionAddress, "Transaction Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
+	return services
 }
 
 func initGrpcClientConn(address string, name string, opts ...grpc.DialOption) (*grpc.ClientConn, error) {
@@ -126,12 +139,17 @@ func (s *ServiceConnection) SystemServiceClient() systemPB.ApiServiceClient {
 	return systemPB.NewApiServiceClient(s.SystemService)
 }
 
+func (s *ServiceConnection) TransactionServiceClient() transactionPB.TransactionServiceClient {
+	return transactionPB.NewTransactionServiceClient(s.TransactionService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
 	s.CompanyService.Close()
 	s.WorkflowService.Close()
 	s.SystemService.Close()
+	s.TransactionService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -152,4 +170,8 @@ func (s *ServiceConnection) CloseWorkflowServiceConn() error {
 
 func (s *ServiceConnection) CloseSystemServiceConn() error {
 	return s.SystemService.Close()
+}
+
+func (s *ServiceConnection) CloseTransactionServiceConn() error {
+	return s.TransactionService.Close()
 }
