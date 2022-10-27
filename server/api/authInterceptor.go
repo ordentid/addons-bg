@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
+	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -107,6 +108,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 			break
 		}
 	}
+	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
 
 	accessibleRoles, ok := interceptor.accessibleRoles[method]
 	if !ok {
