@@ -27,6 +27,9 @@ func accessibleRoles() map[string][]string {
 
 	// restricted api
 	return map[string][]string{
+		// ==== Example =====
+		// apiServicePath + <api function name>: {<authority>, <productName>},
+		
 		// HTTP - API
 		apiServicePath + "CreateTaskMapping":        {"data_entry:maker", "BG Mapping"},
 		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker", "BG Mapping Digital"},
