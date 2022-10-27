@@ -109,12 +109,13 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 		}
 	}
 	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
-
+	
 	accessibleRoles, ok := interceptor.accessibleRoles[method]
 	if !ok {
 		// everyone can access
 		return nil
 	}
+	logrus.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
 
 	if len(accessibleRoles) < 1 {
 		return nil
