@@ -826,6 +826,8 @@ message CreateTaskIssuingRequest {
     uint64 taskID = 1;
     IssuingData data = 2;
     bool isDraft = 3;
+    string userName = 4;
+    string passCode = 5;
 }
 
 message CreateTaskIssuingResponse {

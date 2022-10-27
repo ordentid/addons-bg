@@ -23,11 +23,12 @@ type Config struct {
 	JWTDuration string `config:"JWT_DURATION"`
 	Dsn         string `config:"DB_DSN"`
 
-	TaskService     string `config:"TASK_SERVICE"`
-	AuthService     string `config:"AUTH_SERVICE"`
-	CompanyService  string `config:"COMPANY_SERVICE"`
-	WorkflowService string `config:"WORKFLOW_SERVICE"`
-	SystemService   string `config:"SYSTEM_SERVICE"`
+	TaskService        string `config:"TASK_SERVICE"`
+	AuthService        string `config:"AUTH_SERVICE"`
+	CompanyService     string `config:"COMPANY_SERVICE"`
+	WorkflowService    string `config:"WORKFLOW_SERVICE"`
+	SystemService      string `config:"SYSTEM_SERVICE"`
+	TransactionService string `config:"TRANSACTION_SERVICE"`
 }
 
 var config *Config
@@ -60,6 +61,7 @@ func initConfig() {
 		CompanyService:     getEnv("COMPANY_SERVICE", ":9092"),
 		WorkflowService:    getEnv("WORKFLOW_SERVICE", ":9099"),
 		SystemService:      getEnv("SYSTEM_SERVICE", ":9101"),
+		TransactionService: getEnv("TRANSACTION_SERVICE", ":9201"),
 	}
 
 }
