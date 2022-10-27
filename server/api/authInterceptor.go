@@ -28,12 +28,12 @@ func accessibleRoles() map[string][]string {
 	// restricted api
 	return map[string][]string{
 		// HTTP - API
-		apiServicePath + "CreateTaskMapping":        {"data_entry:maker"},
-		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker"},
+		apiServicePath + "CreateTaskMapping":        {"data_entry:maker", "BG Mapping"},
+		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker", "BG Mapping Digital"},
 		// apiServicePath + "CreateTransaction":        {"data_entry:maker"},
 		// apiServicePath + "DeleteTransaction":        {"data_entry:maker"},
-		apiServicePath + "CreateTaskIssuing":        {"data_entry:maker"},
-		apiServicePath + "GetTaskIssuingFile":       {"download_report:-"},
+		apiServicePath + "CreateTaskIssuing":        {"data_entry:maker", "BG Issuing"},
+		apiServicePath + "GetTaskIssuingFile":       {"download_report:-", "BG Issuing"},
 	}
 }
 
@@ -101,15 +101,6 @@ func (interceptor *AuthInterceptor) isRestricted(method string) bool {
 
 func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manager.UserClaims, method string) error {
 	// fmt.Println(md)
-	featureRoles := []string{}
-	for _, v := range claims.ProductRoles {
-		if contains([]string{"BG Mapping", "BG Mapping Digital", "BG Monitoring", "BG Issuing"}, v.ProductName) {
-			featureRoles = v.Authorities
-			break
-		}
-	}
-	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
-	
 	accessibleRoles, ok := interceptor.accessibleRoles[method]
 	if !ok {
 		// everyone can access
@@ -117,15 +108,25 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 	}
 	logrus.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
 
+	allowedAccess := accessibleRoles[0]
+	currentProduct := accessibleRoles[1]
+
+	featureRoles := []string{}
+	for _, v := range claims.ProductRoles {
+		if currentProduct == v.ProductName {
+			featureRoles = v.Authorities
+			break
+		}
+	}
+	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
+
 	if len(accessibleRoles) < 1 {
 		return nil
 	}
 
-	for _, role := range accessibleRoles {
-		for _, exist := range featureRoles {
-			if role == exist {
-				return nil
-			}
+	for _, exist := range featureRoles {
+		if allowedAccess == exist {
+			return nil
 		}
 	}
 
