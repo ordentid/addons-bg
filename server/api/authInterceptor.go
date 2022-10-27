@@ -110,6 +110,10 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 		return nil
 	}
 	logrus.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
+	
+	if len(accessibleRoles) < 1 {
+		return nil
+	}
 
 	allowedAccess := accessibleRoles[0]
 	currentProduct := accessibleRoles[1]
@@ -122,10 +126,6 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 		}
 	}
 	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
-
-	if len(accessibleRoles) < 1 {
-		return nil
-	}
 
 	for _, exist := range featureRoles {
 		if allowedAccess == exist {
