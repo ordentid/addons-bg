@@ -704,7 +704,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	// check third party ID and beneficiary name is valid
 	BenefName, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{
 		ThirdPartyID: req.ThirdPartyID,
-		Type: pb.BeneficiaryType_AllBeneficiary,
+		Type:         pb.BeneficiaryType_AllBeneficiary,
 	})
 	if err != nil {
 		logrus.Errorln("Failed to get beneficiary name")
@@ -1025,7 +1025,7 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
-	
+
 	if taskRes.Data.CompanyID != currentUser.CompanyID {
 		return nil, s.unauthorizedError()
 	}
@@ -1107,6 +1107,20 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
 		newCtx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	if req.Data.Applicant.Nik == "" || req.Data.Applicant.Email == "" ||
+		req.Data.Applicant.PhoneNumber == "" || req.Data.Applicant.NpwpNo == "" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+	}
+
+	if req.Data.Publishing.LawArticle != "Pasal 1832" {
+		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+	}
+	if req.Data.Publishing.PublishingType.String() == "SingleBranch" {
+		if req.Data.Publishing.PublishingBranchId != req.Data.Publishing.OpeningBranchId {
+			return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
+		}
 	}
 
 	currentUser, userMD, err := s.manager.GetMeFromMD(ctx)
