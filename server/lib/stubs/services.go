@@ -90,8 +90,6 @@ func InitServicesConn(
 		return nil
 	}
 
-	return services
-
 	// Transaction Service
 	services.TransactionService, err = initGrpcClientConn(transactionAddress, "Transaction Service", opts...)
 	if err != nil {
