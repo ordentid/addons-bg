@@ -10,8 +10,8 @@ import (
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
-	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	transaction_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
+	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -1139,20 +1139,22 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	transactionClient := s.scvConn.TransactionServiceClient()
 
 	// get OTP Validation
-	if req.UserName == "" || req.PassCode == "" {
-		return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-	}
-	tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-		UserName: req.UserName,
-		PassCode: req.PassCode,
-	})
-	if err != nil {
-		logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
-		return nil, err
-	}
-	if tokenValidRes.Data.ResponseCode != "00" {
-		logrus.Errorln("Hard Token Validation Fail :", err)
-		return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+	if req.IsDraft == false {
+		if req.UserName == "" || req.PassCode == "" {
+			return nil, status.Error(codes.InvalidArgument, "Invalid argument")
+		}
+		tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
+			UserName: req.UserName,
+			PassCode: req.PassCode,
+		})
+		if err != nil {
+			logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
+			return nil, err
+		}
+		if tokenValidRes.Data.ResponseCode != "00" {
+			logrus.Errorln("Hard Token Validation Fail :", err)
+			return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+		}
 	}
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
