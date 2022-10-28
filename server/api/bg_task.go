@@ -1286,7 +1286,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	transactionClient := s.scvConn.TransactionServiceClient()
 
 	// get OTP Validation
-	if strings.ToLower(req.GetAction()) == "apprrove" || strings.ToLower(req.GetAction()) == "reject"|| strings.ToLower(req.GetAction()) == "rework" {
+	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject"|| strings.ToLower(req.GetAction()) == "rework" {
 		if req.UserName == "" || req.PassCode == "" {
 			return nil, status.Error(codes.InvalidArgument, "Invalid argument")
 		}
