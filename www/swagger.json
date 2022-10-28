@@ -421,6 +421,12 @@
                 },
                 "reasons": {
                   "type": "string"
+                },
+                "userName": {
+                  "type": "string"
+                },
+                "passCode": {
+                  "type": "string"
                 }
               }
             }
