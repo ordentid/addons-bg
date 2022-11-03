@@ -1115,9 +1115,8 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 		taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
-			if !errors.Is(err, gorm.ErrRecordNotFound) {
-				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-			}
+			logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
+			return nil, err
 		}
 
 		if len(taskMappingDigitalRes.Data) > 0 {
@@ -1135,8 +1134,9 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 			taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 			if err != nil {
+				logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
-					return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+					return nil, err
 				}
 			}
 
@@ -1152,7 +1152,8 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 					_, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 					if err != nil {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+						logrus.Println("[api][DeleteTransaction] Failed when execute SetTask:", err)
+						return nil, err
 					}
 
 					if len(taskMappingDigitalData) > 0 {
@@ -1269,6 +1270,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 				taskMappingRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
+					logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
