@@ -223,6 +223,22 @@ func (this *GraphStepResponse) Validate() error {
 	}
 	return nil
 }
+func (this *GetMyPendingTaskWithWorkflowGraphRequest) Validate() error {
+	return nil
+}
+func (this *GraphStepWorkflow) Validate() error {
+	return nil
+}
+func (this *GetMyPendingTaskWithWorkflowGraphResponse) Validate() error {
+	for _, item := range this.Data {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *AssignaTypeIDRequest) Validate() error {
 	return nil
 }
@@ -261,5 +277,19 @@ func (this *UpdateTaskDataReq) Validate() error {
 	return nil
 }
 func (this *UpdateTaskDataRes) Validate() error {
+	return nil
+}
+func (this *UpdateTaskWorkflowReq) Validate() error {
+	return nil
+}
+func (this *UpdateTaskWorkflowRes) Validate() error {
+	return nil
+}
+func (this *UpdateTaskRawReq) Validate() error {
+	if this.Task != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Task); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Task", err)
+		}
+	}
 	return nil
 }
