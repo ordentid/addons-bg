@@ -1108,21 +1108,6 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		taskData := req.MappingData
 		// taskDataBak := req.MappingDataBackup
 
-		filter := []string{
-			"company_id:" + strconv.FormatUint(taskData[0].CompanyID, 10),
-			"status:<>5,status:<>7",
-		}
-
-		taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}}, grpc.Header(&userMD), grpc.Trailer(&trailer))
-		if err != nil {
-			logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
-			return nil, err
-		}
-
-		if len(taskMappingDigitalRes.Data) > 0 {
-			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Delete BG Mapping Failed: BG Mapping used to Mapping Digital BG [User]")
-		}
-
 		ids := []string{}
 
 		for _, v := range taskData {
