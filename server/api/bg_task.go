@@ -7,7 +7,6 @@ import (
 	"regexp"
 	"strings"
 
-	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
@@ -1169,22 +1168,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		return nil, status.Errorf(codes.NotFound, "Company not found.")
 	}
 
-	account, err := accountClient.ListAccountByRole(newCtx, &account_pb.ListAccountRequest{
-		Account: &account_pb.Account{
-			AccountNumber: req.Data.Account.AccountNumber,
-		},
-		Limit: 1,
-		Page:  1,
-	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
-	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskExternalTransferSingle] Unable to List Account By Role:", err)
-		return nil, err
-	}
-
-	if len(account.Data) == 0 {
-		return nil, status.Errorf(codes.NotFound, "Bad Request: Account Not Found")
-	}
-
 	data := req.Data
 
 	openingBranchORMs, err := systemClient.ListMdBranch(newCtx, &system_pb.ListMdBranchRequest{
@@ -1245,7 +1228,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		TransactionCurrency: req.Data.Project.BgCurrency,
 		CompanyID:           currentUser.CompanyID,
 		HoldingID:           currentUser.CompanyID,
-		SelectedAccountID:   account.Data[0].AccountID,
 	}
 
 	if req.IsDraft {
