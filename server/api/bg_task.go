@@ -1137,7 +1137,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	companyClient := s.svcConn.CompanyServiceClient()
 	systemClient := s.svcConn.SystemServiceClient()
 	transactionClient := s.svcConn.TransactionServiceClient()
-	accountClient := s.svcConn.AccountServiceClient()
 
 	// get OTP Validation
 	if !req.IsDraft {
