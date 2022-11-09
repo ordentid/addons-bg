@@ -22,7 +22,7 @@ const apiServicePath string = "/bg.service.v1.ApiService/"
 type Server struct {
 	provider *db.GormProvider
 	manager  *manager.JWTManager
-	scvConn  *svc.ServiceConnection
+	svcConn  *svc.ServiceConnection
 
 	pb.ApiServiceServer
 }
@@ -47,7 +47,7 @@ func New(
 	return &Server{
 		provider:         db.NewProvider(db01),
 		manager:          manager.NewJWTManager(secret, tokenDuration, svcConn),
-		scvConn:          svcConn,
+		svcConn:          svcConn,
 		ApiServiceServer: nil,
 	}
 }

@@ -9,6 +9,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/insecure"
 
+	accountPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	authPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/auth"
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
@@ -24,6 +25,7 @@ type ServiceConnection struct {
 	WorkflowService    *grpc.ClientConn
 	SystemService      *grpc.ClientConn
 	TransactionService *grpc.ClientConn
+	AccountService     *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -34,6 +36,7 @@ func InitServicesConn(
 	workflowAddress string,
 	systemAddress string,
 	transactionAddress string,
+	accountAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -98,6 +101,14 @@ func InitServicesConn(
 		return nil
 	}
 
+	// Account Service
+	services.AccountService, err = initGrpcClientConn(accountAddress, "Account Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
 	return services
 }
 
@@ -141,6 +152,10 @@ func (s *ServiceConnection) TransactionServiceClient() transactionPB.Transaction
 	return transactionPB.NewTransactionServiceClient(s.TransactionService)
 }
 
+func (s *ServiceConnection) AccountServiceClient() accountPB.ApiServiceClient {
+	return accountPB.NewApiServiceClient(s.AccountService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
@@ -148,6 +163,7 @@ func (s *ServiceConnection) CloseAllServicesConn() {
 	s.WorkflowService.Close()
 	s.SystemService.Close()
 	s.TransactionService.Close()
+	s.AccountService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -172,4 +188,8 @@ func (s *ServiceConnection) CloseSystemServiceConn() error {
 
 func (s *ServiceConnection) CloseTransactionServiceConn() error {
 	return s.TransactionService.Close()
+}
+
+func (s *ServiceConnection) CloseAccountServiceConn() error {
+	return s.AccountService.Close()
 }

@@ -75,7 +75,7 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
 
 	taskFilter := &task_pb.Task{
 		Type:      "BG Issuing",
@@ -1100,7 +1100,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
 
 	switch req.Type {
 	case "BG Mapping":
@@ -1348,7 +1348,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	}
 	var trailer metadata.MD
 
-	systemClient := s.scvConn.SystemServiceClient()
+	systemClient := s.svcConn.SystemServiceClient()
 
 	isIndividu := uint64(req.Data.Applicant.GetApplicantType().Number())
 	dateEstablished := ""
@@ -1620,7 +1620,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {

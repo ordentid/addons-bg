@@ -29,15 +29,18 @@ func (this *ValidateAccountResponse) Validate() error {
 	}
 	return nil
 }
-func (this *ValidateAccountResponse_Detail) Validate() error {
+func (this *ValidateAccountResponse_Response) Validate() error {
 	return nil
 }
-func (this *ValidateAccountResponse_Response) Validate() error {
-	if this.Detail != nil {
-		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Detail); err != nil {
-			return github_com_mwitkow_go_proto_validators.FieldError("Detail", err)
+func (this *ValidateAccountDataResponse) Validate() error {
+	if this.Data != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Data); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
 		}
 	}
+	return nil
+}
+func (this *ValidateAccountDataResponse_Response) Validate() error {
 	return nil
 }
 func (this *TempGenToken) Validate() error {

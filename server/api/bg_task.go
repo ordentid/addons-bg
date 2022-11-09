@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"strings"
 
+	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
@@ -44,8 +45,8 @@ func (s *Server) GetTaskMapping(ctx context.Context, req *pb.GetTaskMappingReque
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	logrus.Println("======> Current User: ", currentUser)
 	logrus.Println("======> Authorities: ", currentUser.Authorities)
@@ -217,8 +218,8 @@ func (s *Server) GetTaskMappingDetail(ctx context.Context, req *pb.GetTaskMappin
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	taskRes, err := taskClient.GetTaskByID(ctx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -306,8 +307,8 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: req.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -420,8 +421,8 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	logrus.Println("======> Current User: ", currentUser)
 	logrus.Println("======> Authorities: ", currentUser.Authorities)
@@ -596,8 +597,8 @@ func (s *Server) GetTaskMappingDigitalDetail(ctx context.Context, req *pb.GetTas
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Mapping Digital"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -689,8 +690,8 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -834,8 +835,8 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	logrus.Println("======> Current User: ", currentUser)
 	logrus.Println("======> Authorities: ", currentUser.Authorities)
@@ -1019,8 +1020,8 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -1133,10 +1134,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	companyClient := s.scvConn.CompanyServiceClient()
-	systemClient := s.scvConn.SystemServiceClient()
-	transactionClient := s.scvConn.TransactionServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
+	systemClient := s.svcConn.SystemServiceClient()
+	transactionClient := s.svcConn.TransactionServiceClient()
+	accountClient := s.svcConn.AccountServiceClient()
 
 	// get OTP Validation
 	if !req.IsDraft {
@@ -1165,6 +1167,22 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 	if !(len(company.GetData()) > 0) {
 		return nil, status.Errorf(codes.NotFound, "Company not found.")
+	}
+
+	account, err := accountClient.ListAccountByRole(newCtx, &account_pb.ListAccountRequest{
+		Account: &account_pb.Account{
+			AccountNumber: req.Data.Account.AccountNumber,
+		},
+		Limit: 1,
+		Page:  1,
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		logrus.Errorln("[api][func: CreateTaskExternalTransferSingle] Unable to List Account By Role:", err)
+		return nil, err
+	}
+
+	if len(account.Data) == 0 {
+		return nil, status.Errorf(codes.NotFound, "Bad Request: Account Not Found")
 	}
 
 	data := req.Data
@@ -1223,7 +1241,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 			CreatedByID: currentUser.UserID,
 			CompanyID:   currentUser.CompanyID,
 		},
-		TransactionAmount: req.Data.Project.BgAmount,
+		TransactionAmount:   req.Data.Project.BgAmount,
+		TransactionCurrency: req.Data.Project.BgCurrency,
+		CompanyID:           currentUser.CompanyID,
+		HoldingID:           currentUser.CompanyID,
+		SelectedAccountID:   account.Data[0].AccountID,
 	}
 
 	if req.IsDraft {
@@ -1283,9 +1305,9 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	}
 	var trailer metadata.MD
 
-	taskClient := s.scvConn.TaskServiceClient()
-	workflowClient := s.scvConn.WorkflowServiceClient()
-	transactionClient := s.scvConn.TransactionServiceClient()
+	taskClient := s.svcConn.TaskServiceClient()
+	workflowClient := s.svcConn.WorkflowServiceClient()
+	transactionClient := s.svcConn.TransactionServiceClient()
 
 	// get OTP Validation
 	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {

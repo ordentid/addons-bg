@@ -130,6 +130,16 @@ func (this *CreateAccountResponse) Validate() error {
 	}
 	return nil
 }
+func (this *DeleteAccountResponse) Validate() error {
+	for _, item := range this.Data {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+			}
+		}
+	}
+	return nil
+}
 func (this *Task) Validate() error {
 	if this.CreatedAt != nil {
 		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.CreatedAt); err != nil {
@@ -247,6 +257,13 @@ func (this *UpdateAccountRoleRequest) Validate() error {
 	return nil
 }
 func (this *UpdateAccountRoleResponse) Validate() error {
+	for _, item := range this.Data {
+		if item != nil {
+			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
+				return github_com_mwitkow_go_proto_validators.FieldError("Data", err)
+			}
+		}
+	}
 	return nil
 }
 func (this *FileListTemplateRequest) Validate() error {
@@ -259,5 +276,19 @@ func (this *CekAccountAvaibilityReq) Validate() error {
 	return nil
 }
 func (this *CekAccountAvaibilityRes) Validate() error {
+	return nil
+}
+func (this *CekAccountUsedRes) Validate() error {
+	return nil
+}
+func (this *AccountNotificationData) Validate() error {
+	return nil
+}
+func (this *ListAccountByRoleRPCRequest) Validate() error {
+	if this.Account != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Account); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Account", err)
+		}
+	}
 	return nil
 }

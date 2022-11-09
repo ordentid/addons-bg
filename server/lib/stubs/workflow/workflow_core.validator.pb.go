@@ -75,7 +75,15 @@ func (this *WorkflowRecords) Validate() error {
 func (this *UserData) Validate() error {
 	return nil
 }
+func (this *MakerData) Validate() error {
+	return nil
+}
 func (this *WorkflowHeader) Validate() error {
+	if this.Maker != nil {
+		if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(this.Maker); err != nil {
+			return github_com_mwitkow_go_proto_validators.FieldError("Maker", err)
+		}
+	}
 	return nil
 }
 func (this *RejectedBy) Validate() error {
