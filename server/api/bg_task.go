@@ -1289,20 +1289,22 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	// get OTP Validation
 	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
-		if req.UserName == "" || req.PassCode == "" {
-			return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-		}
-		tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-			UserName: req.UserName,
-			PassCode: req.PassCode,
-		})
-		if err != nil {
-			logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
-			return nil, err
-		}
-		if tokenValidRes.Data.ResponseCode != "00" {
-			logrus.Errorln("Hard Token Validation Fail :", err)
-			return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+		if req.UserName != "" {
+			if req.PassCode == "" {
+				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
+			}
+			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
+				UserName: req.UserName,
+				PassCode: req.PassCode,
+			})
+			if err != nil {
+				logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
+				return nil, err
+			}
+			if tokenValidRes.Data.ResponseCode != "00" {
+				logrus.Errorln("Hard Token Validation Fail :", err)
+				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+			}
 		}
 	}
 
