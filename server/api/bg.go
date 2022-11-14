@@ -1627,7 +1627,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	taskData := pb.IssuingData{}
+	var taskData *pb.IssuingData
 	json.Unmarshal([]byte(taskRes.Data.GetData()), &taskData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
@@ -1647,6 +1647,10 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 	}
 
 	taskData.ReferenceNo = res.Data.ReferenceNo
+
+	if contains([]string{"Rejected", "Cancelled"}, res.Data.ReferenceNo) {
+		taskData.ReferenceNo = "-"
+	}
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
