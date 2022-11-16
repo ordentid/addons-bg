@@ -268,15 +268,15 @@ func (this *AccountData) Validate() error {
 	return nil
 }
 
-var _regex_ApplicantData_BirthDate = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
-var _regex_ApplicantData_DateEstablished = regexp.MustCompile(`^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+var _regex_ApplicantData_BirthDate = regexp.MustCompile(`^$|^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
+var _regex_ApplicantData_DateEstablished = regexp.MustCompile(`^$|^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
 
 func (this *ApplicantData) Validate() error {
 	if !_regex_ApplicantData_BirthDate.MatchString(this.BirthDate) {
-		return github_com_mwitkow_go_proto_validators.FieldError("BirthDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.BirthDate))
+		return github_com_mwitkow_go_proto_validators.FieldError("BirthDate", fmt.Errorf(`value '%v' must be a string conforming to regex "^$|^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.BirthDate))
 	}
 	if !_regex_ApplicantData_DateEstablished.MatchString(this.DateEstablished) {
-		return github_com_mwitkow_go_proto_validators.FieldError("DateEstablished", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.DateEstablished))
+		return github_com_mwitkow_go_proto_validators.FieldError("DateEstablished", fmt.Errorf(`value '%v' must be a string conforming to regex "^$|^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.DateEstablished))
 	}
 	return nil
 }
