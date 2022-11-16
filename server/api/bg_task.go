@@ -8,8 +8,10 @@ import (
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	menu_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/menu"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
+	transaction_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
@@ -1136,28 +1138,48 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	taskClient := s.svcConn.TaskServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
 	systemClient := s.svcConn.SystemServiceClient()
-	// transactionClient := s.svcConn.TransactionServiceClient()
+	transactionClient := s.svcConn.TransactionServiceClient()
+	menuClient := s.svcConn.MenuServiceClient()
+
+	// check user have access to BG Issuing on menu license
+	menuMe, err := menuClient.GetMyMenu(newCtx, &menu_pb.GetMyMenuReq{}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, err
+	}
+	isOn := false
+	for _, menu1 := range menuMe.Data {
+		if len(menu1.Menus) > 0 {
+			for _, menu2 := range menu1.Menus {
+				if menu2.ProductName == "BG Issuing" {
+					isOn = true
+				}
+			}
+		}
+	}
+	if !isOn {
+		return nil, status.Error(codes.PermissionDenied, "Permission Denied")
+	}
 
 	// get OTP Validation
-	// if !req.IsDraft {
-	// 	if req.UserName != "" {
-	// 		if req.PassCode == "" {
-	// 			return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
-	// 		}
-	// 		tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-	// 			UserName: req.UserName,
-	// 			PassCode: req.PassCode,
-	// 		})
-	// 		if err != nil {
-	// 			logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
-	// 			return nil, err
-	// 		}
-	// 		if tokenValidRes.Data.ResponseCode != "00" {
-	// 			logrus.Errorln("Hard Token Validation Fail :", err)
-	// 			return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
-	// 		}
-	// 	}
-	// }
+	if !req.IsDraft {
+		if req.UserName != "" {
+			if req.PassCode == "" {
+				return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
+			}
+			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
+				UserName: req.UserName,
+				PassCode: req.PassCode,
+			})
+			if err != nil {
+				logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
+				return nil, err
+			}
+			if tokenValidRes.Data.ResponseCode != "00" {
+				logrus.Errorln("Hard Token Validation Fail :", err)
+				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+			}
+		}
+	}
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -1288,28 +1310,28 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 
 	taskClient := s.svcConn.TaskServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
-	// transactionClient := s.svcConn.TransactionServiceClient()
+	transactionClient := s.svcConn.TransactionServiceClient()
 
 	// get OTP Validation
-	// if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
-	// 	if req.UserName != "" {
-	// 		if req.PassCode == "" {
-	// 			return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-	// 		}
-	// 		tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-	// 			UserName: req.UserName,
-	// 			PassCode: req.PassCode,
-	// 		})
-	// 		if err != nil {
-	// 			logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
-	// 			return nil, err
-	// 		}
-	// 		if tokenValidRes.Data.ResponseCode != "00" {
-	// 			logrus.Errorln("Hard Token Validation Fail :", err)
-	// 			return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
-	// 		}
-	// 	}
-	// }
+	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
+		if req.UserName != "" {
+			if req.PassCode == "" {
+				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
+			}
+			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
+				UserName: req.UserName,
+				PassCode: req.PassCode,
+			})
+			if err != nil {
+				logrus.Errorf("[Function Hard Token Validation] Error validate hard token : %v", err)
+				return nil, err
+			}
+			if tokenValidRes.Data.ResponseCode != "00" {
+				logrus.Errorln("Hard Token Validation Fail :", err)
+				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+			}
+		}
+	}
 
 	// systemConn, err := grpc.Dial(getEnv("SYSTEM_SERVICE", ":9101"), opts...)
 	// if err != nil {

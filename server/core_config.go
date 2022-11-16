@@ -30,6 +30,7 @@ type Config struct {
 	SystemService      string `config:"SYSTEM_SERVICE"`
 	TransactionService string `config:"TRANSACTION_SERVICE"`
 	AccountService     string `config:"ACCOUNT_SERVICE"`
+	MenuService        string `config:"MENU_SERVICE"`
 }
 
 var config *Config
@@ -64,6 +65,7 @@ func initConfig() {
 		SystemService:      getEnv("SYSTEM_SERVICE", ":9101"),
 		TransactionService: getEnv("TRANSACTION_SERVICE", ":9201"),
 		AccountService:     getEnv("ACCOUNT_SERVICE", ":9093"),
+		MenuService:        getEnv("MENU_SERVICE", ":9096"),
 	}
 
 }
