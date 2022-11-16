@@ -348,10 +348,10 @@ message ApplicantData {
     string contactPerson = 8;
     string beneficiaryName = 9;
     string beneficiaryAddress = 10;
-    string npwpNo = 11;
-    string phoneNumber = 12;
-    string email = 13;
-    string nik = 14;
+    string npwpNo = 11 [(validator.field) = {msg_exists : true}];
+    string phoneNumber = 12 [(validator.field) = {msg_exists : true}];
+    string email = 13 [(validator.field) = {msg_exists : true}];
+    string nik = 14 [(validator.field) = {msg_exists : true}];
 }
 
 message ProjectData {

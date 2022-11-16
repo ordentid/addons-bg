@@ -1111,6 +1111,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		newCtx = metadata.NewOutgoingContext(context.Background(), md)
 	}
 
+	if err := req.Validate(); err != nil {
+		logrus.Errorln("Invalid request error:", err)
+		return nil, err
+	}
+
 	// if req.Data.Applicant.Nik == "" || req.Data.Applicant.Email == "" ||
 	// 	req.Data.Applicant.PhoneNumber == "" || req.Data.Applicant.NpwpNo == "" {
 	// 	return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
