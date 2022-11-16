@@ -1113,7 +1113,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	if err := req.Validate(); err != nil {
 		logrus.Errorln("Invalid request error:", err)
-		return nil, err
+		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
 	// if req.Data.Applicant.Nik == "" || req.Data.Applicant.Email == "" ||
