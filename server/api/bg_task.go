@@ -8,10 +8,11 @@ import (
 	"strings"
 
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	menu_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/menu"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
-	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	transaction_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
+	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -1138,6 +1139,26 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	companyClient := s.svcConn.CompanyServiceClient()
 	systemClient := s.svcConn.SystemServiceClient()
 	transactionClient := s.svcConn.TransactionServiceClient()
+	menuClient := s.svcConn.MenuServiceClient()
+
+	// check user have access to BG Issuing on menu license
+	menuMe, err := menuClient.GetMyMenu(newCtx, &menu_pb.GetMyMenuReq{}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		return nil, err
+	}
+	isOn := false
+	for _, menu1 := range menuMe.Data {
+		if len(menu1.Menus) > 0 {
+			for _, menu2 := range menu1.Menus {
+				if menu2.ProductName == "BG Issuing" {
+					isOn = true
+				}
+			}
+		}
+	}
+	if !isOn {
+		return nil, status.Error(codes.PermissionDenied, "Permission Denied")
+	}
 
 	// get OTP Validation
 	if !req.IsDraft {

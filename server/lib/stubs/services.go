@@ -12,6 +12,7 @@ import (
 	accountPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	authPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/auth"
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	menuPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/menu"
 	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	transactionPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
@@ -26,6 +27,7 @@ type ServiceConnection struct {
 	SystemService      *grpc.ClientConn
 	TransactionService *grpc.ClientConn
 	AccountService     *grpc.ClientConn
+	MenuService        *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -37,6 +39,7 @@ func InitServicesConn(
 	systemAddress string,
 	transactionAddress string,
 	accountAddress string,
+	menuAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -109,6 +112,14 @@ func InitServicesConn(
 		return nil
 	}
 
+	// Menu Service
+	services.MenuService, err = initGrpcClientConn(menuAddress, "Menu Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
 	return services
 }
 
@@ -156,6 +167,10 @@ func (s *ServiceConnection) AccountServiceClient() accountPB.ApiServiceClient {
 	return accountPB.NewApiServiceClient(s.AccountService)
 }
 
+func (s *ServiceConnection) MenuServiceClient() menuPB.ApiServiceClient {
+	return menuPB.NewApiServiceClient(s.MenuService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
@@ -164,6 +179,7 @@ func (s *ServiceConnection) CloseAllServicesConn() {
 	s.SystemService.Close()
 	s.TransactionService.Close()
 	s.AccountService.Close()
+	s.MenuService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -192,4 +208,8 @@ func (s *ServiceConnection) CloseTransactionServiceConn() error {
 
 func (s *ServiceConnection) CloseAccountServiceConn() error {
 	return s.AccountService.Close()
+}
+
+func (s *ServiceConnection) CloseMenuServiceConn() error {
+	return s.MenuService.Close()
 }
