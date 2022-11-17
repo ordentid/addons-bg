@@ -7,10 +7,10 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "google.golang.org/genproto/googleapis/api/annotations"
 	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "github.com/mwitkow/go-proto-validators"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	regexp "regexp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
@@ -270,7 +270,6 @@ func (this *AccountData) Validate() error {
 
 var _regex_ApplicantData_BirthDate = regexp.MustCompile(`^$|^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
 var _regex_ApplicantData_DateEstablished = regexp.MustCompile(`^$|^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$`)
-var _regex_ApplicantData_NpwpNo = regexp.MustCompile(`^[0-9]{15,16}$`)
 var _regex_ApplicantData_PhoneNumber = regexp.MustCompile(`^[\+]?[0-9]{10,15}$`)
 var _regex_ApplicantData_Email = regexp.MustCompile(`^[\w\.]+@([\w-]+\.)+[\w-]{2,4}$`)
 var _regex_ApplicantData_Nik = regexp.MustCompile(`^[0-9]{16}$`)
@@ -281,9 +280,6 @@ func (this *ApplicantData) Validate() error {
 	}
 	if !_regex_ApplicantData_DateEstablished.MatchString(this.DateEstablished) {
 		return github_com_mwitkow_go_proto_validators.FieldError("DateEstablished", fmt.Errorf(`value '%v' must be a string conforming to regex "^$|^\\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$"`, this.DateEstablished))
-	}
-	if !_regex_ApplicantData_NpwpNo.MatchString(this.NpwpNo) {
-		return github_com_mwitkow_go_proto_validators.FieldError("NpwpNo", fmt.Errorf(`value '%v' must be a string conforming to regex "^[0-9]{15,16}$"`, this.NpwpNo))
 	}
 	if !_regex_ApplicantData_PhoneNumber.MatchString(this.PhoneNumber) {
 		return github_com_mwitkow_go_proto_validators.FieldError("PhoneNumber", fmt.Errorf(`value '%v' must be a string conforming to regex "^[\\+]?[0-9]{10,15}$"`, this.PhoneNumber))
