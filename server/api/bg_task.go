@@ -1114,6 +1114,15 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		if strings.Contains(err.Error(), "invalid field Data.Applicant.PhoneNumber") {
 			return nil, status.Error(codes.InvalidArgument, "Please input correct phone number")
 		}
+		if strings.Contains(err.Error(), "invalid field Data.Applicant.Nik") {
+			return nil, status.Error(codes.InvalidArgument, "Please input correct NIK")
+		}
+		if strings.Contains(err.Error(), "invalid field Data.Applicant.NpwpNo") {
+			return nil, status.Error(codes.InvalidArgument, "Please input correct NPWP Number")
+		}
+		if strings.Contains(err.Error(), "invalid field Data.Applicant.Email") {
+			return nil, status.Error(codes.InvalidArgument, "Please input correct Email")
+		}
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
