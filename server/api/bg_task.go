@@ -1115,7 +1115,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	if req.Data.Applicant.ApplicantType == 1 {
-		if req.Data.Applicant.NpwpNo == "" || len(req.Data.Applicant.NpwpNo) != 16 {
+		if len(req.Data.Applicant.NpwpNo) != 16 {
 			return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 		}
 	}
