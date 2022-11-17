@@ -1111,6 +1111,9 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	if err := req.Validate(); err != nil {
 		logrus.Errorln("[api][func: CreateTaskIssuing] Bad Request:", err)
+		if strings.Contains(err.Error(), "invalid field Data.Applicant.PhoneNumber") {
+			return nil, status.Error(codes.InvalidArgument, "Please input correct phone number")
+		}
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
