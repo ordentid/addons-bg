@@ -71,7 +71,7 @@ func (s *Server) GetApplicantName(ctx context.Context, req *pb.GetApplicantNameR
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 	var trailer metadata.MD
 
@@ -153,7 +153,7 @@ func (s *Server) GetBeneficiaryName(ctx context.Context, req *pb.GetBeneficiaryN
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 
 	apiReq := &ApiInquiryBenficiaryRequest{
@@ -271,7 +271,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 
 	logrus.Println("==========> User Type:", currentUser.UserType)
@@ -1096,7 +1096,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 	var trailer metadata.MD
 
@@ -1344,7 +1344,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 	var trailer metadata.MD
 
@@ -1616,7 +1616,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, err
 	}
 	if currentUser == nil {
-		return nil, s.unauthorizedError()
+		return nil, s.UnauthorizedError()
 	}
 	var trailer metadata.MD
 

@@ -56,12 +56,12 @@ func (s *Server) GetManager() *manager.JWTManager {
 	return s.manager
 }
 
-func (s *Server) notImplementedError() error {
+func (s *Server) NotImplementedError() error {
 	st := status.New(codes.Unimplemented, "Not implemented yet")
 	return st.Err()
 }
 
-func (s *Server) unauthorizedError() error {
+func (s *Server) UnauthorizedError() error {
 	st := status.New(codes.Unauthenticated, "Unauthorized")
 	return st.Err()
 }
