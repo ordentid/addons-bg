@@ -422,9 +422,6 @@
                 "reasons": {
                   "type": "string"
                 },
-                "userName": {
-                  "type": "string"
-                },
                 "passCode": {
                   "type": "string"
                 }
@@ -626,9 +623,6 @@
                 },
                 "isDraft": {
                   "type": "boolean"
-                },
-                "userName": {
-                  "type": "string"
                 },
                 "passCode": {
                   "type": "string"
@@ -2216,9 +2210,6 @@
         },
         "isDraft": {
           "type": "boolean"
-        },
-        "userName": {
-          "type": "string"
         },
         "passCode": {
           "type": "string"

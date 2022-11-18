@@ -1183,7 +1183,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 				return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 			}
 			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-				UserName: req.UserName,
+				UserName: user.Data.IdToken,
 				PassCode: req.PassCode,
 			})
 			if err != nil {
@@ -1426,7 +1426,7 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
 			}
 			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-				UserName: req.UserName,
+				UserName: user.Data.IdToken,
 				PassCode: req.PassCode,
 			})
 			if err != nil {
