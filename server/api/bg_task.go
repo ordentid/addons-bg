@@ -12,6 +12,7 @@ import (
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	transaction_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
+	user_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/user"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -1147,6 +1148,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	transactionClient := s.svcConn.TransactionServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
 	menuClient := s.svcConn.MenuServiceClient()
+	userClient := s.svcConn.UserServiceClient()
 
 	// check user have access to BG Issuing on menu license
 	menuMe, err := menuClient.GetMyMenu(newCtx, &menu_pb.GetMyMenuReq{}, grpc.Header(&userMD), grpc.Trailer(&trailer))
@@ -1168,8 +1170,15 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	// get OTP Validation
+	user, err := userClient.BRICaMSsvcGetUserByUsername(newCtx, &user_pb.BricamsGetAddonsUserByUsernameReq{
+		Username: currentUser.Username,
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer)) 
+	if err != nil {
+		logrus.Errorln("[BRICAMS SVC] Error get User detail")
+		return nil, err
+	}
 	if !req.IsDraft {
-		if req.UserName != "" {
+		if user.Data.IdToken != "" {
 			if req.PassCode == "" {
 				return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 			}
@@ -1401,10 +1410,18 @@ func (s *Server) TaskAction(ctx context.Context, req *pb.TaskActionRequest) (*pb
 	taskClient := s.svcConn.TaskServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
 	transactionClient := s.svcConn.TransactionServiceClient()
+	userClient := s.svcConn.UserServiceClient()
 
 	// get OTP Validation
+	user, err := userClient.BRICaMSsvcGetUserByUsername(newCtx, &user_pb.BricamsGetAddonsUserByUsernameReq{
+		Username: currentUser.Username,
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer)) 
+	if err != nil {
+		logrus.Errorln("[BRICAMS SVC] Error get User detail")
+		return nil, err
+	}
 	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
-		if req.UserName != "" {
+		if user.Data.IdToken != "" {
 			if req.PassCode == "" {
 				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
 			}

@@ -17,6 +17,7 @@ import (
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	transactionPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
 	workflowPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
+	userPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/user"
 )
 
 type ServiceConnection struct {
@@ -28,6 +29,7 @@ type ServiceConnection struct {
 	TransactionService *grpc.ClientConn
 	AccountService     *grpc.ClientConn
 	MenuService        *grpc.ClientConn
+	UserService        *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -40,6 +42,7 @@ func InitServicesConn(
 	transactionAddress string,
 	accountAddress string,
 	menuAddress string,
+	userAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -120,6 +123,14 @@ func InitServicesConn(
 		return nil
 	}
 
+	// User Service
+	services.UserService, err = initGrpcClientConn(userAddress, "User Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
 	return services
 }
 
@@ -171,6 +182,10 @@ func (s *ServiceConnection) MenuServiceClient() menuPB.ApiServiceClient {
 	return menuPB.NewApiServiceClient(s.MenuService)
 }
 
+func (s *ServiceConnection) UserServiceClient() userPB.ApiServiceClient {
+	return userPB.NewApiServiceClient(s.UserService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
@@ -180,6 +195,7 @@ func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TransactionService.Close()
 	s.AccountService.Close()
 	s.MenuService.Close()
+	s.UserService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -212,4 +228,8 @@ func (s *ServiceConnection) CloseAccountServiceConn() error {
 
 func (s *ServiceConnection) CloseMenuServiceConn() error {
 	return s.MenuService.Close()
+}
+
+func (s *ServiceConnection) CloseUserServiceConn() error {
+	return s.UserService.Close()
 }
