@@ -94,7 +94,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		ProductID: 85,
 	}
 
-	listAccountRes, err := accountClient.ListAccountByRole(ctx, listAccountReq)
+	listAccountRes, err := accountClient.ListAccountByRole(newCtx, listAccountReq)
 	if err != nil {
 		logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get Account By Role:", err.Error())
 		return nil, err
