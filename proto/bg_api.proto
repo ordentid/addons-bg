@@ -319,7 +319,7 @@ service ApiService {
         };
     };
 
-    rpc TaskAction (TaskActionRequest) returns (TaskActionResponse) {
+    rpc TaskIssuingAction(TaskIssuingActionRequest) returns (TaskIssuingActionResponse) {
         option (google.api.http) = {
             post: "/api/bg/issuing/task/action/{taskID}"
             body: "*"

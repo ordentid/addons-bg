@@ -796,11 +796,11 @@ message GetTaskIssuingRequest {
     string filter = 7 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
 		description: "Create 'AND' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement => Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key:>=value' => 'key >= value' \n - 'key:<=value' => 'key <= value' \n - 'key1:>=value1,key2:<=value2' => 'key1 >= value1 AND key2 <= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
 	}];
-    string query = 8 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-		description: "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement => Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
+    string filterOr = 8 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Create 'OR' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement => Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key:>=value' => 'key >= value' \n - 'key:<=value' => 'key <= value' \n - 'key1:>=value1,key2:<=value2' => 'key1 >= value1 AND key2 <= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
 	}];
-    string search = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
-		description: "Search BG Issuing Task",
+    string query = 9 [(grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+		description: "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement => Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' => 'key = value' \n - 'key:%%value' => 'key LIKE %value%' \n - 'key:%!value' => 'key ILIKE %value%' \n - 'key1.nestedKey1:value' => 'key1->>nestedKey1 = value'",
 	}];
 }
 message GetTaskIssuingResponse {
@@ -826,7 +826,7 @@ message CreateTaskIssuingRequest {
     uint64 taskID = 1;
     IssuingData data = 2;
     bool isDraft = 3;
-    string passCode = 5;
+    string passCode = 4;
 }
 
 message CreateTaskIssuingResponse {
@@ -878,7 +878,7 @@ message CreateIssuingResponse {
     IssuingPortal data= 4;
 }
 
-message TaskActionRequest {
+message TaskIssuingActionRequest {
     uint64 taskID = 1;
     string action = 2 [
         (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
@@ -887,9 +887,9 @@ message TaskActionRequest {
     ];
     string comment = 3;
     string reasons = 4;
-    string passCode = 6;
+    string passCode = 5;
 }
-message TaskActionResponse {
+message TaskIssuingActionResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
