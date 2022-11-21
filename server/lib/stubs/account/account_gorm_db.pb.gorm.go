@@ -129,7 +129,6 @@ type AccountORM struct {
 	Disabled         bool       `gorm:"column:Disabled"`
 	IsOwnedByCompany string     `gorm:"column:IsOwnedByCompany;not null"`
 	ProductCode      string     `gorm:"column:ProductCode"`
-	RoleID           uint64     `gorm:"column:RoleID"`
 	StatusCode       string     `gorm:"column:StatusCode"`
 	UpdatedAt        *time.Time `gorm:"column:UpdatedAt"`
 	UpdatedByID      uint64     `gorm:"column:UpdatedByID;not null"`
@@ -163,7 +162,6 @@ func (m *Account) ToORM(ctx context.Context) (AccountORM, error) {
 	to.CreatedByID = m.CreatedByID
 	to.UpdatedByID = m.UpdatedByID
 	to.DeletedByID = m.DeletedByID
-	to.RoleID = m.RoleID
 	to.Disabled = m.Disabled
 	to.Cif = m.Cif
 	to.ProductCode = m.ProductCode
@@ -209,7 +207,6 @@ func (m *AccountORM) ToPB(ctx context.Context) (Account, error) {
 	to.CreatedByID = m.CreatedByID
 	to.UpdatedByID = m.UpdatedByID
 	to.DeletedByID = m.DeletedByID
-	to.RoleID = m.RoleID
 	to.Disabled = m.Disabled
 	to.Cif = m.Cif
 	to.ProductCode = m.ProductCode
@@ -1101,10 +1098,6 @@ func DefaultApplyFieldMaskAccount(ctx context.Context, patchee *Account, patcher
 			patchee.DeletedByID = patcher.DeletedByID
 			continue
 		}
-		if f == prefix+"RoleID" {
-			patchee.RoleID = patcher.RoleID
-			continue
-		}
 		if f == prefix+"Disabled" {
 			patchee.Disabled = patcher.Disabled
 			continue
@@ -1291,7 +1284,7 @@ func DefaultReadAccountRole(ctx context.Context, in *AccountRole, db *gorm.DB) (
 	if err != nil {
 		return nil, err
 	}
-	if ormObj.RoleID == 0 {
+	if ormObj.AccountID == 0 {
 		return nil, errors.EmptyIdError
 	}
 	if hook, ok := interface{}(&ormObj).(AccountRoleORMWithBeforeReadApplyQuery); ok {

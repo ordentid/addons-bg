@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
+	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
@@ -1745,5 +1746,45 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 	}
 
 	return result, nil
+
+}
+
+func (s *Server) FilterBuilder(ctx context.Context, currentUser manager.UserData) (status []string, filter []string, err error) {
+
+	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
+	// - Signer: 1. Pending, 2. Request for Delete, 3. Approved, 4. Rejected
+
+	if contains(currentUser.Authorities, "maker") {
+
+		status = []string{"2", "3", "1", "6", "4", "5"}
+		filter = []string{"status:<>0", "status:<>7"}
+
+	} else if contains(currentUser.Authorities, "checker") || contains(currentUser.Authorities, "signer") || contains(currentUser.Authorities, "releaser") {
+
+		if contains(currentUser.Authorities, "maker") {
+
+			status = []string{"2", "3", "1", "6", "4", "5"}
+			filter = []string{"status:<>0", "status:<>7"}
+
+		} else {
+
+			status = []string{"1", "6", "4", "5"}
+			filter = []string{"status:<>0", "status:<>2", "status:<>3", "status:<>7"}
+
+		}
+
+		if contains(currentUser.Authorities, "checker") {
+			filter = append(filter, "workflow_doc.workflow.currentStep:checker")
+		} else if contains(currentUser.Authorities, "signer") {
+			filter = append(filter, "workflow_doc.workflow.currentStep:signer")
+		}
+
+	} else {
+
+		return nil, nil, errors.New("permission denied")
+
+	}
+
+	return status, filter, nil
 
 }

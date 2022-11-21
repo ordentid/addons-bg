@@ -431,7 +431,7 @@ func local_request_ApiService_RequestDeleteAccountTask_0(ctx context.Context, ma
 
 }
 
-func request_ApiService_ValidateAccount_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ApiService_ValidateAccountHttp_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ValidateAccountRequest
 	var metadata runtime.ServerMetadata
 
@@ -443,12 +443,12 @@ func request_ApiService_ValidateAccount_0(ctx context.Context, marshaler runtime
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ValidateAccount(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ValidateAccountHttp(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ApiService_ValidateAccount_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ApiService_ValidateAccountHttp_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ValidateAccountRequest
 	var metadata runtime.ServerMetadata
 
@@ -460,12 +460,12 @@ func local_request_ApiService_ValidateAccount_0(ctx context.Context, marshaler r
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ValidateAccount(ctx, &protoReq)
+	msg, err := server.ValidateAccountHttp(ctx, &protoReq)
 	return msg, metadata, err
 
 }
 
-func request_ApiService_ValidateAccountData_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func request_ApiService_ValidateAccountDataHttp_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ValidateAccountRequest
 	var metadata runtime.ServerMetadata
 
@@ -477,12 +477,12 @@ func request_ApiService_ValidateAccountData_0(ctx context.Context, marshaler run
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := client.ValidateAccountData(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
+	msg, err := client.ValidateAccountDataHttp(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
 	return msg, metadata, err
 
 }
 
-func local_request_ApiService_ValidateAccountData_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
+func local_request_ApiService_ValidateAccountDataHttp_0(ctx context.Context, marshaler runtime.Marshaler, server ApiServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
 	var protoReq ValidateAccountRequest
 	var metadata runtime.ServerMetadata
 
@@ -494,7 +494,7 @@ func local_request_ApiService_ValidateAccountData_0(ctx context.Context, marshal
 		return nil, metadata, status.Errorf(codes.InvalidArgument, "%v", err)
 	}
 
-	msg, err := server.ValidateAccountData(ctx, &protoReq)
+	msg, err := server.ValidateAccountDataHttp(ctx, &protoReq)
 	return msg, metadata, err
 
 }
@@ -1023,18 +1023,18 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("POST", pattern_ApiService_ValidateAccount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_ValidateAccountHttp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccount", runtime.WithHTTPPathPattern("/api/account/validate"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountHttp", runtime.WithHTTPPathPattern("/api/account/validate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ValidateAccount_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ValidateAccountHttp_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1042,22 +1042,22 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_ApiService_ValidateAccount_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_ValidateAccountHttp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_ApiService_ValidateAccountData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_ValidateAccountDataHttp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		var stream runtime.ServerTransportStream
 		ctx = grpc.NewContextWithServerTransportStream(ctx, &stream)
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountData", runtime.WithHTTPPathPattern("/api/account/validate/data"))
+		rctx, err := runtime.AnnotateIncomingContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountDataHttp", runtime.WithHTTPPathPattern("/api/account/validate/data"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := local_request_ApiService_ValidateAccountData_0(rctx, inboundMarshaler, server, req, pathParams)
+		resp, md, err := local_request_ApiService_ValidateAccountDataHttp_0(rctx, inboundMarshaler, server, req, pathParams)
 		md.HeaderMD, md.TrailerMD = metadata.Join(md.HeaderMD, stream.Header()), metadata.Join(md.TrailerMD, stream.Trailer())
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
@@ -1065,7 +1065,7 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 			return
 		}
 
-		forward_ApiService_ValidateAccountData_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_ValidateAccountDataHttp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1448,43 +1448,43 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 
 	})
 
-	mux.Handle("POST", pattern_ApiService_ValidateAccount_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_ValidateAccountHttp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccount", runtime.WithHTTPPathPattern("/api/account/validate"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountHttp", runtime.WithHTTPPathPattern("/api/account/validate"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ValidateAccount_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ValidateAccountHttp_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApiService_ValidateAccount_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_ValidateAccountHttp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
-	mux.Handle("POST", pattern_ApiService_ValidateAccountData_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
+	mux.Handle("POST", pattern_ApiService_ValidateAccountDataHttp_0, func(w http.ResponseWriter, req *http.Request, pathParams map[string]string) {
 		ctx, cancel := context.WithCancel(req.Context())
 		defer cancel()
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
-		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountData", runtime.WithHTTPPathPattern("/api/account/validate/data"))
+		rctx, err := runtime.AnnotateContext(ctx, mux, req, "/account.service.v1.ApiService/ValidateAccountDataHttp", runtime.WithHTTPPathPattern("/api/account/validate/data"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
-		resp, md, err := request_ApiService_ValidateAccountData_0(rctx, inboundMarshaler, client, req, pathParams)
+		resp, md, err := request_ApiService_ValidateAccountDataHttp_0(rctx, inboundMarshaler, client, req, pathParams)
 		ctx = runtime.NewServerMetadataContext(ctx, md)
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
 		}
 
-		forward_ApiService_ValidateAccountData_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
+		forward_ApiService_ValidateAccountDataHttp_0(ctx, mux, outboundMarshaler, w, req, resp, mux.GetForwardResponseOptions()...)
 
 	})
 
@@ -1632,9 +1632,9 @@ var (
 
 	pattern_ApiService_RequestDeleteAccountTask_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "account", "task", "delete", "taskID"}, ""))
 
-	pattern_ApiService_ValidateAccount_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "account", "validate"}, ""))
+	pattern_ApiService_ValidateAccountHttp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2}, []string{"api", "account", "validate"}, ""))
 
-	pattern_ApiService_ValidateAccountData_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "account", "validate", "data"}, ""))
+	pattern_ApiService_ValidateAccountDataHttp_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3}, []string{"api", "account", "validate", "data"}, ""))
 
 	pattern_ApiService_AccountDetail_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 1, 0, 4, 1, 5, 3}, []string{"api", "account", "data", "accountID"}, ""))
 
@@ -1670,9 +1670,9 @@ var (
 
 	forward_ApiService_RequestDeleteAccountTask_0 = runtime.ForwardResponseMessage
 
-	forward_ApiService_ValidateAccount_0 = runtime.ForwardResponseMessage
+	forward_ApiService_ValidateAccountHttp_0 = runtime.ForwardResponseMessage
 
-	forward_ApiService_ValidateAccountData_0 = runtime.ForwardResponseMessage
+	forward_ApiService_ValidateAccountDataHttp_0 = runtime.ForwardResponseMessage
 
 	forward_ApiService_AccountDetail_0 = runtime.ForwardResponseMessage
 

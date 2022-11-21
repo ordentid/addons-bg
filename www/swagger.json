@@ -327,15 +327,15 @@
             "type": "string"
           },
           {
-            "name": "query",
-            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
+            "name": "filterOr",
+            "description": "Create 'OR' queries \n format: [key:value,key:value] \n example: filter=task_id:1,type:Announcement =\u003e Where task_id = 1 AND type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key:\u003e=value' =\u003e 'key \u003e= value' \n - 'key:\u003c=value' =\u003e 'key \u003c= value' \n - 'key1:\u003e=value1,key2:\u003c=value2' =\u003e 'key1 \u003e= value1 AND key2 \u003c= value2' BETWEEN EXAMPLE \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
             "in": "query",
             "required": false,
             "type": "string"
           },
           {
-            "name": "search",
-            "description": "Search BG Issuing Task",
+            "name": "query",
+            "description": "Create 'OR' queries \n format: [key1,key2,key3:value] \n example: query=name,type:Announcement =\u003e Where name = 'Announcement' OR type = 'Announcement' \n Expressions: \n - 'key:value' =\u003e 'key = value' \n - 'key:%%value' =\u003e 'key LIKE %value%' \n - 'key:%!value' =\u003e 'key ILIKE %value%' \n - 'key1.nestedKey1:value' =\u003e 'key1-\u003e\u003enestedKey1 = value'",
             "in": "query",
             "required": false,
             "type": "string"
@@ -382,12 +382,12 @@
       "post": {
         "summary": "Set action task",
         "description": "set task action. Action: 'approve', 'rework', 'reject', 'delete'",
-        "operationId": "ApiService_TaskAction",
+        "operationId": "ApiService_TaskIssuingAction",
         "responses": {
           "200": {
             "description": "A successful response.",
             "schema": {
-              "$ref": "#/definitions/v1TaskActionResponse"
+              "$ref": "#/definitions/v1TaskIssuingActionResponse"
             }
           },
           "default": {
@@ -3337,7 +3337,7 @@
         }
       }
     },
-    "v1TaskActionResponse": {
+    "v1TaskIssuingActionResponse": {
       "type": "object",
       "properties": {
         "error": {

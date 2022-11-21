@@ -47,7 +47,7 @@ type ApiServiceClient interface {
 	GetTaskIssuingDetail(ctx context.Context, in *GetTaskIssuingDetailRequest, opts ...grpc.CallOption) (*GetTaskIssuingDetailResponse, error)
 	GetTaskIssuingFile(ctx context.Context, in *GetTaskIssuingFileRequest, opts ...grpc.CallOption) (*httpbody.HttpBody, error)
 	CreateTaskIssuing(ctx context.Context, in *CreateTaskIssuingRequest, opts ...grpc.CallOption) (*CreateTaskIssuingResponse, error)
-	TaskAction(ctx context.Context, in *TaskActionRequest, opts ...grpc.CallOption) (*TaskActionResponse, error)
+	TaskIssuingAction(ctx context.Context, in *TaskIssuingActionRequest, opts ...grpc.CallOption) (*TaskIssuingActionResponse, error)
 	CreateIssuing(ctx context.Context, in *CreateIssuingRequest, opts ...grpc.CallOption) (*CreateIssuingResponse, error)
 	CheckIssuingStatus(ctx context.Context, in *CheckIssuingRequest, opts ...grpc.CallOption) (*CheckIssuingResponse, error)
 	FileUpload(ctx context.Context, in *FileUploadRequest, opts ...grpc.CallOption) (*FileUploadResponse, error)
@@ -278,9 +278,9 @@ func (c *apiServiceClient) CreateTaskIssuing(ctx context.Context, in *CreateTask
 	return out, nil
 }
 
-func (c *apiServiceClient) TaskAction(ctx context.Context, in *TaskActionRequest, opts ...grpc.CallOption) (*TaskActionResponse, error) {
-	out := new(TaskActionResponse)
-	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/TaskAction", in, out, opts...)
+func (c *apiServiceClient) TaskIssuingAction(ctx context.Context, in *TaskIssuingActionRequest, opts ...grpc.CallOption) (*TaskIssuingActionResponse, error) {
+	out := new(TaskIssuingActionResponse)
+	err := c.cc.Invoke(ctx, "/bg.service.v1.ApiService/TaskIssuingAction", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -351,7 +351,7 @@ type ApiServiceServer interface {
 	GetTaskIssuingDetail(context.Context, *GetTaskIssuingDetailRequest) (*GetTaskIssuingDetailResponse, error)
 	GetTaskIssuingFile(context.Context, *GetTaskIssuingFileRequest) (*httpbody.HttpBody, error)
 	CreateTaskIssuing(context.Context, *CreateTaskIssuingRequest) (*CreateTaskIssuingResponse, error)
-	TaskAction(context.Context, *TaskActionRequest) (*TaskActionResponse, error)
+	TaskIssuingAction(context.Context, *TaskIssuingActionRequest) (*TaskIssuingActionResponse, error)
 	CreateIssuing(context.Context, *CreateIssuingRequest) (*CreateIssuingResponse, error)
 	CheckIssuingStatus(context.Context, *CheckIssuingRequest) (*CheckIssuingResponse, error)
 	FileUpload(context.Context, *FileUploadRequest) (*FileUploadResponse, error)
@@ -435,8 +435,8 @@ func (UnimplementedApiServiceServer) GetTaskIssuingFile(context.Context, *GetTas
 func (UnimplementedApiServiceServer) CreateTaskIssuing(context.Context, *CreateTaskIssuingRequest) (*CreateTaskIssuingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateTaskIssuing not implemented")
 }
-func (UnimplementedApiServiceServer) TaskAction(context.Context, *TaskActionRequest) (*TaskActionResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method TaskAction not implemented")
+func (UnimplementedApiServiceServer) TaskIssuingAction(context.Context, *TaskIssuingActionRequest) (*TaskIssuingActionResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method TaskIssuingAction not implemented")
 }
 func (UnimplementedApiServiceServer) CreateIssuing(context.Context, *CreateIssuingRequest) (*CreateIssuingResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateIssuing not implemented")
@@ -895,20 +895,20 @@ func _ApiService_CreateTaskIssuing_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
-func _ApiService_TaskAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(TaskActionRequest)
+func _ApiService_TaskIssuingAction_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TaskIssuingActionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(ApiServiceServer).TaskAction(ctx, in)
+		return srv.(ApiServiceServer).TaskIssuingAction(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/bg.service.v1.ApiService/TaskAction",
+		FullMethod: "/bg.service.v1.ApiService/TaskIssuingAction",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ApiServiceServer).TaskAction(ctx, req.(*TaskActionRequest))
+		return srv.(ApiServiceServer).TaskIssuingAction(ctx, req.(*TaskIssuingActionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -1089,8 +1089,8 @@ var ApiService_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _ApiService_CreateTaskIssuing_Handler,
 		},
 		{
-			MethodName: "TaskAction",
-			Handler:    _ApiService_TaskAction_Handler,
+			MethodName: "TaskIssuingAction",
+			Handler:    _ApiService_TaskIssuingAction_Handler,
 		},
 		{
 			MethodName: "CreateIssuing",
