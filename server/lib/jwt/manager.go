@@ -158,15 +158,7 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 			currentUser.StatusOrder = []string{"2", "3", "1", "6", "4", "5"}
 			currentUser.FilterMe = "status:<>0,status:<>7"
 
-		case "checker":
-			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
-			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
-
 		case "signer":
-			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
-			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
-
-		case "releaser":
 			currentUser.StatusOrder = []string{"1", "6", "4", "5"}
 			currentUser.FilterMe = "status:<>0,status:<>2,status:<>3,status:<>7"
 
@@ -299,6 +291,7 @@ type UserData struct {
 	SessionID      string   `json:"sessionID"`
 	DateTime       string   `json:"dateTime"`
 	TokenCreatedAt string   `json:"tokenCreatedAt"`
+	IdToken        string   `json:"idToken"`
 }
 
 func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md metadata.MD, err error) {
@@ -352,6 +345,7 @@ func (manager *JWTManager) GetMeFromMD(ctx context.Context) (user *UserData, md 
 	user.SessionID = md["user-sessionid"][0]
 	user.DateTime = md["user-datetime"][0]
 	user.TokenCreatedAt = md["user-tokencreatedat"][0]
+	user.IdToken = md["user-idtoken"][0]
 	// user.Fcm = md["user-fcm"][0]
 
 	return user, md, nil
