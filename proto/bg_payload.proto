@@ -826,7 +826,7 @@ message CreateTaskIssuingRequest {
     uint64 taskID = 1;
     IssuingData data = 2;
     bool isDraft = 3;
-    string passCode = 5;
+    string passCode = 4;
 }
 
 message CreateTaskIssuingResponse {
@@ -887,7 +887,7 @@ message TaskActionRequest {
     ];
     string comment = 3;
     string reasons = 4;
-    string passCode = 6;
+    string passCode = 5;
 }
 message TaskActionResponse {
     bool error = 1;
