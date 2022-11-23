@@ -350,6 +350,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	transactionClient := s.svcConn.TransactionServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
 	menuClient := s.svcConn.MenuServiceClient()
+	accountClient := s.svcConn.AccountServiceClient()
 
 	// check user have access to BG Issuing on menu license
 	menuMe, err := menuClient.GetMyMenu(newCtx, &menu_pb.GetMyMenuReq{}, grpc.Header(&userMD), grpc.Trailer(&trailer))
@@ -442,6 +443,20 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	data.Publishing.OpeningBranchName = openingBranch.GetDescription()
 	data.Publishing.PublishingBranchName = publishingBranch.GetDescription()
 
+	accountRes, err := accountClient.ListAccount(newCtx, &account_pb.ListAccountRequest{
+		Account: &account_pb.Account{
+			AccountNumber: data.GetAccount().GetAccountNumber(),
+		},
+	})
+	if err != nil {
+		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListAccount:", err.Error())
+		return nil, err
+	}
+
+	if len(accountRes.GetData()) > 0 {
+		return nil, status.Errorf(codes.NotFound, "Account not found")
+	}
+
 	taskData, err := json.Marshal(data)
 	if err != nil {
 		logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal Data:", err.Error())
@@ -460,6 +475,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		TransactionCurrency: req.Data.Project.BgCurrency,
 		CompanyID:           currentUser.CompanyID,
 		HoldingID:           currentUser.CompanyID,
+		SelectedAccountID:   accountRes.GetData()[0].GetAccountID(),
 	}
 
 	if req.IsDraft {
