@@ -623,28 +623,6 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 	workflowClient := s.svcConn.WorkflowServiceClient()
 	transactionClient := s.svcConn.TransactionServiceClient()
 
-	// get OTP Validation
-	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
-		logrus.Println("[api][func: TaskAction] User Token ID:", currentUser.IdToken)
-		if currentUser.IdToken != "" {
-			if req.PassCode == "" {
-				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-			}
-			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-				UserName: currentUser.IdToken,
-				PassCode: req.PassCode,
-			})
-			if err != nil {
-				logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", err.Error())
-				return nil, err
-			}
-			if tokenValidRes.Data.ResponseCode != "00" {
-				logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
-				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
-			}
-		}
-	}
-
 	task, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: "BG Issuing", ID: req.GetTaskID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		logrus.Errorln("[api][func: SetTaskInternalTransfer] Failed when execute GetTaskByID function:", err.Error())
@@ -653,6 +631,74 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	if task.GetData() == nil {
 		return nil, status.Error(codes.NotFound, "Task not found")
+	}
+
+	logrus.Println("[api][func: TaskAction] User Token ID:", currentUser.IdToken)
+
+	if contains([]string{"approve", "reject", "rework", "delete"}, strings.ToLower(req.GetAction())) {
+		if task.GetData().GetStatus() != task_pb.Statuses_Draft {
+			if currentUser.IdToken != "" {
+				if req.PassCode == "" {
+					return nil, status.Error(codes.InvalidArgument, "Invalid argument")
+				}
+				tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
+					UserName: currentUser.IdToken,
+					PassCode: req.PassCode,
+				})
+				if err != nil {
+					logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", err.Error())
+					return nil, err
+				}
+				if tokenValidRes.Data.ResponseCode != "00" {
+					logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
+					return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
+				}
+			}
+		}
+	}
+
+	if task.GetData().GetStatus() == task_pb.Statuses_Draft {
+
+		if req.GetAction() == "delete" {
+
+			action, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{
+				TaskID:  req.GetTaskID(),
+				Action:  req.GetAction(),
+				Comment: req.GetComment(),
+				Reasons: req.GetReasons(),
+			}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+			if err != nil {
+				logrus.Errorln("[api][func: SetTaskInternalTransfer] Unable to Set Task:", err.Error())
+				return nil, err
+			}
+
+			res := &pb.TaskIssuingActionResponse{
+				Error:   false,
+				Code:    200,
+				Message: "Task Deleted",
+				Data: &pb.Task{
+					TaskID:             action.Data.TaskID,
+					Type:               action.Data.Type,
+					Status:             action.Data.Status.String(),
+					Step:               action.Data.Step.String(),
+					FeatureID:          action.Data.FeatureID,
+					LastApprovedByID:   action.Data.LastApprovedByID,
+					LastRejectedByID:   action.Data.LastRejectedByID,
+					LastApprovedByName: action.Data.LastApprovedByName,
+					LastRejectedByName: action.Data.LastRejectedByName,
+					CreatedByName:      action.Data.CreatedByName,
+					UpdatedByName:      action.Data.UpdatedByName,
+					Reasons:            action.Data.Reasons,
+					Comment:            action.Data.Comment,
+					CreatedAt:          action.Data.CreatedAt,
+					UpdatedAt:          action.Data.UpdatedAt,
+				},
+			}
+
+			return res, nil
+
+		}
+
 	}
 
 	taskData := task.GetData()
