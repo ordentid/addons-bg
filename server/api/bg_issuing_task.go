@@ -370,6 +370,8 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		return nil, status.Error(codes.PermissionDenied, "Permission Denied")
 	}
 
+	logrus.Println("[api][func: CreateTaskIssuing] User Token ID:", currentUser.IdToken)
+
 	// get OTP Validation
 	if !req.IsDraft {
 		if currentUser.IdToken != "" {
@@ -607,6 +609,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	// get OTP Validation
 	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
+		logrus.Println("[api][func: TaskAction] User Token ID:", currentUser.IdToken)
 		if currentUser.IdToken != "" {
 			if req.PassCode == "" {
 				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
