@@ -453,7 +453,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		return nil, err
 	}
 
-	if len(accountRes.GetData()) > 0 {
+	if len(accountRes.GetData()) < 1 {
 		return nil, status.Errorf(codes.NotFound, "Account not found")
 	}
 
