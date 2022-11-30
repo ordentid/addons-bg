@@ -121,10 +121,12 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 	listTaskRes, err := taskClient.GetListTask(newCtx, listTaskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
+		logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get List Task:", err.Error())
 		return nil, err
 	}
 
 	for _, v := range listTaskRes.Data {
+
 		task := &pb.Task{
 			TaskID:             v.GetTaskID(),
 			Type:               v.GetType(),
@@ -151,10 +153,11 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
-		var company *pb.Company
+		company := &pb.Company{}
 
 		companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
+			logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get List Company:", err.Error())
 			return nil, err
 		}
 
@@ -165,6 +168,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		}
 
 		if len(companyRes.GetData()) > 0 {
+
 			company = &pb.Company{
 				CompanyID:          companyRes.Data[0].GetCompanyID(),
 				HoldingID:          companyRes.Data[0].GetHoldingID(),
@@ -174,8 +178,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
 				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
 			}
-		} else {
-			return nil, status.Errorf(codes.NotFound, "Company not found.")
+
 		}
 
 		result.Data = append(result.Data, &pb.TaskIssuingData{
@@ -184,6 +187,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 			Data:     &taskData,
 			Workflow: &workflow,
 		})
+
 	}
 
 	result.Pagination = &pb.PaginationResponse{

@@ -43,7 +43,6 @@ func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingF
 	if req.FileFormat.String() == "csv" {
 		return file.TaskIssuingToCsv(ctx)
 	}
-
 	if req.FileFormat.String() == "xls" {
 		return file.TaskIssuingToXls(ctx)
 	}
