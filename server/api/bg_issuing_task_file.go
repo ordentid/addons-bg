@@ -20,6 +20,7 @@ import (
 )
 
 func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingFileRequest) (*httpbody.HttpBody, error) {
+
 	result := &httpbody.HttpBody{}
 
 	reqPB := &pb.GetTaskIssuingRequest{
@@ -33,7 +34,8 @@ func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingF
 
 	resPB, err := s.GetTaskIssuing(ctx, reqPB)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "%v", err)
+		logrus.Errorln("[api][func: GetTaskIssuingFile] Unable to Get Task Issuing:", err.Error())
+		return nil, err
 	}
 
 	file := GetTaskIssuingFileGenerator(resPB)
@@ -243,9 +245,11 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 		Data:        buf.Bytes(),
 		Extensions:  nil,
 	}, nil
+
 }
 
 func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.HttpBody, error) {
+
 	var buf bytes.Buffer
 
 	w := csv.NewWriter(&buf)
@@ -316,6 +320,7 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 }
 
 func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.HttpBody, error) {
+
 	f := excelize.NewFile()
 	sheet := f.NewSheet("Sheet1")
 
@@ -386,4 +391,5 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 		Data:        buf.Bytes(),
 		Extensions:  nil,
 	}, nil
+
 }

@@ -96,7 +96,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 	listAccountRes, err := accountClient.ListAccountByRole(newCtx, listAccountReq)
 	if err != nil {
-		logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get Account By Role:", err.Error())
+		logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get Account By Role:", err.Error())
 		return nil, err
 	}
 
@@ -121,7 +121,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 	listTaskRes, err := taskClient.GetListTask(newCtx, listTaskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get List Task:", err.Error())
+		logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get List Task:", err.Error())
 		return nil, err
 	}
 
@@ -150,6 +150,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		taskData := pb.IssuingData{}
 		err = json.Unmarshal([]byte(v.Data), &taskData)
 		if err != nil {
+			logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Unmarshal Task Data:", err.Error())
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
@@ -157,13 +158,14 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 
 		companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
-			logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get List Company:", err.Error())
+			logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get List Company:", err.Error())
 			return nil, err
 		}
 
 		workflow := pb.ValidateWorkflowData{}
 		err = json.Unmarshal([]byte(v.GetWorkflowDoc()), &workflow)
 		if err != nil {
+			logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Unmarshal Workflow Data:", err.Error())
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
