@@ -65,6 +65,9 @@ func (this *SaveTaskResponse) Validate() error {
 func (this *SetTaskRequest) Validate() error {
 	return nil
 }
+func (this *SetTaskWithWorkflowRequest) Validate() error {
+	return nil
+}
 func (this *ErrorBodyResponse) Validate() error {
 	return nil
 }

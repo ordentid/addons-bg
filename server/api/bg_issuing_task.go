@@ -117,6 +117,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		CustomOrder:     customOrder,
 		RoleIDFilter:    currentUser.RoleIDs,
 		AccountIDFilter: accountIDs,
+		UserIDFilter:    currentUser.UserID,
 	}
 
 	listTaskRes, err := taskClient.GetListTask(newCtx, listTaskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
@@ -229,6 +230,18 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 
 	taskClient := s.svcConn.TaskServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
+
+	taskListRes, err := s.GetTaskIssuing(ctx, &pb.GetTaskIssuingRequest{
+		Filter: fmt.Sprintf("task_id:%d", req.TaskID),
+	})
+	if err != nil {
+		logrus.Errorln("[api][func: GetTaskIssuingDetail] Unable to Get Task Issuing:", err.Error())
+		return nil, err
+	}
+
+	if len(taskListRes.GetData()) < 1 {
+		return nil, status.Errorf(codes.NotFound, "Task Not Found")
+	}
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {

@@ -100,7 +100,7 @@ func local_request_TaskService_SetTask_0(ctx context.Context, marshaler runtime.
 }
 
 func request_TaskService_SetTaskWithWorkflow_0(ctx context.Context, marshaler runtime.Marshaler, client TaskServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetTaskRequest
+	var protoReq SetTaskWithWorkflowRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)
@@ -134,7 +134,7 @@ func request_TaskService_SetTaskWithWorkflow_0(ctx context.Context, marshaler ru
 }
 
 func local_request_TaskService_SetTaskWithWorkflow_0(ctx context.Context, marshaler runtime.Marshaler, server TaskServiceServer, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
-	var protoReq SetTaskRequest
+	var protoReq SetTaskWithWorkflowRequest
 	var metadata runtime.ServerMetadata
 
 	newReader, berr := utilities.IOReaderFactory(req.Body)

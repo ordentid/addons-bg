@@ -1773,12 +1773,6 @@ func (s *Server) FilterBuilder(ctx context.Context, currentUser manager.UserData
 
 		}
 
-		if contains(currentUser.Authorities, "checker") {
-			filter = append(filter, "workflow_doc.workflow.currentStep:checker")
-		} else if contains(currentUser.Authorities, "signer") {
-			filter = append(filter, "workflow_doc.workflow.currentStep:signer")
-		}
-
 	} else {
 
 		return nil, nil, errors.New("permission denied")
