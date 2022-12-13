@@ -187,6 +187,7 @@ message WorkflowHeader {
     string companyName = 7;
     uint64 transactionalNumber = 10;
     uint64 workflowID = 11;
+    uint64 uaID = 12; // used account id
 }
 
 message WorkflowPayload {
@@ -198,6 +199,7 @@ message WorkflowPayload {
     bool isTransactional = 6;
     repeated uint64 currentRoleIDs = 7;
     string currentStep = 8;
+    repeated uint64 participantUserIDs = 9;
 }
 
 message ValidateWorkflowData {

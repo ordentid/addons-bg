@@ -3638,6 +3638,10 @@
         "workflowID": {
           "type": "string",
           "format": "uint64"
+        },
+        "uaID": {
+          "type": "string",
+          "format": "uint64"
         }
       }
     },
@@ -3672,6 +3676,13 @@
         },
         "currentStep": {
           "type": "string"
+        },
+        "participantUserIDs": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uint64"
+          }
         }
       }
     },
