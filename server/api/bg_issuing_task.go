@@ -48,7 +48,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	var trailer metadata.MD
 
 	taskClient := s.svcConn.TaskServiceClient()
-	accountClient := s.svcConn.AccountServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
 
 	statuses, filters, err := s.FilterBuilder(ctx, *currentUser)
@@ -57,12 +56,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	req.Filter = strings.Join([]string{strings.Join(filters, ","), req.GetFilter()}, ",")
-
-	if req.FilterOr != "" {
-		req.FilterOr = req.FilterOr + ",created_by_id:" + fmt.Sprint(currentUser.UserID)
-	} else {
-		req.FilterOr = "created_by_id:" + fmt.Sprint(currentUser.UserID)
-	}
 
 	customOrder := ""
 	if req.Sort == "status" {
@@ -79,7 +72,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	filter := &task_pb.Task{
-		Type:      "BG Issuing",
 		CompanyID: currentUser.CompanyID,
 	}
 
@@ -90,34 +82,19 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		filter.Step = task_pb.Steps(req.Step.Number())
 	}
 
-	listAccountReq := &account_pb.ListAccountRequest{
-		ProductID: 85,
-	}
-
-	listAccountRes, err := accountClient.ListAccountByRole(newCtx, listAccountReq)
-	if err != nil {
-		logrus.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get Account By Role:", err.Error())
-		return nil, err
-	}
-
-	accountIDs := []uint64{}
-	for _, v := range listAccountRes.Data {
-		accountIDs = append(accountIDs, v.AccountID)
-	}
-
 	listTaskReq := &task_pb.ListTaskRequest{
-		Task:            filter,
-		Limit:           req.GetLimit(),
-		Page:            req.GetPage(),
-		Sort:            req.GetSort(),
-		Dir:             task_pb.ListTaskRequestDirection(req.GetDir()),
-		Filter:          req.GetFilter(),
-		Query:           req.GetQuery(),
-		FilterOr:        req.GetFilterOr(),
-		CustomOrder:     customOrder,
-		RoleIDFilter:    currentUser.RoleIDs,
-		AccountIDFilter: accountIDs,
-		UserIDFilter:    currentUser.UserID,
+		Task:         filter,
+		Limit:        req.GetLimit(),
+		Page:         req.GetPage(),
+		Sort:         req.GetSort(),
+		Dir:          task_pb.ListTaskRequestDirection(req.GetDir()),
+		Filter:       req.GetFilter(),
+		Query:        req.GetQuery(),
+		FilterOr:     req.GetFilterOr(),
+		CustomOrder:  customOrder,
+		RoleIDFilter: currentUser.RoleIDs,
+		UserIDFilter: currentUser.UserID,
+		Services:     "BG Issuing",
 	}
 
 	listTaskRes, err := taskClient.GetListTask(newCtx, listTaskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
@@ -223,9 +200,11 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	if err != nil {
 		return nil, err
 	}
+
 	if currentUser == nil || currentUser.UserType != "cu" {
 		return nil, s.UnauthorizedError()
 	}
+
 	var trailer metadata.MD
 
 	taskClient := s.svcConn.TaskServiceClient()
