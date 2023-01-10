@@ -32,6 +32,7 @@ type Config struct {
 	AccountService     string `config:"ACCOUNT_SERVICE"`
 	MenuService        string `config:"MENU_SERVICE"`
 	UserService        string `config:"USER_SERVICE"`
+	CutOffService      string `config:"CUT_OFF_SERVICE"`
 }
 
 var config *Config
@@ -68,6 +69,7 @@ func initConfig() {
 		AccountService:     getEnv("ACCOUNT_SERVICE", ":9093"),
 		MenuService:        getEnv("MENU_SERVICE", ":9096"),
 		UserService:        getEnv("USER_SERVICE", ":9095"),
+		CutOffService:      getEnv("CUT_OFF_SERVICE", ":9327"),
 	}
 
 }
