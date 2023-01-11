@@ -943,7 +943,9 @@ message NotificationData {
     string USERNAME_CHECKER = 17 [json_name='USERNAME_CHECKER'];
     string USERNAME_RELEASER = 18 [json_name='USERNAME_RELEASER'];
     string MODULE = 19 [json_name='MODULE'];
+    string STATUS_SEND = 22 [json_name='STATUS_SEND'];
     string STATUS_ACTION = 23 [json_name='STATUS_ACTION'];
+    string STATUS_INFO = 24 [json_name='STATUS_INFO'];
     string REASON = 25 [json_name='REASON'];
     string COMMENT = 26 [json_name='COMMENT'];
 }

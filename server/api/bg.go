@@ -1753,7 +1753,7 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 
 }
 
-func (s *Server) NotificationRequestBuilder(ctx context.Context, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
+func (s *Server) NotificationRequestBuilder(ctx context.Context, currentStep string, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
 
 	var newCtx context.Context
 
@@ -1832,6 +1832,12 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, task *task_pb.T
 		return nil, err
 	}
 
+	// Set status info
+	statusInfo := ""
+	if currentStep != "" {
+		statusInfo = fmt.Sprintf(" on %v", strings.Title(currentStep))
+	}
+
 	notificationData := &pb.NotificationData{
 		USERNAME_MAKER:    task.CreatedByName,
 		USERNAME_APPROVER: task.LastApprovedByName,
@@ -1848,6 +1854,7 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, task *task_pb.T
 		USERNAME_RELEASER: username,
 		MODULE:            taskRes.GetData().GetType(),
 		STATUS_ACTION:     action,
+		STATUS_INFO:       statusInfo,
 		REASON:            task.Reasons,
 		COMMENT:           task.Comment,
 	}

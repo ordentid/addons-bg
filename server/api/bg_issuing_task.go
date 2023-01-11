@@ -567,7 +567,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 			notificationClient := s.svcConn.NotificationServiceClient()
 
-			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, taskRes.GetData(), "send approval", currentUser.Username, []string{})
+			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, "", taskRes.GetData(), "send approval", currentUser.Username, []string{})
 			if err != nil {
 				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute NotificationRequestbuilder:", err.Error())
 				return status.Errorf(codes.Internal, "Internal Error")
@@ -885,7 +885,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 		notificationClient := s.svcConn.NotificationServiceClient()
 
-		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, savedTask.GetData(), req.Action, currentUser.Username, []string{})
+		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, workflow.Workflow.GetCurrentStep(), savedTask.GetData(), req.Action, currentUser.Username, []string{})
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] Failed when execute NotificationRequestbuilder:", err.Error())
 			return status.Errorf(codes.Internal, "Internal Error")
