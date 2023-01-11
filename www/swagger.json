@@ -3641,7 +3641,8 @@
         },
         "uaID": {
           "type": "string",
-          "format": "uint64"
+          "format": "uint64",
+          "title": "used account id"
         }
       }
     },

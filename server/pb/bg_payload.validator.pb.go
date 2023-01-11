@@ -766,3 +766,6 @@ func (this *CheckIndividualLimitRequest) Validate() error {
 func (this *CheckIndividualLimitResponse) Validate() error {
 	return nil
 }
+func (this *NotificationData) Validate() error {
+	return nil
+}

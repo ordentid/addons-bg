@@ -563,6 +563,23 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 			logrus.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: END")
 
+			logrus.Println("[api][func: CreateTaskIssuing] Send for Approval Notification: START")
+
+			notificationClient := s.svcConn.NotificationServiceClient()
+
+			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, taskRes.GetData(), "send approval", currentUser.Username, []string{})
+			if err != nil {
+				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute NotificationRequestbuilder:", err.Error())
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
+			_, err = notificationClient.SendNotificationWorkflow(newCtx, sendNotificationPayload)
+			if err != nil {
+				logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Send Notification:", err.Error())
+			}
+
+			logrus.Println("[api][func: CreateTaskIssuing] Send for Approval Notification: DONE")
+
 			return nil
 
 		}(ctx)
@@ -862,6 +879,28 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 		logrus.Errorln("[api][func: TaskAction] Failed when execute SaveTaskWithWorkflow function:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
+
+	go func() error {
+		logrus.Println("[api][func: TaskAction] Task Action Notification: START")
+
+		notificationClient := s.svcConn.NotificationServiceClient()
+
+		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, savedTask.GetData(), req.Action, currentUser.Username, []string{})
+		if err != nil {
+			logrus.Errorln("[api][func: TaskAction] Failed when execute NotificationRequestbuilder:", err.Error())
+			return status.Errorf(codes.Internal, "Internal Error")
+		}
+
+		_, err = notificationClient.SendNotificationWorkflow(newCtx, sendNotificationPayload)
+		if err != nil {
+			logrus.Errorln("[api][func: TaskAction] Unable to Send Notification", err.Error())
+		}
+
+		logrus.Println("[api][func: TaskAction] Task Action Notification: DONE")
+
+		return nil
+
+	}()
 
 	res := &pb.TaskIssuingActionResponse{
 		Error:   false,

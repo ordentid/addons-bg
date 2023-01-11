@@ -194,7 +194,7 @@ func local_request_ApiService_GetCustomerLimit_0(ctx context.Context, marshaler 
 }
 
 var (
-	filter_ApiService_GetTaskMappingFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_ApiService_GetTaskMappingFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 2, 0, 0}, Check: []int{0, 1, 2, 2}}
 )
 
 func request_ApiService_GetTaskMappingFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -460,7 +460,7 @@ func local_request_ApiService_CreateTaskMapping_1(ctx context.Context, marshaler
 }
 
 var (
-	filter_ApiService_GetTaskMappingDigitalFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_ApiService_GetTaskMappingDigitalFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 2, 0, 0}, Check: []int{0, 1, 2, 2}}
 )
 
 func request_ApiService_GetTaskMappingDigitalFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -778,7 +778,7 @@ func local_request_ApiService_GetTransactionAttachment_0(ctx context.Context, ma
 }
 
 var (
-	filter_ApiService_GetTransactionFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_ApiService_GetTransactionFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 2, 0, 0}, Check: []int{0, 1, 2, 2}}
 )
 
 func request_ApiService_GetTransactionFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {
@@ -1098,7 +1098,7 @@ func local_request_ApiService_GetTaskIssuingDetail_0(ctx context.Context, marsha
 }
 
 var (
-	filter_ApiService_GetTaskIssuingFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 1, 0}, Check: []int{0, 1, 2}}
+	filter_ApiService_GetTaskIssuingFile_0 = &utilities.DoubleArray{Encoding: map[string]int{"fileFormat": 0}, Base: []int{1, 2, 0, 0}, Check: []int{0, 1, 2, 2}}
 )
 
 func request_ApiService_GetTaskIssuingFile_0(ctx context.Context, marshaler runtime.Marshaler, client ApiServiceClient, req *http.Request, pathParams map[string]string) (proto.Message, runtime.ServerMetadata, error) {

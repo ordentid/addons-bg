@@ -8,11 +8,15 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
+	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	notification_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/notification"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
+	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
@@ -1746,6 +1750,136 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 	}
 
 	return result, nil
+
+}
+
+func (s *Server) NotificationRequestBuilder(ctx context.Context, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
+
+	var newCtx context.Context
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
+
+	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: task.GetType(), ID: task.GetTaskID()})
+	if err != nil {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Get Task by ID:", err.Error())
+		return nil, err
+	}
+
+	if !taskRes.GetFound() {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Task not found")
+		return nil, status.Errorf(codes.NotFound, "Task not found")
+	}
+
+	task = taskRes.GetData()
+
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+
+	var workflowDoc *workflow_pb.ValidateWorkflowData
+	err = json.Unmarshal([]byte(taskRes.GetData().GetWorkflowDoc()), &workflowDoc)
+	if err != nil {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Unmarshal Workflow Data:", err)
+		return nil, err
+	}
+
+	userID := []uint64{}
+
+	eventName := ""
+	switch action {
+	case "send approval":
+		eventName = "Created new transaction and sent for approval"
+	case "send other approval":
+		eventName = "Created new transaction and sent for approval"
+	case "complete":
+		logrus.Println("Complete Task ID:", task.TaskID)
+		eventName = "Transaction request gets final approval and sent for processing"
+		userID = []uint64{task.GetCreatedByID()}
+	case "approve":
+		eventName = "Transaction request gets approval"
+		userID = []uint64{task.GetCreatedByID()}
+	case "error":
+		eventName = "Transaction error"
+		userID = []uint64{task.GetCreatedByID()}
+	case "timeout":
+		eventName = "Transaction suspended/timeout"
+		userID = []uint64{task.GetCreatedByID()}
+	case "success":
+		eventName = "Transaction success"
+		userID = []uint64{task.GetCreatedByID()}
+	case "waiting":
+		eventName = "Transaction waiting"
+		userID = []uint64{task.GetCreatedByID()}
+	case "reject":
+		eventName = "Transaction request gets rejected"
+		userID = []uint64{task.GetCreatedByID()}
+	case "rework":
+		eventName = "Transaction request sent for rework"
+		userID = []uint64{task.GetCreatedByID()}
+	default:
+		return nil, nil
+	}
+
+	company, err := companyClient.DetailCompany(newCtx, &company_pb.CompanyParams{
+		CompanyID: taskRes.GetData().GetCompanyID(),
+	})
+	if err != nil {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Detail Company:", err)
+		return nil, err
+	}
+
+	notificationData := &pb.NotificationData{
+		USERNAME_MAKER:    task.CreatedByName,
+		USERNAME_APPROVER: task.LastApprovedByName,
+		CREATED_DATETIME:  task.CreatedAt.AsTime().In(loc).Format("2006-01-02 15:04:05"),
+		CREATED_DATE:      task.CreatedAt.AsTime().In(loc).Format("2006-01-02"),
+		CREATED_TIME:      task.CreatedAt.AsTime().In(loc).Format("15:04:05"),
+		EVENT_DATETIME:    task.UpdatedAt.AsTime().In(loc).Format("2006-01-02 15:04:05"),
+		EVENT_DATE:        task.UpdatedAt.AsTime().In(loc).Format("2006-01-02"),
+		EVENT_TIME:        task.UpdatedAt.AsTime().In(loc).Format("15:04:05"),
+		TASK_ID:           strconv.FormatUint(task.GetTaskID(), 10),
+		USERNAME_REJECTOR: task.LastRejectedByName,
+		COMPANY_NAME:      company.GetCompanyName(),
+		USERNAME_CHECKER:  username,
+		USERNAME_RELEASER: username,
+		MODULE:            taskRes.GetData().GetType(),
+		STATUS_ACTION:     action,
+		REASON:            task.Reasons,
+		COMMENT:           task.Comment,
+	}
+
+	notificationDataByte, err := json.Marshal(notificationData)
+	if err != nil {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Notification Data:", err)
+		return nil, err
+	}
+
+	requestData := &notification_pb.SendNotificationWorkflowRequest{
+		ModuleID:    0,
+		EventID:     0,
+		ModuleName:  taskRes.GetData().GetType(),
+		EventName:   eventName,
+		Data:        string(notificationDataByte),
+		RoleIDs:     workflowDoc.GetWorkflow().GetCurrentRoleIDs(),
+		Step:        workflowDoc.GetWorkflow().GetCurrentStep(),
+		CompanyID:   task.GetCompanyID(),
+		UserID:      userID,
+		CustomEmail: emails,
+	}
+
+	requestDataByte, err := json.Marshal(requestData)
+	if err != nil {
+		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Send Notification Workflow Request Data:", err)
+		return nil, err
+	}
+
+	logrus.Println("[api][func: NotificationRequestBuilder] Send Notification Workflow Request Data:", string(requestDataByte))
+
+	return requestData, nil
 
 }
 

@@ -927,3 +927,23 @@ message CheckIndividualLimitResponse {
     string message = 3;
     bool hasLimit = 4;
 }
+
+message NotificationData {
+    string USERNAME_MAKER = 1 [json_name='USERNAME_MAKER'];
+    string USERNAME_APPROVER = 2 [json_name='USERNAME_APPROVER'];
+    string CREATED_DATETIME = 3 [json_name='CREATED_DATETIME'];
+    string CREATED_DATE = 4 [json_name='CREATED_DATE'];
+    string CREATED_TIME = 5 [json_name='CREATED_TIME'];
+    string EVENT_DATETIME = 6 [json_name='EVENT_DATETIME'];
+    string EVENT_DATE = 7 [json_name='EVENT_DATE'];
+    string EVENT_TIME = 8 [json_name='EVENT_TIME'];
+    string TASK_ID = 14 [json_name='TASK_ID'];
+    string USERNAME_REJECTOR = 15 [json_name='USERNAME_REJECTOR'];
+    string COMPANY_NAME = 16 [json_name='COMPANY_NAME'];
+    string USERNAME_CHECKER = 17 [json_name='USERNAME_CHECKER'];
+    string USERNAME_RELEASER = 18 [json_name='USERNAME_RELEASER'];
+    string MODULE = 19 [json_name='MODULE'];
+    string STATUS_ACTION = 23 [json_name='STATUS_ACTION'];
+    string REASON = 25 [json_name='REASON'];
+    string COMMENT = 26 [json_name='COMMENT'];
+}
