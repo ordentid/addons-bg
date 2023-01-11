@@ -203,6 +203,7 @@ func grpcServer(port int) error {
 		config.MenuService,
 		config.UserService,
 		config.CutOffService,
+		config.NotificationService,
 	)
 	defer svcConn.CloseAllServicesConn()
 

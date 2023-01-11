@@ -23,16 +23,17 @@ type Config struct {
 	JWTDuration string `config:"JWT_DURATION"`
 	Dsn         string `config:"DB_DSN"`
 
-	TaskService        string `config:"TASK_SERVICE"`
-	AuthService        string `config:"AUTH_SERVICE"`
-	CompanyService     string `config:"COMPANY_SERVICE"`
-	WorkflowService    string `config:"WORKFLOW_SERVICE"`
-	SystemService      string `config:"SYSTEM_SERVICE"`
-	TransactionService string `config:"TRANSACTION_SERVICE"`
-	AccountService     string `config:"ACCOUNT_SERVICE"`
-	MenuService        string `config:"MENU_SERVICE"`
-	UserService        string `config:"USER_SERVICE"`
-	CutOffService      string `config:"CUT_OFF_SERVICE"`
+	TaskService         string `config:"TASK_SERVICE"`
+	AuthService         string `config:"AUTH_SERVICE"`
+	CompanyService      string `config:"COMPANY_SERVICE"`
+	WorkflowService     string `config:"WORKFLOW_SERVICE"`
+	SystemService       string `config:"SYSTEM_SERVICE"`
+	TransactionService  string `config:"TRANSACTION_SERVICE"`
+	AccountService      string `config:"ACCOUNT_SERVICE"`
+	MenuService         string `config:"MENU_SERVICE"`
+	UserService         string `config:"USER_SERVICE"`
+	CutOffService       string `config:"CUT_OFF_SERVICE"`
+	NotificationService string `config:"NOTIFICATION_SERVICE"`
 }
 
 var config *Config
@@ -55,21 +56,22 @@ func initConfig() {
 			"Content-Length", "Authorization", "ResponseType",
 			"X-Requested-With", "X-Forwarded-For",
 		},
-		CorsAllowedMethods: []string{"GET", "POST"},
-		CorsAllowedOrigins: []string{"*"},
-		JWTSecret:          getEnv("JWT_SECRET", "secret"),
-		JWTDuration:        getEnv("JWT_DURATION", "48h"),
-		Dsn:                getEnv("DB_DSN", ""),
-		TaskService:        getEnv("TASK_SERVICE", ":9090"),
-		AuthService:        getEnv("AUTH_SERVICE", ":9105"),
-		CompanyService:     getEnv("COMPANY_SERVICE", ":9092"),
-		WorkflowService:    getEnv("WORKFLOW_SERVICE", ":9099"),
-		SystemService:      getEnv("SYSTEM_SERVICE", ":9101"),
-		TransactionService: getEnv("TRANSACTION_SERVICE", ":9201"),
-		AccountService:     getEnv("ACCOUNT_SERVICE", ":9093"),
-		MenuService:        getEnv("MENU_SERVICE", ":9096"),
-		UserService:        getEnv("USER_SERVICE", ":9095"),
-		CutOffService:      getEnv("CUT_OFF_SERVICE", ":9327"),
+		CorsAllowedMethods:  []string{"GET", "POST"},
+		CorsAllowedOrigins:  []string{"*"},
+		JWTSecret:           getEnv("JWT_SECRET", "secret"),
+		JWTDuration:         getEnv("JWT_DURATION", "48h"),
+		Dsn:                 getEnv("DB_DSN", ""),
+		TaskService:         getEnv("TASK_SERVICE", ":9090"),
+		AuthService:         getEnv("AUTH_SERVICE", ":9105"),
+		CompanyService:      getEnv("COMPANY_SERVICE", ":9092"),
+		WorkflowService:     getEnv("WORKFLOW_SERVICE", ":9099"),
+		SystemService:       getEnv("SYSTEM_SERVICE", ":9101"),
+		TransactionService:  getEnv("TRANSACTION_SERVICE", ":9201"),
+		AccountService:      getEnv("ACCOUNT_SERVICE", ":9093"),
+		MenuService:         getEnv("MENU_SERVICE", ":9096"),
+		UserService:         getEnv("USER_SERVICE", ":9095"),
+		CutOffService:       getEnv("CUT_OFF_SERVICE", ":9327"),
+		NotificationService: getEnv("NOTIFICATION_SERVICE", ":9094"),
 	}
 
 }

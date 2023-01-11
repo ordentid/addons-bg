@@ -14,6 +14,7 @@ import (
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	cutOffPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/cut_off"
 	menuPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/menu"
+	notificationPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/notification"
 	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	transactionPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
@@ -22,16 +23,17 @@ import (
 )
 
 type ServiceConnection struct {
-	TaskService        *grpc.ClientConn
-	AuthService        *grpc.ClientConn
-	CompanyService     *grpc.ClientConn
-	WorkflowService    *grpc.ClientConn
-	SystemService      *grpc.ClientConn
-	TransactionService *grpc.ClientConn
-	AccountService     *grpc.ClientConn
-	MenuService        *grpc.ClientConn
-	UserService        *grpc.ClientConn
-	CutOffService      *grpc.ClientConn
+	TaskService         *grpc.ClientConn
+	AuthService         *grpc.ClientConn
+	CompanyService      *grpc.ClientConn
+	WorkflowService     *grpc.ClientConn
+	SystemService       *grpc.ClientConn
+	TransactionService  *grpc.ClientConn
+	AccountService      *grpc.ClientConn
+	MenuService         *grpc.ClientConn
+	UserService         *grpc.ClientConn
+	CutOffService       *grpc.ClientConn
+	NotificationService *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -46,6 +48,7 @@ func InitServicesConn(
 	menuAddress string,
 	userAddress string,
 	cutOffAddress string,
+	notificationAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
@@ -142,6 +145,14 @@ func InitServicesConn(
 		return nil
 	}
 
+	// Notification Service
+	services.NotificationService, err = initGrpcClientConn(notificationAddress, "Notification Service", opts...)
+	if err != nil {
+		logrus.Fatalf("%v", err)
+		os.Exit(1)
+		return nil
+	}
+
 	return services
 }
 
@@ -201,6 +212,10 @@ func (s *ServiceConnection) CutOffServiceClient() cutOffPB.CutOffServiceClient {
 	return cutOffPB.NewCutOffServiceClient(s.CutOffService)
 }
 
+func (s *ServiceConnection) NotificationServiceClient() notificationPB.ApiServiceClient {
+	return notificationPB.NewApiServiceClient(s.NotificationService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
@@ -212,6 +227,7 @@ func (s *ServiceConnection) CloseAllServicesConn() {
 	s.MenuService.Close()
 	s.UserService.Close()
 	s.CutOffService.Close()
+	s.NotificationService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -252,4 +268,8 @@ func (s *ServiceConnection) CloseUserServiceConn() error {
 
 func (s *ServiceConnection) CloseCutOffServiceConn() error {
 	return s.CutOffService.Close()
+}
+
+func (s *ServiceConnection) CloseNotificationServiceConn() error {
+	return s.NotificationService.Close()
 }
