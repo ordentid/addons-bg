@@ -561,6 +561,12 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 	}
 	defer httpRes.Body.Close()
 
+	httpResHeader, err := json.Marshal(httpRes.Header)
+	if err != nil {
+		return nil, err
+	}
+	logrus.Println("Response:", string(httpResHeader))
+
 	var httpResData ApiBgIssuingResponse
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
 	if err != nil {
