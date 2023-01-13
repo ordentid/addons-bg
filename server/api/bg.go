@@ -1753,7 +1753,7 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 
 }
 
-func (s *Server) NotificationRequestBuilder(ctx context.Context, currentStep string, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
+func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
 
 	var newCtx context.Context
 
@@ -1796,7 +1796,6 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, currentStep str
 	case "send other approval":
 		eventName = "Created new transaction and sent for approval"
 	case "complete":
-		logrus.Println("Complete Task ID:", task.TaskID)
 		eventName = "Transaction request gets final approval and sent for processing"
 		userID = []uint64{task.GetCreatedByID()}
 	case "approve":
@@ -1834,8 +1833,8 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, currentStep str
 
 	// Set status info
 	statusInfo := ""
-	if currentStep != "" {
-		statusInfo = fmt.Sprintf(" on %v", strings.Title(currentStep))
+	if nextStep != "" {
+		statusInfo = fmt.Sprintf(" on %v", strings.Title(nextStep))
 	}
 
 	notificationData := &pb.NotificationData{
@@ -1855,6 +1854,7 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, currentStep str
 		MODULE:            taskRes.GetData().GetType(),
 		STATUS_ACTION:     action,
 		STATUS_INFO:       statusInfo,
+		STATUS_SEND:       "Needs Approval",
 		REASON:            task.Reasons,
 		COMMENT:           task.Comment,
 	}
