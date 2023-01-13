@@ -895,7 +895,13 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 		notificationClient := s.svcConn.NotificationServiceClient()
 
-		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, currentStep, savedTask.GetData(), req.Action, currentUser.Username, []string{})
+		// replace notificationAction from req.action to "complete" if currentStep is "complete"
+		notificationAction := strings.ToLower(req.GetAction())
+		if currentStep == "complete" {
+			notificationAction = "complete"
+		}
+
+		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, currentStep, savedTask.GetData(), notificationAction, currentUser.Username, []string{})
 		if err != nil {
 			logrus.Errorln("[api][func: TaskAction] Failed when execute NotificationRequestbuilder:", err.Error())
 			return status.Errorf(codes.Internal, "Internal Error")
