@@ -508,6 +508,14 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 			}
 			var trailer metadata.MD
 
+			var workflow *workflow_pb.ValidateWorkflowData
+			err = json.Unmarshal([]byte(taskRes.Data.WorkflowDoc), &workflow)
+			if err != nil {
+				logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Unmarshal Data:", err)
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+			nextStep := workflow.Workflow.CurrentStep
+
 			companyWorkflow, err := workflowClient.GetCompanyWorkflow(newCtx, &workflow_pb.GetCompanyWorkflowRequest{
 				CompanyID: currentUser.CompanyID,
 			})
@@ -559,6 +567,8 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 					return err
 				}
 
+				nextStep = " "
+
 			}
 
 			logrus.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: END")
@@ -567,7 +577,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 			notificationClient := s.svcConn.NotificationServiceClient()
 
-			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, "", taskRes.GetData(), "send approval", currentUser.Username, []string{})
+			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, nextStep, taskRes.GetData(), "send approval", currentUser.Username, []string{})
 			if err != nil {
 				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute NotificationRequestbuilder:", err.Error())
 				return status.Errorf(codes.Internal, "Internal Error")
