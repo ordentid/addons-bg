@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
@@ -483,6 +484,27 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute SaveTaskWithData:", err.Error())
+		return nil, err
+	}
+
+	updateTaskData := req.Data
+	updateTaskData.TransactionID = "BGI" + strconv.FormatUint(taskRes.Data.TaskID, 10)
+
+	updateData, err := json.Marshal(updateTaskData)
+	if err != nil {
+		logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal BG Issuing Data:", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	logrus.Println("[api][func: CreateTaskIssuing] Task Data:", string(updateData))
+
+	_, err = taskClient.UpdateTaskData(newCtx, &task_pb.UpdateTaskDataReq{
+		Type:   "BG Issuing",
+		TaskID: taskRes.Data.TaskID,
+		Data:   string(updateData),
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Update Task Data:", err)
 		return nil, err
 	}
 

@@ -286,6 +286,7 @@ message IssuingData {
     ApplicantData applicant = 6;
     ProjectData project = 7;
     DocumentData document = 8;
+    string transactionID = 9;
 }
 
 message PublishingData {

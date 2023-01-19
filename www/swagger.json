@@ -2942,6 +2942,9 @@
         },
         "document": {
           "$ref": "#/definitions/v1DocumentData"
+        },
+        "transactionID": {
+          "type": "string"
         }
       }
     },
