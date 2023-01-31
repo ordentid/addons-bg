@@ -124,7 +124,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 
 	userClaims, err := manager.Verify(accessToken)
 	if err != nil {
-		logrus.Errorf("[api.task][func:GetMeFromJWT][01] failed to verify token", err)
 		return nil, status.Errorf(codes.Unauthenticated, "Session expired")
 	}
 

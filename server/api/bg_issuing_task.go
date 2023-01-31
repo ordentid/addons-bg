@@ -381,11 +381,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 				PassCode: req.PassCode,
 			})
 			if err != nil {
-				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute BRIGateHardTokenValidation:", err.Error())
+				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when validate OTP", err.Error())
 				return nil, err
 			}
 			if tokenValidRes.Data.ResponseCode != "00" {
-				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
+				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when validate OTP", tokenValidRes.Data.ResponseMessage)
 				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
 			}
 		}
@@ -689,11 +689,11 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 					PassCode: req.PassCode,
 				})
 				if err != nil {
-					logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", err.Error())
+					logrus.Errorln("[api][func: TaskAction] Failed when validate OTP:", err.Error())
 					return nil, err
 				}
 				if tokenValidRes.Data.ResponseCode != "00" {
-					logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
+					logrus.Errorln("[api][func: TaskAction] Failed when validate OTP:", tokenValidRes.Data.ResponseMessage)
 					return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
 				}
 			}

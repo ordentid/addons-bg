@@ -13,7 +13,7 @@ func migrationStart() {
 		&pb.MappingORM{},
 		&pb.CurrencyORM{},
 	); err != nil {
-		logrus.Fatalf("Migration failed: %v", err)
+		logrus.Errorln("Migration failed: %v", err)
 		os.Exit(1)
 	}
 }

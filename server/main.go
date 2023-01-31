@@ -70,7 +70,7 @@ func grpcServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(port); err != nil {
-					logrus.Fatalf("failed RPC serve: %v", err)
+					logrus.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
@@ -110,7 +110,7 @@ func gatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := httpGatewayServer(port, grpcEndpoint); err != nil {
-					logrus.Fatalf("failed JSON Gateway serve: %v", err)
+					logrus.Errorln("Internal error: %v", err)
 				}
 			}()
 
@@ -153,13 +153,13 @@ func grpcGatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(rpcPort); err != nil {
-					logrus.Fatalf("failed RPC serve: %v", err)
+					logrus.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
 			go func() {
 				if err := httpGatewayServer(httpPort, grpcEndpoint); err != nil {
-					logrus.Fatalf("failed JSON Gateway serve: %v", err)
+					logrus.Errorln("failed httpGateway: %v", err)
 				}
 			}()
 

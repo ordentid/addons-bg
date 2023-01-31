@@ -55,7 +55,7 @@ func InitServicesConn(
 	if certFile != "" {
 		creds, err = credentials.NewClientTLSFromFile(certFile, "")
 		if err != nil {
-			logrus.Fatalf("Create New TLS Failed")
+			logrus.Errorln("Create New TLS Failed")
 		}
 	} else {
 		creds = insecure.NewCredentials()
@@ -68,7 +68,7 @@ func InitServicesConn(
 	// Task Service
 	services.TaskService, err = initGrpcClientConn(taskAddres, "Task Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Task Grpc Client Failed")
+		logrus.Errorln("Init Task Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -76,7 +76,7 @@ func InitServicesConn(
 	// Auth Service
 	services.AuthService, err = initGrpcClientConn(authAddress, "Auth Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Auth Grpc Client Failed")
+		logrus.Errorln("Init Auth Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -84,7 +84,7 @@ func InitServicesConn(
 	// Company Service
 	services.CompanyService, err = initGrpcClientConn(companyAddress, "Company Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Company Grpc Client Failed")
+		logrus.Errorln("Init Company Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -92,7 +92,7 @@ func InitServicesConn(
 	// Workflow Service
 	services.WorkflowService, err = initGrpcClientConn(workflowAddress, "Workflow Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Workflow Grpc Client Failed")
+		logrus.Errorln("Init Workflow Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -100,7 +100,7 @@ func InitServicesConn(
 	// System Service
 	services.SystemService, err = initGrpcClientConn(systemAddress, "System Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init System Grpc Client Failed")
+		logrus.Errorln("Init System Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -108,7 +108,7 @@ func InitServicesConn(
 	// Transaction Service
 	services.TransactionService, err = initGrpcClientConn(transactionAddress, "Transaction Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Transaction Grpc Client Failed")
+		logrus.Errorln("Init Transaction Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -116,7 +116,7 @@ func InitServicesConn(
 	// Account Service
 	services.AccountService, err = initGrpcClientConn(accountAddress, "Account Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Account Grpc Client Failed")
+		logrus.Errorln("Init Account Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -124,7 +124,7 @@ func InitServicesConn(
 	// Menu Service
 	services.MenuService, err = initGrpcClientConn(menuAddress, "Menu Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Menu Grpc Client Failed")
+		logrus.Errorln("Init Menu Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -132,7 +132,7 @@ func InitServicesConn(
 	// User Service
 	services.UserService, err = initGrpcClientConn(userAddress, "User Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init User Grpc Client Failed")
+		logrus.Errorln("Init User Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -140,7 +140,7 @@ func InitServicesConn(
 	// Cut Off Service
 	services.CutOffService, err = initGrpcClientConn(cutOffAddress, "Cut Off Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Cutoff Grpc Client Failed")
+		logrus.Errorln("Init Cutoff Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -148,7 +148,7 @@ func InitServicesConn(
 	// Notification Service
 	services.NotificationService, err = initGrpcClientConn(notificationAddress, "Notification Service", opts...)
 	if err != nil {
-		logrus.Fatalf("Init Notification Grpc Client Failed")
+		logrus.Errorln("Init Notification Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
