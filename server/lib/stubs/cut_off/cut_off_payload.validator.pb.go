@@ -7,9 +7,11 @@ import (
 	fmt "fmt"
 	math "math"
 	proto "github.com/golang/protobuf/proto"
-	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
+	_ "github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2/options"
+	_ "github.com/mwitkow/go-proto-validators"
+	regexp "regexp"
 	github_com_mwitkow_go_proto_validators "github.com/mwitkow/go-proto-validators"
 )
 
@@ -53,10 +55,30 @@ func (this *ListProductUsedRes) Validate() error {
 func (this *Module) Validate() error {
 	return nil
 }
+
+var _regex_ScheduleTime_StartTime = regexp.MustCompile(`^\d{2}:\d{2}$`)
+var _regex_ScheduleTime_EndTime = regexp.MustCompile(`^\d{2}:\d{2}$`)
+
 func (this *ScheduleTime) Validate() error {
+	if !_regex_ScheduleTime_StartTime.MatchString(this.StartTime) {
+		return github_com_mwitkow_go_proto_validators.FieldError("StartTime", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{2}:\\d{2}$"`, this.StartTime))
+	}
+	if !_regex_ScheduleTime_EndTime.MatchString(this.EndTime) {
+		return github_com_mwitkow_go_proto_validators.FieldError("EndTime", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{2}:\\d{2}$"`, this.EndTime))
+	}
 	return nil
 }
+
+var _regex_CutOffData_ScheduleName = regexp.MustCompile(`^.*\S.*$`)
+var _regex_CutOffData_ScheduleDescription = regexp.MustCompile(`^.*\S.*$`)
+
 func (this *CutOffData) Validate() error {
+	if !_regex_CutOffData_ScheduleName.MatchString(this.ScheduleName) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleName", fmt.Errorf(`value '%v' must be a string conforming to regex "^.*\\S.*$"`, this.ScheduleName))
+	}
+	if !_regex_CutOffData_ScheduleDescription.MatchString(this.ScheduleDescription) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleDescription", fmt.Errorf(`value '%v' must be a string conforming to regex "^.*\\S.*$"`, this.ScheduleDescription))
+	}
 	for _, item := range this.Modules {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
@@ -324,7 +346,21 @@ func (this *SaveCutOffDataResponse) Validate() error {
 func (this *ArrayString) Validate() error {
 	return nil
 }
+
+var _regex_HolidaySchedule_Date = regexp.MustCompile(`^\d{4}-\d{2}-\d{2}$`)
+var _regex_HolidaySchedule_Label = regexp.MustCompile(`^.*\S.*$`)
+var _regex_HolidaySchedule_Pattern = regexp.MustCompile(`^(Yearly)|(Monthly)|(yearly)|(monthly)$`)
+
 func (this *HolidaySchedule) Validate() error {
+	if !_regex_HolidaySchedule_Date.MatchString(this.Date) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Date", fmt.Errorf(`value '%v' must be a string conforming to regex "^\\d{4}-\\d{2}-\\d{2}$"`, this.Date))
+	}
+	if !_regex_HolidaySchedule_Label.MatchString(this.Label) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Label", fmt.Errorf(`value '%v' must be a string conforming to regex "^.*\\S.*$"`, this.Label))
+	}
+	if !_regex_HolidaySchedule_Pattern.MatchString(this.Pattern) {
+		return github_com_mwitkow_go_proto_validators.FieldError("Pattern", fmt.Errorf(`value '%v' must be a string conforming to regex "^(Yearly)|(Monthly)|(yearly)|(monthly)$"`, this.Pattern))
+	}
 	return nil
 }
 func (this *HolidayModule) Validate() error {
@@ -348,7 +384,17 @@ func (this *GetHolidayDataRes) Validate() error {
 	}
 	return nil
 }
+
+var _regex_HolidayData_ScheduleName = regexp.MustCompile(`^.*\S.*$`)
+var _regex_HolidayData_ScheduleDescription = regexp.MustCompile(`^.*\S.*$`)
+
 func (this *HolidayData) Validate() error {
+	if !_regex_HolidayData_ScheduleName.MatchString(this.ScheduleName) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleName", fmt.Errorf(`value '%v' must be a string conforming to regex "^.*\\S.*$"`, this.ScheduleName))
+	}
+	if !_regex_HolidayData_ScheduleDescription.MatchString(this.ScheduleDescription) {
+		return github_com_mwitkow_go_proto_validators.FieldError("ScheduleDescription", fmt.Errorf(`value '%v' must be a string conforming to regex "^.*\\S.*$"`, this.ScheduleDescription))
+	}
 	for _, item := range this.ScheduleDates {
 		if item != nil {
 			if err := github_com_mwitkow_go_proto_validators.CallValidatorIfExists(item); err != nil {
