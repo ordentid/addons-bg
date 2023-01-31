@@ -76,32 +76,3 @@ func getEnv(key, fallback string) string {
 	}
 	return fallback
 }
-
-func setPagination(page int32, limit int32) *pb.PaginationResponse {
-	res := &pb.PaginationResponse{
-		Limit: 10,
-		Page:  1,
-	}
-
-	if limit == 0 && page == 0 {
-		res.Limit = -1
-		res.Page = -1
-		return res
-	} else {
-		res.Limit = limit
-		res.Page = page
-	}
-
-	if res.Page == 0 {
-		res.Page = 1
-	}
-
-	switch {
-	case res.Limit > 100:
-		res.Limit = 100
-	case res.Limit <= 0:
-		res.Limit = 10
-	}
-
-	return res
-}

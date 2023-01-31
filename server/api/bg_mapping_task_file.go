@@ -187,7 +187,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 		// Cell render loop
@@ -211,7 +211,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 	}

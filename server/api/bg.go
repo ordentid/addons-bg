@@ -21,6 +21,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -759,7 +760,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 	}
 
 	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {

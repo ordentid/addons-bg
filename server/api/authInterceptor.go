@@ -2,7 +2,6 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"strings"
 
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
@@ -29,14 +28,14 @@ func accessibleRoles() map[string][]string {
 	return map[string][]string{
 		// ==== Example =====
 		// apiServicePath + <api function name>: {<authority>, <productName>},
-		
+
 		// HTTP - API
 		apiServicePath + "CreateTaskMapping":        {"data_entry:maker", "BG Mapping"},
 		apiServicePath + "CreateTaskMappingDigital": {"data_entry:maker", "BG Mapping Digital"},
 		// apiServicePath + "CreateTransaction":        {"data_entry:maker"},
 		// apiServicePath + "DeleteTransaction":        {"data_entry:maker"},
-		apiServicePath + "CreateTaskIssuing":        {"data_entry:maker", "BG Issuing"},
-		apiServicePath + "GetTaskIssuingFile":       {"download_report:-", "BG Issuing"},
+		apiServicePath + "CreateTaskIssuing":  {"data_entry:maker", "BG Issuing"},
+		apiServicePath + "GetTaskIssuingFile": {"download_report:-", "BG Issuing"},
 	}
 }
 
@@ -110,7 +109,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 		return nil
 	}
 	logrus.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
-	
+
 	if len(accessibleRoles) < 1 {
 		return nil
 	}
@@ -166,51 +165,4 @@ func (interceptor *AuthInterceptor) claimsToken(ctx context.Context) (*manager.U
 	}
 
 	return claims, nil
-}
-
-func (interceptor *AuthInterceptor) getUserData(ctx context.Context) (context.Context, error) {
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, status.Errorf(codes.Unauthenticated, "metadata is not provided")
-	}
-
-	values := md["authorization"]
-	if len(values) == 0 {
-		return nil, status.Errorf(codes.Unauthenticated, "authorization token is not provided")
-	}
-
-	split := strings.Split(values[0], " ")
-	accessToken := split[0]
-	if len(split) > 1 {
-		accessToken = split[1]
-	}
-
-	userType := md["auth-usertype"]
-	username := md["auth-username"]
-	userid := md["auth-userid"]
-
-	if len(userType) == 0 || len(username) == 0 || len(userid) == 0 {
-		getUser, err := interceptor.jwtManager.GetMeFromAuthService(ctx, accessToken)
-		if err != nil {
-			return nil, err
-		}
-		if getUser.IsExpired && !getUser.IsValid {
-			return nil, status.Errorf(codes.Unauthenticated, "access token is invalid: %v", err)
-		}
-
-		for _, v := range getUser.ProductRoles {
-			grpc.SendHeader(ctx, metadata.Pairs("auth-role-"+v.ProductName, strings.Join(v.Authorities, "|")))
-		}
-
-		grpc.SendHeader(ctx, metadata.Pairs("auth-usertype", getUser.UserType))
-		grpc.SendHeader(ctx, metadata.Pairs("auth-username", getUser.Username))
-		grpc.SendHeader(ctx, metadata.Pairs("auth-userid", fmt.Sprintf("%v", getUser.UserID)))
-
-		fmt.Println("")
-		fmt.Println("=====>")
-		fmt.Println(getUser.Username)
-
-	}
-
-	return ctx, nil
 }
