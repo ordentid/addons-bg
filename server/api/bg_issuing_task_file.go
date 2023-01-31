@@ -10,7 +10,6 @@ import (
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/leekchan/accounting"
-	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
@@ -34,7 +33,7 @@ func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingF
 
 	resPB, err := s.GetTaskIssuing(ctx, reqPB)
 	if err != nil {
-		logrus.Errorln("[api][func: GetTaskIssuingFile] Unable to Get Task Issuing:", err.Error())
+		log.Errorln("[api][func: GetTaskIssuingFile] Unable to Get Task Issuing:", err.Error())
 		return nil, err
 	}
 
@@ -95,7 +94,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -229,10 +228,10 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	err = pdf.Output(&buf)
 	if err == nil {
-		logrus.Println("Length of buffer: %d\n", buf.Len())
+		log.Println("Length of buffer: %d\n", buf.Len())
 		// return nil, status.Errorf(codes.Internal, "Server error")
 	} else {
-		logrus.Errorf("Error generating PDF: %s\n", err)
+		log.Errorf("Error generating PDF: %s\n", err)
 		return nil, status.Errorf(codes.Internal, "Server error")
 	}
 

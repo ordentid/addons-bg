@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -31,7 +30,7 @@ func (p *GormProvider) GetCurrency(ctx context.Context, v *ListFilter) (data []*
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -48,7 +47,7 @@ func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*p
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -62,7 +61,7 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -71,10 +70,10 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 
 func (p *GormProvider) DeleteMapping(ctx context.Context, ids []string) error {
 	if len(ids) > 0 {
-		logrus.Println("----------------------")
-		logrus.Println("Deleted Mapping Data:")
-		logrus.Println(ids)
-		logrus.Println("----------------------")
+		log.Println("----------------------")
+		log.Println("Deleted Mapping Data:")
+		log.Println(ids)
+		log.Println("----------------------")
 		if err := p.db_main.Where("\"id\" IN (?)", ids).Delete(&pb.MappingORM{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return status.Error(codes.NotFound, "ID Not Found")

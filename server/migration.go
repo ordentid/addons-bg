@@ -4,7 +4,6 @@ import (
 	"os"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"github.com/urfave/cli"
 )
 
@@ -13,7 +12,7 @@ func migrationStart() {
 		&pb.MappingORM{},
 		&pb.CurrencyORM{},
 	); err != nil {
-		logrus.Errorln("Migration failed: %v", err)
+		log.Errorln("Migration failed: %v", err)
 		os.Exit(1)
 	}
 }
@@ -27,9 +26,9 @@ func runMigrationCmd() cli.Command {
 			initDBMain()
 			defer closeDBMain()
 
-			logrus.Println("Migration process begin...")
+			log.Println("Migration process begin...")
 			migrationStart()
-			logrus.Println("Migration process finished...")
+			log.Println("Migration process finished...")
 
 			return nil
 		},

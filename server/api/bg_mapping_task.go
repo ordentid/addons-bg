@@ -8,7 +8,6 @@ import (
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -321,7 +320,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 
-		logrus.Println(httpResData.ResponseCode)
+		log.Println(httpResData.ResponseCode)
 
 		if httpResData.ResponseCode == "00" {
 			name = httpResData.ResponseData.FullName
@@ -338,7 +337,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
-		logrus.Error("Failed To Marshal : ", taskData)
+		log.Error("Failed To Marshal : ", taskData)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -358,7 +357,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Error("Failed To Transfer Data : ", "FAK")
+		log.Error("Failed To Transfer Data : ", "FAK")
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 

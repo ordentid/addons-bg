@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -108,7 +107,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 		// everyone can access
 		return nil
 	}
-	logrus.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
+	log.Infoln("[interceptor] Accessible Roles:", accessibleRoles)
 
 	if len(accessibleRoles) < 1 {
 		return nil
@@ -124,7 +123,7 @@ func (interceptor *AuthInterceptor) authorize(ctx context.Context, claims *manag
 			break
 		}
 	}
-	logrus.Infoln("[interceptor] Feature Roles:", featureRoles)
+	log.Infoln("[interceptor] Feature Roles:", featureRoles)
 
 	for _, exist := range featureRoles {
 		if allowedAccess == exist {

@@ -79,7 +79,7 @@ func grpcServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(port); err != nil {
-					logrus.Errorln("failed gRPC: %v", err)
+					log.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
@@ -91,9 +91,9 @@ func grpcServerCmd() cli.Command {
 
 			closeDBConnections()
 
-			logrus.Println("Stopping RPC server")
+			log.Println("Stopping RPC server")
 			s.Stop()
-			logrus.Println("RPC server stopped")
+			log.Println("RPC server stopped")
 			return nil
 		},
 	}
@@ -119,7 +119,7 @@ func gatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := httpGatewayServer(port, grpcEndpoint); err != nil {
-					logrus.Errorln("Internal error: %v", err)
+					log.Errorln("Internal error: %v", err)
 				}
 			}()
 
@@ -129,7 +129,7 @@ func gatewayServerCmd() cli.Command {
 			// Block until a signal is received
 			<-ch
 
-			logrus.Println("JSON Gateway server stopped")
+			log.Println("JSON Gateway server stopped")
 
 			return nil
 		},
@@ -162,13 +162,13 @@ func grpcGatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(rpcPort); err != nil {
-					logrus.Errorln("failed gRPC: %v", err)
+					log.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
 			go func() {
 				if err := httpGatewayServer(httpPort, grpcEndpoint); err != nil {
-					logrus.Errorln("failed httpGateway: %v", err)
+					log.Errorln("failed httpGateway: %v", err)
 				}
 			}()
 
@@ -178,11 +178,11 @@ func grpcGatewayServerCmd() cli.Command {
 			// Block until a signal is received
 			<-ch
 
-			logrus.Println("Stopping RPC server")
+			log.Println("Stopping RPC server")
 			s.GracefulStop()
 			closeDBConnections()
-			logrus.Println("RPC server stopped")
-			logrus.Println("JSON Gateway server stopped")
+			log.Println("RPC server stopped")
+			log.Println("JSON Gateway server stopped")
 
 			return nil
 		},
@@ -191,14 +191,14 @@ func grpcGatewayServerCmd() cli.Command {
 
 func grpcServer(port int) error {
 	// RPC
-	logrus.Printf("Starting %s Service ................", serviceName)
-	logrus.Printf("Starting RPC server on port %d...", port)
+	log.Printf("Starting %s Service ................", serviceName)
+	log.Printf("Starting RPC server on port %d...", port)
 	list, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
 
-	// logrus.Println("===========> %s", taskConn.GetState().String())
+	// log.Println("===========> %s", taskConn.GetState().String())
 
 	svcConn := svc.InitServicesConn(
 		"",
@@ -268,7 +268,7 @@ func httpGatewayServer(port int, grpcEndpoint string) error {
 	mux.Handle("/api/bg/docs/", http.StripPrefix("/api/bg/docs/", fs))
 
 	// Start
-	logrus.Printf("Starting JSON Gateway server on port %d...", port)
+	log.Printf("Starting JSON Gateway server on port %d...", port)
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), cors(mux))
 }
@@ -287,7 +287,7 @@ func originMiddleware(next http.Handler) http.Handler {
 			envOrigins[i] = strings.TrimSpace(v)
 		}
 
-		logrus.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
+		log.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
 
 		if getEnv("ENV", "DEV") == "PROD" {
 			pass := false
