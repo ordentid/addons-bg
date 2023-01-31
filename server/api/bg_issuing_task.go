@@ -370,8 +370,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		return nil, status.Error(codes.PermissionDenied, "Permission Denied")
 	}
 
-	logrus.Println("[api][func: CreateTaskIssuing] User Token ID:", currentUser.IdToken)
-
 	// get OTP Validation
 	if !req.IsDraft {
 		if currentUser.IdToken != "" {

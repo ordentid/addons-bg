@@ -317,7 +317,7 @@ func allowedOrigin(origin string) bool {
 
 func cors(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Strict-Transport-Security", "max-age=31536000")
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 
 		if allowedOrigin(r.Header.Get("Origin")) {
 			if getEnv("ENV", "DEV") != "PROD" {
