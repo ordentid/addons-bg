@@ -282,8 +282,6 @@ func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenfi
 		return nil, err
 	}
 
-	logrus.Println("Request:", httpReqParam.Encode())
-
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryBeneficiary?"+httpReqParam.Encode(), nil)
 	if err != nil {
 		return nil, err
@@ -333,8 +331,6 @@ func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInqui
 	if err != nil {
 		return nil, err
 	}
-
-	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -387,8 +383,6 @@ func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryTh
 		return nil, err
 	}
 
-	logrus.Println("Request:", string(httpReqPayload))
-
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryThirdParty", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, err
@@ -439,8 +433,6 @@ func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*Api
 	if err != nil {
 		return nil, err
 	}
-
-	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -493,8 +485,6 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		return nil, err
 	}
 
-	logrus.Println("Request:", httpReqParams.Encode())
-
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, err
@@ -545,8 +535,6 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 		return nil, err
 	}
 
-	logrus.Println("Request:", string(httpReqPayload))
-
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/applyBG", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, err
@@ -560,12 +548,6 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 		return nil, err
 	}
 	defer httpRes.Body.Close()
-
-	httpResHeader, err := json.Marshal(httpRes.Header)
-	if err != nil {
-		return nil, err
-	}
-	logrus.Println("Response:", string(httpResHeader))
 
 	var httpResData ApiBgIssuingResponse
 	err = json.NewDecoder(httpRes.Body).Decode(&httpResData)
@@ -613,8 +595,6 @@ func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRe
 	if err != nil {
 		return nil, err
 	}
-
-	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
@@ -671,8 +651,6 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 		return nil, err
 	}
 
-	logrus.Println("Request:", httpReqParam.Encode())
-
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/inquiryLimitIndividu?"+httpReqParam.Encode(), nil)
 	if err != nil {
 		return nil, err
@@ -728,8 +706,6 @@ func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeReques
 	if err != nil {
 		return nil, err
 	}
-
-	logrus.Println("Request:", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/uploadEncode", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
