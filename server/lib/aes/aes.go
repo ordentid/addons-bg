@@ -4,7 +4,6 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/rand"
-	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
 	"strconv"
@@ -12,7 +11,6 @@ import (
 
 	"github.com/sirupsen/logrus"
 	"github.com/speps/go-hashids"
-	"golang.org/x/crypto/pbkdf2"
 )
 
 type CustomAES struct {
@@ -30,16 +28,6 @@ func NewCustomAES(passphrase string) *CustomAES {
 	}
 
 	return aes
-}
-
-func deriveKey(passphrase string, salt []byte) ([]byte, []byte) {
-	if salt == nil {
-		salt = make([]byte, 8)
-		// http://www.ietf.org/rfc/rfc2898.txt
-		// Salt.
-		rand.Read(salt)
-	}
-	return pbkdf2.Key([]byte(passphrase), salt, 1000000000, 64, sha256.New), salt
 }
 
 func (t *CustomAES) HashIDEncode(text string) (string, error) {
@@ -65,7 +53,6 @@ func (t *CustomAES) HashIDDecode(text string) (string, error) {
 }
 
 func (t *CustomAES) Encrypt(plaintext string) (text string, err error) {
-	// key, salt := deriveKey(t.passphrase, nil)
 	iv := make([]byte, 12)
 	// http://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38d.pdf
 	// Section 8.2
