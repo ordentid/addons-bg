@@ -357,7 +357,7 @@ func (s *Server) CreateTaskMapping(ctx context.Context, req *pb.CreateTaskMappin
 
 	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		log.Error("Failed To Transfer Data : ", "FAK")
+		log.Error("Failed To Transfer Data : ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 

@@ -1672,7 +1672,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	_, err = taskClient.UpdateTaskData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Error("Failed To Transfer Data : ", "FAK")
+		logrus.Error("Failed To Transfer Data : ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
