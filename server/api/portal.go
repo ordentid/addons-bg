@@ -289,7 +289,7 @@ func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenfi
 		return nil, err
 	}
 
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -500,7 +500,7 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		return nil, err
 	}
 
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -553,7 +553,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 	}
 
 	httpReq.Header.Add("Content-Type", "application/json")
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -622,7 +622,7 @@ func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRe
 	}
 
 	httpReq.Header.Add("Content-Type", "application/json")
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -678,7 +678,7 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 		return nil, err
 	}
 
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {
@@ -737,7 +737,7 @@ func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeReques
 	}
 
 	httpReq.Header.Add("Content-Type", "application/json")
-	httpReq.Header.Add("Authorization", "Basic YnJpY2FtczpCcmljYW1zNGRkMG5z")
+	httpReq.Header.Add("Authorization", "Basic "+getEnv("PORTAL_BG_API_KEY", ""))
 
 	httpRes, err := client.Do(httpReq)
 	if err != nil {

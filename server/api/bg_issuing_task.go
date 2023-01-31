@@ -678,8 +678,6 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 		return nil, status.Error(codes.NotFound, "Task not found")
 	}
 
-	logrus.Println("[api][func: TaskAction] User Token ID:", currentUser.IdToken)
-
 	if contains([]string{"approve", "reject", "rework", "delete"}, strings.ToLower(req.GetAction())) {
 		if task.GetData().GetStatus() != task_pb.Statuses_Draft {
 			if currentUser.IdToken != "" {
