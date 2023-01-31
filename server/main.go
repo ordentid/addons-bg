@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"regexp"
 	"strings"
+	"sync"
 
 	"google.golang.org/grpc"
 
@@ -277,36 +278,44 @@ func serveSwagger(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "www/swagger.json")
 }
 
+var (
+	envOrigins []string
+	once       sync.Once
+)
+
+func initEnvOrigins() {
+	envOrigin := os.Getenv("ENV-Allow-Origin")
+	envOrigins = strings.Split(envOrigin, ",")
+	for i, v := range envOrigins {
+		envOrigins[i] = strings.TrimSpace(v)
+	}
+}
+
 func originMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		once.Do(initEnvOrigins)
+
 		origin := r.Header.Get("Origin")
 		referer := r.Header.Get("Referer")
-		envOrigin := r.Header.Get("ENV-Allow-Origin")
-		envOrigins := strings.Split(envOrigin, ",")
-		for i, v := range envOrigins {
-			envOrigins[i] = strings.TrimSpace(v)
-		}
 
 		log.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
 
 		if getEnv("ENV", "DEV") == "PROD" {
+			if origin == "" && referer == "" {
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+				return
+			}
+
 			pass := false
-			if origin != "" {
-				for _, v := range envOrigins {
-					if origin == v {
-						pass = true
-					}
+			for _, v := range envOrigins {
+				if origin == v || strings.Contains(referer, v) {
+					pass = true
+					break
 				}
 			}
-			if referer != "" {
-				for _, v := range envOrigins {
-					if strings.Contains(referer, v) {
-						pass = true
-					}
-				}
-			}
+
 			if !pass {
-				http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
 		}
