@@ -18,11 +18,17 @@ import (
 
 const apiServicePath string = "/bg.service.v1.ApiService/"
 
+var (
+	log                        *logrus.Logger
+	transferTransactionDataTag string
+)
+
 // Server represents the server implementation of the SW API.
 type Server struct {
 	provider *db.GormProvider
 	manager  *manager.JWTManager
 	svcConn  *svc.ServiceConnection
+	logger   *logrus.Logger
 
 	pb.ApiServiceServer
 }
@@ -37,7 +43,9 @@ func New(
 	jwt_duration string,
 	db01 *gorm.DB,
 	svcConn *svc.ServiceConnection,
+	logger *logrus.Logger,
 ) *Server {
+	log = logger
 	secret := jwt_secret
 	tokenDuration, err := time.ParseDuration(jwt_duration)
 	if err != nil {
@@ -45,9 +53,10 @@ func New(
 	}
 
 	return &Server{
-		provider:         db.NewProvider(db01),
+		provider:         db.NewProvider(db01, log),
 		manager:          manager.NewJWTManager(secret, tokenDuration, svcConn),
 		svcConn:          svcConn,
+		logger:           logger,
 		ApiServiceServer: nil,
 	}
 }

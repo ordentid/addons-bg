@@ -34,6 +34,12 @@ type Config struct {
 	UserService         string `config:"USER_SERVICE"`
 	CutOffService       string `config:"CUT_OFF_SERVICE"`
 	NotificationService string `config:"NOTIFICATION_SERVICE"`
+
+	LoggerHost string `config:"LOGGER_HOST"`
+	LoggerPort string `config:"LOGGER_PORT"`
+	LoggerTag  string `config:"LOGGER_TAG"`
+
+	AppName string `config:"APP_NAME"`
 }
 
 var config *Config
@@ -45,6 +51,11 @@ func initConfig() {
 	// if err != nil {
 	// 	log.Println(err)
 	// }
+
+	appName := getEnv("APP_NAME", "")
+	if appName == "" {
+		appName = getEnv("ELASTIC_APM_SERVICE_NAME", "")
+	}
 
 	config = &Config{
 		ListenAddress: fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
@@ -71,6 +82,11 @@ func initConfig() {
 		UserService:         getEnv("USER_SERVICE", ":9095"),
 		CutOffService:       getEnv("CUT_OFF_SERVICE", ":9327"),
 		NotificationService: getEnv("NOTIFICATION_SERVICE", ":9094"),
+
+		LoggerHost: getEnv("LOGGER_HOST", ""),
+		LoggerPort: getEnv("LOGGER_PORT", ""),
+		LoggerTag:  getEnv("LOGGER_TAG", ""),
+		AppName:    appName,
 	}
 
 }

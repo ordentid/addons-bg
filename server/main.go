@@ -16,6 +16,8 @@ import (
 	svc "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 
+	servicelogger "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/service-logger"
+
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/api"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
@@ -33,6 +35,13 @@ const defaultPort = 9090
 const serviceName = "BG"
 
 var s *grpc.Server
+
+var log *logrus.Logger
+
+func init() {
+	initConfig()
+	log = servicelogger.New(config.AppName)
+}
 
 func main() {
 
@@ -212,6 +221,7 @@ func grpcServer(port int) error {
 		config.JWTDuration,
 		db_main,
 		svcConn,
+		log,
 	)
 	authInterceptor := api.NewAuthInterceptor(apiServer.GetManager())
 
