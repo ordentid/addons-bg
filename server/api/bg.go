@@ -467,6 +467,15 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 		Message: "Data",
 	}
 
+	result.Data = &pb.GetTransactionAttachmentResponseData{
+		RegistrationNo:  "",
+		ReferenceNo:     "",
+		WarkatUrl:       "",
+		WarkatUrlPublic: "",
+		Status:          "",
+		ModifiedDate:    "",
+	}
+
 	if req.RegistrationNo != "" {
 
 		apiReq := &ApiDownloadRequest{
@@ -475,11 +484,13 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 
 		res, err := s.ApiDownload(ctx, apiReq)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			log.Println("[api][func: GetTransactionAttachment] Failed on execution ApiDownload", err)
+			return result, nil
 		}
 
 		if res.ResponseCode != "00" {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
+			log.Println("[api][func: GetTransactionAttachment] Error response code:", res.ResponseCode, res.ResponseMessage)
+			return result, nil
 		}
 
 		result.Data = &pb.GetTransactionAttachmentResponseData{
