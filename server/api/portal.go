@@ -117,13 +117,22 @@ type ApiInquiryThirdPartyByStatusResponse struct {
 }
 
 type ApiDownloadRequest struct {
-	ReferenceNo string `json:"referenceNo"`
+	RegistrationNo string `json:"registrationNo"`
 }
 
 type ApiDownloadResponse struct {
-	ResponseCode    string      `json:"responseCode"`
-	ResponseMessage string      `json:"responseMessage"`
-	ResponseData    []UrlObject `json:"responseData"`
+	ResponseCode    string                  `json:"responseCode"`
+	ResponseMessage string                  `json:"responseMessage"`
+	ResponseData    ApiDownloadResponseData `json:"responseData"`
+}
+
+type ApiDownloadResponseData struct {
+	RegistrationNo  string `json:"registrationNo"`
+	ReferenceNo     string `json:"referenceNo"`
+	WarkatUrl       string `json:"warkatUrl"`
+	WarkatUrlPublic string `json:"warkatUrlPublic"`
+	Status          string `json:"status"`
+	ModifiedDate    string `json:"modifiedDate"`
 }
 
 type ApiInquiryBenficiaryRequest struct {
@@ -434,7 +443,7 @@ func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*Api
 		return nil, err
 	}
 
-	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/downloadDigitalDocument", bytes.NewBuffer(httpReqPayload))
+	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/tracking", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
 		return nil, err
 	}

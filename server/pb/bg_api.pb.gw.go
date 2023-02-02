@@ -736,14 +736,14 @@ func request_ApiService_GetTransactionAttachment_0(ctx context.Context, marshale
 		_   = err
 	)
 
-	val, ok = pathParams["referenceNo"]
+	val, ok = pathParams["registrationNo"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "referenceNo")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registrationNo")
 	}
 
-	protoReq.ReferenceNo, err = runtime.String(val)
+	protoReq.RegistrationNo, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "referenceNo", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registrationNo", err)
 	}
 
 	msg, err := client.GetTransactionAttachment(ctx, &protoReq, grpc.Header(&metadata.HeaderMD), grpc.Trailer(&metadata.TrailerMD))
@@ -762,14 +762,14 @@ func local_request_ApiService_GetTransactionAttachment_0(ctx context.Context, ma
 		_   = err
 	)
 
-	val, ok = pathParams["referenceNo"]
+	val, ok = pathParams["registrationNo"]
 	if !ok {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "referenceNo")
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "missing parameter %s", "registrationNo")
 	}
 
-	protoReq.ReferenceNo, err = runtime.String(val)
+	protoReq.RegistrationNo, err = runtime.String(val)
 	if err != nil {
-		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "referenceNo", err)
+		return nil, metadata, status.Errorf(codes.InvalidArgument, "type mismatch, parameter: %s, error: %v", "registrationNo", err)
 	}
 
 	msg, err := server.GetTransactionAttachment(ctx, &protoReq)
@@ -1861,7 +1861,7 @@ func RegisterApiServiceHandlerServer(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionAttachment", runtime.WithHTTPPathPattern("/api/bg/transaction/attachment/{referenceNo}"))
+		annotatedContext, err = runtime.AnnotateIncomingContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionAttachment", runtime.WithHTTPPathPattern("/api/bg/transaction/attachment/{registrationNo}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2627,7 +2627,7 @@ func RegisterApiServiceHandlerClient(ctx context.Context, mux *runtime.ServeMux,
 		inboundMarshaler, outboundMarshaler := runtime.MarshalerForRequest(mux, req)
 		var err error
 		var annotatedContext context.Context
-		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionAttachment", runtime.WithHTTPPathPattern("/api/bg/transaction/attachment/{referenceNo}"))
+		annotatedContext, err = runtime.AnnotateContext(ctx, mux, req, "/bg.service.v1.ApiService/GetTransactionAttachment", runtime.WithHTTPPathPattern("/api/bg/transaction/attachment/{registrationNo}"))
 		if err != nil {
 			runtime.HTTPError(ctx, mux, outboundMarshaler, w, req, err)
 			return
@@ -2987,7 +2987,7 @@ var (
 
 	pattern_ApiService_CreateTaskMappingDigital_1 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "mapping-digital", "task", "taskID"}, ""))
 
-	pattern_ApiService_GetTransactionAttachment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "transaction", "attachment", "referenceNo"}, ""))
+	pattern_ApiService_GetTransactionAttachment_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 1, 0, 4, 1, 5, 4}, []string{"api", "bg", "transaction", "attachment", "registrationNo"}, ""))
 
 	pattern_ApiService_GetTransactionFile_0 = runtime.MustPattern(runtime.NewPattern(1, []int{2, 0, 2, 1, 2, 2, 2, 3, 2, 4, 1, 0, 4, 1, 5, 5}, []string{"api", "bg", "transaction", "data", "template", "fileFormat"}, ""))
 

@@ -467,10 +467,10 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 		Message: "Data",
 	}
 
-	if req.ReferenceNo != "" {
+	if req.RegistrationNo != "" {
 
 		apiReq := &ApiDownloadRequest{
-			ReferenceNo: req.ReferenceNo,
+			RegistrationNo: req.RegistrationNo,
 		}
 
 		res, err := s.ApiDownload(ctx, apiReq)
@@ -482,12 +482,13 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
-		if len(res.ResponseData) > 0 {
-
-			for _, v := range res.ResponseData {
-				result.Data = append(result.Data, v.Url)
-			}
-
+		result.Data = &pb.GetTransactionAttachmentResponseData{
+			RegistrationNo:  res.ResponseData.RegistrationNo,
+			ReferenceNo:     res.ResponseData.ReferenceNo,
+			WarkatUrl:       res.ResponseData.WarkatUrl,
+			WarkatUrlPublic: res.ResponseData.WarkatUrlPublic,
+			Status:          res.ResponseData.Status,
+			ModifiedDate:    res.ResponseData.ModifiedDate,
 		}
 
 	}

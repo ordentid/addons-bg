@@ -676,13 +676,22 @@ message CreateTaskMappingDigitalResponse {
 }
 
 message GetTransactionAttachmentRequest {
-    string referenceNo = 1;
+    string registrationNo = 1;
 }
 message GetTransactionAttachmentResponse {
     bool error = 1;
     uint32 code = 2;
     string message = 3;
-    repeated string data = 4;
+    GetTransactionAttachmentResponseData data = 4;
+}
+
+message GetTransactionAttachmentResponseData {
+	string RegistrationNo = 1;
+	string ReferenceNo = 2;
+	string WarkatUrl = 3;
+	string WarkatUrlPublic = 4;
+	string Status = 5;
+	string ModifiedDate = 6;
 }
 
 message GetTransactionFileRequest {
