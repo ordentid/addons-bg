@@ -11,7 +11,6 @@ import (
 	"time"
 
 	"github.com/google/go-querystring/query"
-	"github.com/sirupsen/logrus"
 )
 
 type ApiTransaction struct {
@@ -315,7 +314,7 @@ func (s *Server) ApiInquiryBeneficiary(ctx context.Context, req *ApiInquiryBenfi
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
 
@@ -366,7 +365,7 @@ func (s *Server) ApiInquiryThirdPartyByStatus(ctx context.Context, req *ApiInqui
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
 
@@ -417,7 +416,7 @@ func (s *Server) ApiInquiryThirdPartyByID(ctx context.Context, req *ApiInquiryTh
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
 
@@ -468,7 +467,7 @@ func (s *Server) ApiDownload(ctx context.Context, req *ApiDownloadRequest) (*Api
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
 
@@ -518,7 +517,7 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	return &httpResData, nil
 
@@ -569,7 +568,7 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
 		return nil, errors.New(string(*httpResData.ResponseMessage))
@@ -630,7 +629,7 @@ func (s *Server) ApiCheckIssuingStatus(ctx context.Context, req *ApiBgTrackingRe
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
 		return nil, errors.New(string(*httpResData.ResponseMessage))
@@ -684,7 +683,7 @@ func (s *Server) ApiInquiryLimitIndividual(ctx context.Context, req *ApiInquiryL
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	// if httpResData.ResponseCode != "00" {
 	// 	return nil, errors.New(string(*httpResData.ResponseMessage))
@@ -741,7 +740,7 @@ func (s *Server) ApiUploadEncode(ctx context.Context, req *ApiUploadEncodeReques
 		return nil, err
 	}
 
-	logrus.Println("Response:", string(httpResPayload))
+	log.Println("Response:", string(httpResPayload))
 
 	if httpResData.ResponseCode != "00" {
 		return nil, errors.New(string(*httpResData.ResponseMessage))

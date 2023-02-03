@@ -18,7 +18,6 @@ import (
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -280,7 +279,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, s.UnauthorizedError()
 	}
 
-	logrus.Println("==========> User Type:", currentUser.UserType)
+	log.Println("==========> User Type:", currentUser.UserType)
 
 	if currentUser.UserType == "ba" {
 
@@ -324,14 +323,14 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 
 			filter.Filter = strings.Join(filterMapped, ",")
-			logrus.Println("==========> Mapping Filter:", filter.Filter)
+			log.Println("==========> Mapping Filter:", filter.Filter)
 
 			thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			logrus.Println("==========> ThirdParty List:", thirdPartyNameList)
+			log.Println("==========> ThirdParty List:", thirdPartyNameList)
 
 			ids := []string{}
 
@@ -641,7 +640,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	if res.ResponseCode != "00" {
 
-		logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
+		log.Error("Failed To Transfer Data : ", res.ResponseMessage)
 
 	} else {
 
@@ -717,7 +716,7 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 		}
 
 		if res.ResponseCode != "00" {
-			logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
+			log.Error("Failed To Transfer Data : ", res.ResponseMessage)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
@@ -782,7 +781,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
+		log.Errorln("Failed connect to Task Service: %v", err)
 		return nil, status.Errorf(codes.Internal, "Error Internal")
 	}
 	taskConn.Connect()
@@ -811,7 +810,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						if check.ThirdPartyID == v.ThirdPartyID {
 
 							needDelete = false
-							logrus.Println("Break at: " + strconv.FormatUint(check.ThirdPartyID, 10))
+							log.Println("Break at: " + strconv.FormatUint(check.ThirdPartyID, 10))
 							break
 
 						}
@@ -1137,7 +1136,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 			taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 			if err != nil {
-				logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
+				log.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, err
 				}
@@ -1155,7 +1154,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 					_, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 					if err != nil {
-						logrus.Println("[api][DeleteTransaction] Failed when execute SetTask:", err)
+						log.Println("[api][DeleteTransaction] Failed when execute SetTask:", err)
 						return nil, err
 					}
 
@@ -1273,7 +1272,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 				taskMappingRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
-					logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
+					log.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
@@ -1480,7 +1479,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			logrus.Println("Error Limit Individual: ", err.Error())
+			log.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
 		}
 
@@ -1506,7 +1505,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			logrus.Println("Error Limit Individual: ", err.Error())
+			log.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Combination facility")
 		}
 
@@ -1585,7 +1584,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	createIssuingRes, err := s.ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
-		logrus.Println("Failed to create issuing: ", err)
+		log.Println("Failed to create issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1597,7 +1596,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	checkIssuingRes, err := s.ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
-		logrus.Println("Failed to check issuing: ", err)
+		log.Println("Failed to check issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1651,7 +1650,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Print(taskData)
+	log.Print(taskData)
 
 	httpReqParamsOpt := ApiBgTrackingRequest{
 		RegistrationNo: taskData.RegistrationNo,
@@ -1672,7 +1671,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
-		logrus.Error("Failed To Marshal : ", taskData)
+		log.Error("Failed To Marshal : ", taskData)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1684,7 +1683,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	_, err = taskClient.UpdateTaskData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Error("Failed To Transfer Data : ", err)
+		log.Error("Failed To Transfer Data : ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1755,7 +1754,7 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 
 	inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
 	if err != nil {
-		logrus.Println("Error Limit Individual: ", err.Error())
+		log.Println("Error Limit Individual: ", err.Error())
 	}
 
 	if inquiryLimit.ResponseCode == "00" {
@@ -1780,12 +1779,12 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: task.GetType(), ID: task.GetTaskID()})
 	if err != nil {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Get Task by ID:", err.Error())
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Get Task by ID:", err.Error())
 		return nil, err
 	}
 
 	if !taskRes.GetFound() {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Task not found")
+		log.Errorln("[api][func: NotificationRequestBuilder] Task not found")
 		return nil, status.Errorf(codes.NotFound, "Task not found")
 	}
 
@@ -1796,7 +1795,7 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string
 	var workflowDoc *workflow_pb.ValidateWorkflowData
 	err = json.Unmarshal([]byte(taskRes.GetData().GetWorkflowDoc()), &workflowDoc)
 	if err != nil {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Unmarshal Workflow Data:", err)
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Unmarshal Workflow Data:", err)
 		return nil, err
 	}
 
@@ -1840,7 +1839,7 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string
 		CompanyID: taskRes.GetData().GetCompanyID(),
 	})
 	if err != nil {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Detail Company:", err)
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Detail Company:", err)
 		return nil, err
 	}
 
@@ -1874,7 +1873,7 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string
 
 	notificationDataByte, err := json.Marshal(notificationData)
 	if err != nil {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Notification Data:", err)
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Notification Data:", err)
 		return nil, err
 	}
 
@@ -1893,11 +1892,11 @@ func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string
 
 	requestDataByte, err := json.Marshal(requestData)
 	if err != nil {
-		logrus.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Send Notification Workflow Request Data:", err)
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Send Notification Workflow Request Data:", err)
 		return nil, err
 	}
 
-	logrus.Println("[api][func: NotificationRequestBuilder] Send Notification Workflow Request Data:", string(requestDataByte))
+	log.Println("[api][func: NotificationRequestBuilder] Send Notification Workflow Request Data:", string(requestDataByte))
 
 	return requestData, nil
 
