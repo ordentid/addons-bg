@@ -8,6 +8,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type QueryBuilder struct {
@@ -106,4 +107,38 @@ func (p *GormProvider) UpdateOrCreateMapping(ctx context.Context, data *pb.Mappi
 
 		return data, nil
 	}
+}
+
+func (p *GormProvider) CreateBgTask(ctx context.Context, data *pb.BgTaskORM) (*pb.BgTaskORM, error) {
+	query := p.db_main.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	})
+
+	if err := query.Debug().Create(&data).Error; err != nil {
+		return nil, status.Errorf(codes.Internal, "DB Internal Error: %v", err)
+	}
+
+	return data, nil
+}
+
+func (p *GormProvider) UpdateBgTask(ctx context.Context, taskId uint64, data *pb.BgTaskORM) (*pb.BgTaskORM, error) {
+	model := &pb.BgTaskORM{
+		TaskID: taskId,
+	}
+	query := p.db_main.Model(&pb.BgTaskORM{}).Where(model)
+	if err := query.Find(&model).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	if err := p.db_main.Model(&model).Updates(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Data Not Found")
+		} else {
+			return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+		}
+	}
+
+	return model, nil
 }

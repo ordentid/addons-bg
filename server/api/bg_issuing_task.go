@@ -590,6 +590,37 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 			}
 
+			taskByIDRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{
+				Type: "BG Issuing",
+				ID:   taskRes.Data.TaskID,
+			})
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Unable to Get Task By ID:", err)
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
+			_, err = s.provider.CreateBgTask(ctx, &pb.BgTaskORM{
+				TaskID:             taskByIDRes.GetData().GetTaskID(),
+				TransactionID:      fmt.Sprintf("BGI%v", taskByIDRes.GetData().GetTaskID()),
+				Status:             int32(taskByIDRes.GetData().GetStatus()),
+				Step:               int32(taskByIDRes.GetData().GetStep()),
+				CreatedByID:        taskByIDRes.GetData().GetCreatedByID(),
+				LastApprovedByID:   taskByIDRes.GetData().GetLastApprovedByID(),
+				Data:               taskByIDRes.GetData().GetData(),
+				Comment:            taskByIDRes.GetData().GetComment(),
+				Reasons:            taskByIDRes.GetData().GetReasons(),
+				LastApprovedByName: taskByIDRes.GetData().GetLastApprovedByName(),
+				CreatedByName:      taskByIDRes.GetData().GetCreatedByName(),
+				DataBak:            taskByIDRes.GetData().GetDataBak(),
+				WorkflowDoc:        taskByIDRes.GetData().GetWorkflowDoc(),
+				CompanyID:          taskByIDRes.GetData().GetCompanyID(),
+				HoldingID:          taskByIDRes.GetData().GetHoldingID(),
+			})
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Failed when execute CreateBgTask:", err.Error())
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
 			log.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: END")
 
 			log.Println("[api][func: CreateTaskIssuing] Send for Approval Notification: START")
@@ -904,6 +935,39 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 	savedTask, err := taskClient.SaveTaskWithWorkflow(newCtx, saveReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
 		log.Errorln("[api][func: TaskAction] Failed when execute SaveTaskWithWorkflow function:", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	taskByIDRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{
+		Type: "BG Issuing",
+		ID:   req.GetTaskID(),
+	})
+	if err != nil {
+		log.Errorln("[api][func: TaskAction] Unable to Get Task By ID:", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	_, err = s.provider.UpdateBgTask(ctx, taskByIDRes.GetData().GetTaskID(), &pb.BgTaskORM{
+		TransactionID:      fmt.Sprintf("BGI%v", taskByIDRes.GetData().GetTaskID()),
+		Status:             int32(taskByIDRes.GetData().GetStatus()),
+		Step:               int32(taskByIDRes.GetData().GetStep()),
+		CreatedByID:        taskByIDRes.GetData().GetCreatedByID(),
+		LastApprovedByID:   taskByIDRes.GetData().GetLastApprovedByID(),
+		LastRejectedByID:   taskByIDRes.GetData().GetLastRejectedByID(),
+		Data:               taskByIDRes.GetData().GetData(),
+		Comment:            taskByIDRes.GetData().GetComment(),
+		Reasons:            taskByIDRes.GetData().GetReasons(),
+		LastApprovedByName: taskByIDRes.GetData().GetLastApprovedByName(),
+		LastRejectedByName: taskByIDRes.GetData().GetLastRejectedByName(),
+		CreatedByName:      taskByIDRes.GetData().GetCreatedByName(),
+		UpdatedByName:      taskByIDRes.GetData().GetUpdatedByName(),
+		DataBak:            taskByIDRes.GetData().GetDataBak(),
+		WorkflowDoc:        taskByIDRes.GetData().GetWorkflowDoc(),
+		CompanyID:          taskByIDRes.GetData().GetCompanyID(),
+		HoldingID:          taskByIDRes.GetData().GetHoldingID(),
+	})
+	if err != nil {
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute CreateBgTask:", err.Error())
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 

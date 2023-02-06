@@ -221,6 +221,7 @@ type BgTaskORM struct {
 	Status             int32  `gorm:"default:1;not null"`
 	Step               int32  `gorm:"default:1;not null"`
 	TaskID             uint64 `gorm:"primary_key;not null"`
+	TransactionID      string `gorm:"default:1;not null"`
 	UpdatedAt          *time.Time
 	UpdatedByID        uint64
 	UpdatedByName      string
@@ -243,6 +244,7 @@ func (m *BgTask) ToORM(ctx context.Context) (BgTaskORM, error) {
 		}
 	}
 	to.TaskID = m.TaskID
+	to.TransactionID = m.TransactionID
 	to.Status = int32(m.Status)
 	to.Step = int32(m.Step)
 	to.CreatedByID = m.CreatedByID
@@ -289,6 +291,7 @@ func (m *BgTaskORM) ToPB(ctx context.Context) (BgTask, error) {
 		}
 	}
 	to.TaskID = m.TaskID
+	to.TransactionID = m.TransactionID
 	to.Status = TaskStatus(m.Status)
 	to.Step = TaskStep(m.Step)
 	to.CreatedByID = m.CreatedByID
@@ -1444,6 +1447,10 @@ func DefaultApplyFieldMaskBgTask(ctx context.Context, patchee *BgTask, patcher *
 	for i, f := range updateMask.Paths {
 		if f == prefix+"TaskID" {
 			patchee.TaskID = patcher.TaskID
+			continue
+		}
+		if f == prefix+"TransactionID" {
+			patchee.TransactionID = patcher.TransactionID
 			continue
 		}
 		if f == prefix+"Status" {
