@@ -24,24 +24,6 @@ enum BeneficiaryType {
     IsMappedBeneficiary = 1;
 }
 
-enum TaskStatus {
-    AllStatus = 0;
-    Pending = 1;
-    Draft = 2;
-    Returned = 3;
-    Approved = 4;
-    Rejected = 5;
-    DeleteRequest = 6;
-    Deleted = 7;
-}
-
-enum TaskStep {
-    AllStep = 0;
-    Maker = 1;
-    Checker = 2;
-    Signer = 3;
-    Releaser = 4;
-}
 
 enum ApplicantType {
     CompanyApplicant = 0;

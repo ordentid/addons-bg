@@ -6,13 +6,13 @@ if [ -f "$swagger" ] ; then
     rm "$swagger"
 fi
 
-# go get -d google.golang.org/protobuf/cmd/protoc-gen-go
-# go get -d google.golang.org/grpc/cmd/protoc-gen-go-grpc
-# go get -d github.com/mwitkow/go-proto-validators
-# go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
-# go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
+go get -d google.golang.org/protobuf/cmd/protoc-gen-go
+go get -d google.golang.org/grpc/cmd/protoc-gen-go-grpc
+go get -d github.com/mwitkow/go-proto-validators
+go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-grpc-gateway
+go get -d github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2
 
-# go mod vendor
+go mod vendor
 
 # go install google.golang.org/protobuf/cmd/protoc-gen-go
 # go install google.golang.org/grpc/cmd/protoc-gen-go-grpc
