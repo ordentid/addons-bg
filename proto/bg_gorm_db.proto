@@ -102,39 +102,23 @@ message BgTask {
         table: "tasks",
     };
     uint64 taskID = 1 [(gorm.field).tag = {primary_key: true not_null: true}];
-    string type = 2 [(gorm.field).tag = {not_null: true}];
-    
-    TaskStatus status = 3 [(gorm.field).tag = { default: "1" not_null: true}];
-
-    TaskStep step = 4 [(gorm.field).tag = { default: "1" not_null: true}];
-    
-    uint64 createdByID = 5 [(gorm.field).tag = { not_null: true}];
-    uint64 lastApprovedByID = 6;
-    uint64 lastRejectedByID = 7;
-
-    
-    string data = 8 [(gorm.field).tag = { type: "jsonb" }];
-    
-    string comment = 9 [(gorm.field).tag = { type: "text" }];
-    
-    uint64 featureID = 10;
-    
-    bool isParentActive = 12 [(google.api.field_behavior) = OUTPUT_ONLY, (gorm.field).tag = {default: "false" }];
-    
-    string reasons = 13 [(gorm.field).tag = { type: "varchar(255)" }];
-    string lastApprovedByName = 14 [(google.api.field_behavior) = OPTIONAL];
-    string lastRejectedByName = 15 [(google.api.field_behavior) = OPTIONAL];
-    
-    uint64 updatedByID = 16;
-    string updatedByName = 17 [(google.api.field_behavior) = OPTIONAL];
-    string createdByName = 18 [(google.api.field_behavior) = OPTIONAL];
-
-    string dataBak = 19 [(google.api.field_behavior) = OUTPUT_ONLY, (gorm.field).tag = { type: "jsonb" }];
-    string childBak = 20 [(google.api.field_behavior) = OUTPUT_ONLY, (gorm.field).tag = { type: "jsonb" default: "[]" }];
-
-    string workflowDoc = 21 [(gorm.field).tag = { type: "jsonb" default: "{}" }];
-    uint64 companyID = 22;
-    uint64 holdingID = 23;
+    TaskStatus status = 2 [(gorm.field).tag = { default: "1" not_null: true}];
+    TaskStep step = 3 [(gorm.field).tag = { default: "1" not_null: true}];
+    uint64 createdByID = 4 [(gorm.field).tag = { not_null: true}];
+    uint64 lastApprovedByID = 5;
+    uint64 lastRejectedByID = 6;
+    string data = 7 [(gorm.field).tag = { type: "jsonb" }];
+    string comment = 8 [(gorm.field).tag = { type: "text" }];
+    string reasons = 9 [(gorm.field).tag = { type: "varchar(255)" }];
+    string lastApprovedByName = 10 [(google.api.field_behavior) = OPTIONAL];
+    string lastRejectedByName = 11 [(google.api.field_behavior) = OPTIONAL];
+    uint64 updatedByID = 12;
+    string updatedByName = 13 [(google.api.field_behavior) = OPTIONAL];
+    string createdByName = 14 [(google.api.field_behavior) = OPTIONAL];
+    string dataBak = 15 [(google.api.field_behavior) = OUTPUT_ONLY, (gorm.field).tag = { type: "jsonb" }];
+    string workflowDoc = 16 [(gorm.field).tag = { type: "jsonb" default: "{}" }];
+    uint64 companyID = 17;
+    uint64 holdingID = 18;
 
     google.protobuf.Timestamp createdAt = 101;
     google.protobuf.Timestamp updatedAt = 102;

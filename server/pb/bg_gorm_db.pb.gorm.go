@@ -204,7 +204,6 @@ type CurrencyWithAfterToPB interface {
 }
 
 type BgTaskORM struct {
-	ChildBak           string `gorm:"type:jsonb;default:[]"`
 	Comment            string `gorm:"type:text"`
 	CompanyID          uint64
 	CreatedAt          *time.Time
@@ -213,9 +212,7 @@ type BgTaskORM struct {
 	Data               string `gorm:"type:jsonb"`
 	DataBak            string `gorm:"type:jsonb"`
 	DeletedAt          *time.Time
-	FeatureID          uint64
 	HoldingID          uint64
-	IsParentActive     bool `gorm:"default:false"`
 	LastApprovedByID   uint64
 	LastApprovedByName string
 	LastRejectedByID   uint64
@@ -224,7 +221,6 @@ type BgTaskORM struct {
 	Status             int32  `gorm:"default:1;not null"`
 	Step               int32  `gorm:"default:1;not null"`
 	TaskID             uint64 `gorm:"primary_key;not null"`
-	Type               string `gorm:"not null"`
 	UpdatedAt          *time.Time
 	UpdatedByID        uint64
 	UpdatedByName      string
@@ -247,7 +243,6 @@ func (m *BgTask) ToORM(ctx context.Context) (BgTaskORM, error) {
 		}
 	}
 	to.TaskID = m.TaskID
-	to.Type = m.Type
 	to.Status = int32(m.Status)
 	to.Step = int32(m.Step)
 	to.CreatedByID = m.CreatedByID
@@ -255,8 +250,6 @@ func (m *BgTask) ToORM(ctx context.Context) (BgTaskORM, error) {
 	to.LastRejectedByID = m.LastRejectedByID
 	to.Data = m.Data
 	to.Comment = m.Comment
-	to.FeatureID = m.FeatureID
-	to.IsParentActive = m.IsParentActive
 	to.Reasons = m.Reasons
 	to.LastApprovedByName = m.LastApprovedByName
 	to.LastRejectedByName = m.LastRejectedByName
@@ -264,7 +257,6 @@ func (m *BgTask) ToORM(ctx context.Context) (BgTaskORM, error) {
 	to.UpdatedByName = m.UpdatedByName
 	to.CreatedByName = m.CreatedByName
 	to.DataBak = m.DataBak
-	to.ChildBak = m.ChildBak
 	to.WorkflowDoc = m.WorkflowDoc
 	to.CompanyID = m.CompanyID
 	to.HoldingID = m.HoldingID
@@ -297,7 +289,6 @@ func (m *BgTaskORM) ToPB(ctx context.Context) (BgTask, error) {
 		}
 	}
 	to.TaskID = m.TaskID
-	to.Type = m.Type
 	to.Status = TaskStatus(m.Status)
 	to.Step = TaskStep(m.Step)
 	to.CreatedByID = m.CreatedByID
@@ -305,8 +296,6 @@ func (m *BgTaskORM) ToPB(ctx context.Context) (BgTask, error) {
 	to.LastRejectedByID = m.LastRejectedByID
 	to.Data = m.Data
 	to.Comment = m.Comment
-	to.FeatureID = m.FeatureID
-	to.IsParentActive = m.IsParentActive
 	to.Reasons = m.Reasons
 	to.LastApprovedByName = m.LastApprovedByName
 	to.LastRejectedByName = m.LastRejectedByName
@@ -314,7 +303,6 @@ func (m *BgTaskORM) ToPB(ctx context.Context) (BgTask, error) {
 	to.UpdatedByName = m.UpdatedByName
 	to.CreatedByName = m.CreatedByName
 	to.DataBak = m.DataBak
-	to.ChildBak = m.ChildBak
 	to.WorkflowDoc = m.WorkflowDoc
 	to.CompanyID = m.CompanyID
 	to.HoldingID = m.HoldingID
@@ -1458,10 +1446,6 @@ func DefaultApplyFieldMaskBgTask(ctx context.Context, patchee *BgTask, patcher *
 			patchee.TaskID = patcher.TaskID
 			continue
 		}
-		if f == prefix+"Type" {
-			patchee.Type = patcher.Type
-			continue
-		}
 		if f == prefix+"Status" {
 			patchee.Status = patcher.Status
 			continue
@@ -1490,14 +1474,6 @@ func DefaultApplyFieldMaskBgTask(ctx context.Context, patchee *BgTask, patcher *
 			patchee.Comment = patcher.Comment
 			continue
 		}
-		if f == prefix+"FeatureID" {
-			patchee.FeatureID = patcher.FeatureID
-			continue
-		}
-		if f == prefix+"IsParentActive" {
-			patchee.IsParentActive = patcher.IsParentActive
-			continue
-		}
 		if f == prefix+"Reasons" {
 			patchee.Reasons = patcher.Reasons
 			continue
@@ -1524,10 +1500,6 @@ func DefaultApplyFieldMaskBgTask(ctx context.Context, patchee *BgTask, patcher *
 		}
 		if f == prefix+"DataBak" {
 			patchee.DataBak = patcher.DataBak
-			continue
-		}
-		if f == prefix+"ChildBak" {
-			patchee.ChildBak = patcher.ChildBak
 			continue
 		}
 		if f == prefix+"WorkflowDoc" {
