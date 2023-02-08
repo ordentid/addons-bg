@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -29,7 +28,7 @@ func (p *GormProvider) GetList(ctx context.Context, data interface{}, v *ListFil
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -41,7 +40,7 @@ func (p *GormProvider) GetFirst(ctx context.Context, data interface{}) (interfac
 	var err error
 	if err = query.First(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 		}
 	}

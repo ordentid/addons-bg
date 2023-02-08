@@ -23,15 +23,23 @@ type Config struct {
 	JWTDuration string `config:"JWT_DURATION"`
 	Dsn         string `config:"DB_DSN"`
 
-	TaskService        string `config:"TASK_SERVICE"`
-	AuthService        string `config:"AUTH_SERVICE"`
-	CompanyService     string `config:"COMPANY_SERVICE"`
-	WorkflowService    string `config:"WORKFLOW_SERVICE"`
-	SystemService      string `config:"SYSTEM_SERVICE"`
-	TransactionService string `config:"TRANSACTION_SERVICE"`
-	AccountService     string `config:"ACCOUNT_SERVICE"`
-	MenuService        string `config:"MENU_SERVICE"`
-	UserService        string `config:"USER_SERVICE"`
+	TaskService         string `config:"TASK_SERVICE"`
+	AuthService         string `config:"AUTH_SERVICE"`
+	CompanyService      string `config:"COMPANY_SERVICE"`
+	WorkflowService     string `config:"WORKFLOW_SERVICE"`
+	SystemService       string `config:"SYSTEM_SERVICE"`
+	TransactionService  string `config:"TRANSACTION_SERVICE"`
+	AccountService      string `config:"ACCOUNT_SERVICE"`
+	MenuService         string `config:"MENU_SERVICE"`
+	UserService         string `config:"USER_SERVICE"`
+	CutOffService       string `config:"CUT_OFF_SERVICE"`
+	NotificationService string `config:"NOTIFICATION_SERVICE"`
+
+	LoggerHost string `config:"LOGGER_HOST"`
+	LoggerPort string `config:"LOGGER_PORT"`
+	LoggerTag  string `config:"LOGGER_TAG"`
+
+	AppName string `config:"APP_NAME"`
 }
 
 var config *Config
@@ -42,8 +50,12 @@ func initConfig() {
 	godotenv.Load(".env")
 	// if err != nil {
 	// 	log.Println(err)
-	// 	log.Fatalf("Error loading .env file")
 	// }
+
+	appName := getEnv("APP_NAME", "")
+	if appName == "" {
+		appName = getEnv("ELASTIC_APM_SERVICE_NAME", "")
+	}
 
 	config = &Config{
 		ListenAddress: fmt.Sprintf("%s:%s", os.Getenv("HOST"), os.Getenv("PORT")),
@@ -54,20 +66,27 @@ func initConfig() {
 			"Content-Length", "Authorization", "ResponseType",
 			"X-Requested-With", "X-Forwarded-For",
 		},
-		CorsAllowedMethods: []string{"GET", "POST"},
-		CorsAllowedOrigins: []string{"*"},
-		JWTSecret:          getEnv("JWT_SECRET", "secret"),
-		JWTDuration:        getEnv("JWT_DURATION", "48h"),
-		Dsn:                getEnv("DB_DSN", ""),
-		TaskService:        getEnv("TASK_SERVICE", ":9090"),
-		AuthService:        getEnv("AUTH_SERVICE", ":9105"),
-		CompanyService:     getEnv("COMPANY_SERVICE", ":9092"),
-		WorkflowService:    getEnv("WORKFLOW_SERVICE", ":9099"),
-		SystemService:      getEnv("SYSTEM_SERVICE", ":9101"),
-		TransactionService: getEnv("TRANSACTION_SERVICE", ":9201"),
-		AccountService:     getEnv("ACCOUNT_SERVICE", ":9093"),
-		MenuService:        getEnv("MENU_SERVICE", ":9096"),
-		UserService:        getEnv("USER_SERVICE", ":9095"),
+		CorsAllowedMethods:  []string{"GET", "POST"},
+		CorsAllowedOrigins:  []string{"*"},
+		JWTSecret:           getEnv("JWT_SECRET", "secret"),
+		JWTDuration:         getEnv("JWT_DURATION", "48h"),
+		Dsn:                 getEnv("DB_DSN", ""),
+		TaskService:         getEnv("TASK_SERVICE", ":9090"),
+		AuthService:         getEnv("AUTH_SERVICE", ":9105"),
+		CompanyService:      getEnv("COMPANY_SERVICE", ":9092"),
+		WorkflowService:     getEnv("WORKFLOW_SERVICE", ":9099"),
+		SystemService:       getEnv("SYSTEM_SERVICE", ":9101"),
+		TransactionService:  getEnv("TRANSACTION_SERVICE", ":9201"),
+		AccountService:      getEnv("ACCOUNT_SERVICE", ":9093"),
+		MenuService:         getEnv("MENU_SERVICE", ":9096"),
+		UserService:         getEnv("USER_SERVICE", ":9095"),
+		CutOffService:       getEnv("CUT_OFF_SERVICE", ":9327"),
+		NotificationService: getEnv("NOTIFICATION_SERVICE", ":9094"),
+
+		LoggerHost: getEnv("LOGGER_HOST", ""),
+		LoggerPort: getEnv("LOGGER_PORT", ""),
+		LoggerTag:  getEnv("LOGGER_TAG", ""),
+		AppName:    appName,
 	}
 
 }

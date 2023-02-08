@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"regexp"
 	"strings"
+	"sync"
 
 	"google.golang.org/grpc"
 
@@ -15,6 +16,8 @@ import (
 
 	svc "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
+
+	servicelogger "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/service-logger"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/api"
 
@@ -33,6 +36,13 @@ const defaultPort = 9090
 const serviceName = "BG"
 
 var s *grpc.Server
+
+var log *logrus.Logger
+
+func init() {
+	initConfig()
+	log = servicelogger.New(config.AppName)
+}
 
 func main() {
 
@@ -70,7 +80,7 @@ func grpcServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(port); err != nil {
-					logrus.Fatalf("failed RPC serve: %v", err)
+					log.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
@@ -82,9 +92,9 @@ func grpcServerCmd() cli.Command {
 
 			closeDBConnections()
 
-			logrus.Println("Stopping RPC server")
+			log.Println("Stopping RPC server")
 			s.Stop()
-			logrus.Println("RPC server stopped")
+			log.Println("RPC server stopped")
 			return nil
 		},
 	}
@@ -110,7 +120,7 @@ func gatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := httpGatewayServer(port, grpcEndpoint); err != nil {
-					logrus.Fatalf("failed JSON Gateway serve: %v", err)
+					log.Errorln("Internal error: %v", err)
 				}
 			}()
 
@@ -120,7 +130,7 @@ func gatewayServerCmd() cli.Command {
 			// Block until a signal is received
 			<-ch
 
-			logrus.Println("JSON Gateway server stopped")
+			log.Println("JSON Gateway server stopped")
 
 			return nil
 		},
@@ -153,13 +163,13 @@ func grpcGatewayServerCmd() cli.Command {
 
 			go func() {
 				if err := grpcServer(rpcPort); err != nil {
-					logrus.Fatalf("failed RPC serve: %v", err)
+					log.Errorln("failed gRPC: %v", err)
 				}
 			}()
 
 			go func() {
 				if err := httpGatewayServer(httpPort, grpcEndpoint); err != nil {
-					logrus.Fatalf("failed JSON Gateway serve: %v", err)
+					log.Errorln("failed httpGateway: %v", err)
 				}
 			}()
 
@@ -169,11 +179,11 @@ func grpcGatewayServerCmd() cli.Command {
 			// Block until a signal is received
 			<-ch
 
-			logrus.Println("Stopping RPC server")
+			log.Println("Stopping RPC server")
 			s.GracefulStop()
 			closeDBConnections()
-			logrus.Println("RPC server stopped")
-			logrus.Println("JSON Gateway server stopped")
+			log.Println("RPC server stopped")
+			log.Println("JSON Gateway server stopped")
 
 			return nil
 		},
@@ -182,14 +192,14 @@ func grpcGatewayServerCmd() cli.Command {
 
 func grpcServer(port int) error {
 	// RPC
-	logrus.Printf("Starting %s Service ................", serviceName)
-	logrus.Printf("Starting RPC server on port %d...", port)
+	log.Printf("Starting %s Service ................", serviceName)
+	log.Printf("Starting RPC server on port %d...", port)
 	list, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
 		return err
 	}
 
-	// logrus.Println("===========> %s", taskConn.GetState().String())
+	// log.Println("===========> %s", taskConn.GetState().String())
 
 	svcConn := svc.InitServicesConn(
 		"",
@@ -202,6 +212,8 @@ func grpcServer(port int) error {
 		config.AccountService,
 		config.MenuService,
 		config.UserService,
+		config.CutOffService,
+		config.NotificationService,
 	)
 	defer svcConn.CloseAllServicesConn()
 
@@ -210,6 +222,7 @@ func grpcServer(port int) error {
 		config.JWTDuration,
 		db_main,
 		svcConn,
+		log,
 	)
 	authInterceptor := api.NewAuthInterceptor(apiServer.GetManager())
 
@@ -256,7 +269,7 @@ func httpGatewayServer(port int, grpcEndpoint string) error {
 	mux.Handle("/api/bg/docs/", http.StripPrefix("/api/bg/docs/", fs))
 
 	// Start
-	logrus.Printf("Starting JSON Gateway server on port %d...", port)
+	log.Printf("Starting JSON Gateway server on port %d...", port)
 
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), cors(mux))
 }
@@ -265,36 +278,44 @@ func serveSwagger(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "www/swagger.json")
 }
 
+var (
+	envOrigins []string
+	once       sync.Once
+)
+
+func initEnvOrigins() {
+	envOrigin := os.Getenv("ENV-Allow-Origin")
+	envOrigins = strings.Split(envOrigin, ",")
+	for i, v := range envOrigins {
+		envOrigins[i] = strings.TrimSpace(v)
+	}
+}
+
 func originMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		once.Do(initEnvOrigins)
+
 		origin := r.Header.Get("Origin")
 		referer := r.Header.Get("Referer")
-		envOrigin := r.Header.Get("ENV-Allow-Origin")
-		envOrigins := strings.Split(envOrigin, ",")
-		for i, v := range envOrigins {
-			envOrigins[i] = strings.TrimSpace(v)
-		}
 
-		logrus.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
+		log.Infof("Origin: %v - Ref: %v - ENV: %v", origin, referer, envOrigins)
 
 		if getEnv("ENV", "DEV") == "PROD" {
+			if origin == "" && referer == "" {
+				http.Error(w, "Bad Request", http.StatusBadRequest)
+				return
+			}
+
 			pass := false
-			if origin != "" {
-				for _, v := range envOrigins {
-					if origin == v {
-						pass = true
-					}
+			for _, v := range envOrigins {
+				if origin == v || strings.Contains(referer, v) {
+					pass = true
+					break
 				}
 			}
-			if referer != "" {
-				for _, v := range envOrigins {
-					if strings.Contains(referer, v) {
-						pass = true
-					}
-				}
-			}
+
 			if !pass {
-				http.Error(w, "Service Unavailable", http.StatusServiceUnavailable)
+				http.Error(w, "Forbidden", http.StatusForbidden)
 				return
 			}
 		}
@@ -315,7 +336,7 @@ func allowedOrigin(origin string) bool {
 
 func cors(h http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Strict-Transport-Security", "max-age=31536000")
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload")
 
 		if allowedOrigin(r.Header.Get("Origin")) {
 			if getEnv("ENV", "DEV") != "PROD" {

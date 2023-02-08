@@ -12,7 +12,6 @@ import (
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/leekchan/accounting"
-	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
@@ -97,7 +96,7 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -184,8 +183,8 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 		}
 		// Cell height calculation loop
 		for colJ := 0; colJ < len(vals); colJ++ {
-			logrus.Print("Column Index: ", colJ)
-			logrus.Print("Length: ", len(widths))
+			log.Print("Column Index: ", colJ)
+			log.Print("Length: ", len(widths))
 			cell.str = vals[colJ]
 			cell.list = pdf.SplitLines([]byte(cell.str), widths[colJ])
 			cell.ht = float64(len(cell.list)) * lineHt
@@ -230,10 +229,10 @@ func (file *TransactionFile) TransactionToPDFv2(ctx context.Context) (*httpbody.
 
 	err = pdf.Output(&buf)
 	if err == nil {
-		logrus.Println("Length of buffer: %d\n", buf.Len())
+		log.Println("Length of buffer: %d\n", buf.Len())
 		// return nil, status.Errorf(codes.Internal, "Server error")
 	} else {
-		logrus.Errorf("Error generating PDF: %s\n", err)
+		log.Errorf("Error generating PDF: %s\n", err)
 		return nil, status.Errorf(codes.Internal, "Server error")
 	}
 

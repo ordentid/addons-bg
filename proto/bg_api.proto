@@ -201,7 +201,7 @@ service ApiService {
 
     rpc GetTransactionAttachment(GetTransactionAttachmentRequest) returns (GetTransactionAttachmentResponse) {
         option (google.api.http) = {
-            get: "/api/bg/transaction/attachment/{referenceNo}"
+            get: "/api/bg/transaction/attachment/{registrationNo}"
         };
         option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
             security: {} // Disable security key
