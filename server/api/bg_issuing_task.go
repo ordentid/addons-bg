@@ -696,7 +696,6 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	taskClient := s.svcConn.TaskServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
-	transactionClient := s.svcConn.TransactionServiceClient()
 
 	task, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: "BG Issuing", ID: req.GetTaskID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -706,28 +705,6 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	if task.GetData() == nil {
 		return nil, status.Error(codes.NotFound, "Task not found")
-	}
-
-	if contains([]string{"approve", "reject", "rework", "delete"}, strings.ToLower(req.GetAction())) {
-		if task.GetData().GetStatus() != task_pb.Statuses_Draft {
-			if currentUser.IdToken != "" {
-				if req.PassCode == "" {
-					return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-				}
-				tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-					UserName: currentUser.IdToken,
-					PassCode: req.PassCode,
-				})
-				if err != nil {
-					log.Errorln("[api][func: TaskAction] Failed when validate OTP:", err.Error())
-					return nil, err
-				}
-				if tokenValidRes.Data.ResponseCode != "00" {
-					log.Errorln("[api][func: TaskAction] Failed when validate OTP:", tokenValidRes.Data.ResponseMessage)
-					return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
-				}
-			}
-		}
 	}
 
 	if task.GetData().GetStatus() == task_pb.Statuses_Draft {
