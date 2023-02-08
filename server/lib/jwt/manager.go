@@ -124,7 +124,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 
 	userClaims, err := manager.Verify(accessToken)
 	if err != nil {
-		logrus.Errorf("[api.task][func:GetMeFromJWT][01] failed to verify token '%s', error: %v", accessToken, err)
 		return nil, status.Errorf(codes.Unauthenticated, "Session expired")
 	}
 
@@ -178,7 +177,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 
 		decrypted, err := aes.Decrypt(userClaims.EncryptedCompanyIDs)
 		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt companyIDs: %v", err)
 			return nil, status.Errorf(codes.Internal, "Server error")
 		}
 
@@ -186,7 +184,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 			var ids []uint64
 			err = json.Unmarshal([]byte(decrypted), &ids)
 			if err != nil {
-				logrus.Errorf("[api.auth][func:VerifyToken][06] Failed to unmarshal companyIDs: %v", err)
 				return nil, status.Errorf(codes.Internal, "Server error")
 			}
 
@@ -205,7 +202,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 	if userClaims.P != "" {
 		currentUser.UserID, err = aes.Decrypt(userClaims.P)
 		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt Principal: %v", err)
 			return nil, status.Errorf(codes.Internal, "Server error")
 		}
 	}
@@ -213,7 +209,6 @@ func (manager *JWTManager) GetMeFromJWT(ctx context.Context, accessToken string)
 	if userClaims.E != "" {
 		currentUser.CompanyID, err = aes.Decrypt(userClaims.E)
 		if err != nil {
-			logrus.Errorf("[api.auth][func:VerifyToken][05] Failed to decrypt Entity: %v", err)
 			return nil, status.Errorf(codes.Internal, "Server error")
 		}
 	}

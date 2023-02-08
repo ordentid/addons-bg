@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 
 	account_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
@@ -15,7 +16,6 @@ import (
 	transaction_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
 	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -48,7 +48,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	var trailer metadata.MD
 
 	taskClient := s.svcConn.TaskServiceClient()
-	accountClient := s.svcConn.AccountServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
 
 	statuses, filters, err := s.FilterBuilder(ctx, *currentUser)
@@ -57,12 +56,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	req.Filter = strings.Join([]string{strings.Join(filters, ","), req.GetFilter()}, ",")
-
-	if req.FilterOr != "" {
-		req.FilterOr = req.FilterOr + ",created_by_id:" + fmt.Sprint(currentUser.UserID)
-	} else {
-		req.FilterOr = "created_by_id:" + fmt.Sprint(currentUser.UserID)
-	}
 
 	customOrder := ""
 	if req.Sort == "status" {
@@ -79,7 +72,6 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 	}
 
 	filter := &task_pb.Task{
-		Type:      "BG Issuing",
 		CompanyID: currentUser.CompanyID,
 	}
 
@@ -90,41 +82,29 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		filter.Step = task_pb.Steps(req.Step.Number())
 	}
 
-	listAccountReq := &account_pb.ListAccountRequest{
-		ProductID: 85,
-	}
-
-	listAccountRes, err := accountClient.ListAccountByRole(newCtx, listAccountReq)
-	if err != nil {
-		logrus.Println("[api][func: GetTaskInternalTransfer] Unable to Get Account By Role:", err.Error())
-		return nil, err
-	}
-
-	accountIDs := []uint64{}
-	for _, v := range listAccountRes.Data {
-		accountIDs = append(accountIDs, v.AccountID)
-	}
-
 	listTaskReq := &task_pb.ListTaskRequest{
-		Task:            filter,
-		Limit:           req.GetLimit(),
-		Page:            req.GetPage(),
-		Sort:            req.GetSort(),
-		Dir:             task_pb.ListTaskRequestDirection(req.GetDir()),
-		Filter:          req.GetFilter(),
-		Query:           req.GetQuery(),
-		FilterOr:        req.GetFilterOr(),
-		CustomOrder:     customOrder,
-		RoleIDFilter:    currentUser.RoleIDs,
-		AccountIDFilter: accountIDs,
+		Task:         filter,
+		Limit:        req.GetLimit(),
+		Page:         req.GetPage(),
+		Sort:         req.GetSort(),
+		Dir:          task_pb.ListTaskRequestDirection(req.GetDir()),
+		Filter:       req.GetFilter(),
+		Query:        req.GetQuery(),
+		FilterOr:     req.GetFilterOr(),
+		CustomOrder:  customOrder,
+		RoleIDFilter: currentUser.RoleIDs,
+		UserIDFilter: currentUser.UserID,
+		Services:     "BG Issuing",
 	}
 
 	listTaskRes, err := taskClient.GetListTask(newCtx, listTaskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
+		log.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get List Task:", err.Error())
 		return nil, err
 	}
 
 	for _, v := range listTaskRes.Data {
+
 		task := &pb.Task{
 			TaskID:             v.GetTaskID(),
 			Type:               v.GetType(),
@@ -148,23 +128,27 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 		taskData := pb.IssuingData{}
 		err = json.Unmarshal([]byte(v.Data), &taskData)
 		if err != nil {
+			log.Errorln("[api][func: GetTaskInternalTransfer] Unable to Unmarshal Task Data:", err.Error())
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
-		var company *pb.Company
+		company := &pb.Company{}
 
 		companyRes, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: v.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 		if err != nil {
+			log.Errorln("[api][func: GetTaskInternalTransfer] Unable to Get List Company:", err.Error())
 			return nil, err
 		}
 
 		workflow := pb.ValidateWorkflowData{}
 		err = json.Unmarshal([]byte(v.GetWorkflowDoc()), &workflow)
 		if err != nil {
+			log.Errorln("[api][func: GetTaskInternalTransfer] Unable to Unmarshal Workflow Data:", err.Error())
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
 		if len(companyRes.GetData()) > 0 {
+
 			company = &pb.Company{
 				CompanyID:          companyRes.Data[0].GetCompanyID(),
 				HoldingID:          companyRes.Data[0].GetHoldingID(),
@@ -174,8 +158,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 				CreatedAt:          companyRes.Data[0].GetCreatedAt(),
 				UpdatedAt:          companyRes.Data[0].GetUpdatedAt(),
 			}
-		} else {
-			return nil, status.Errorf(codes.NotFound, "Company not found.")
+
 		}
 
 		result.Data = append(result.Data, &pb.TaskIssuingData{
@@ -184,6 +167,7 @@ func (s *Server) GetTaskIssuing(ctx context.Context, req *pb.GetTaskIssuingReque
 			Data:     &taskData,
 			Workflow: &workflow,
 		})
+
 	}
 
 	result.Pagination = &pb.PaginationResponse{
@@ -216,13 +200,27 @@ func (s *Server) GetTaskIssuingDetail(ctx context.Context, req *pb.GetTaskIssuin
 	if err != nil {
 		return nil, err
 	}
+
 	if currentUser == nil || currentUser.UserType != "cu" {
 		return nil, s.UnauthorizedError()
 	}
+
 	var trailer metadata.MD
 
 	taskClient := s.svcConn.TaskServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
+
+	taskListRes, err := s.GetTaskIssuing(ctx, &pb.GetTaskIssuingRequest{
+		Filter: fmt.Sprintf("task_id:%d", req.TaskID),
+	})
+	if err != nil {
+		log.Errorln("[api][func: GetTaskIssuingDetail] Unable to Get Task Issuing:", err.Error())
+		return nil, err
+	}
+
+	if len(taskListRes.GetData()) < 1 {
+		return nil, status.Errorf(codes.NotFound, "Task Not Found")
+	}
 
 	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{ID: req.TaskID, Type: "BG Issuing"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
@@ -313,7 +311,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	if err := req.Validate(); err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Bad Request:", err)
+		log.Errorln("[api][func: CreateTaskIssuing] Bad Request:", err)
 		return nil, status.Error(codes.InvalidArgument, "Invalid Argument")
 	}
 
@@ -324,13 +322,13 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	}
 
 	if req.Data.Publishing.LawArticle != "Pasal 1832" {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Bad Request: Law Article is not 'Pasal 1832'")
+		log.Errorln("[api][func: CreateTaskIssuing] Bad Request: Law Article is not 'Pasal 1832'")
 		return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Law Article is not 'Pasal 1832'")
 	}
 
 	if req.Data.Publishing.PublishingType == pb.PublishingType_SingleBranch {
 		if req.Data.Publishing.PublishingBranchId != req.Data.Publishing.OpeningBranchId {
-			logrus.Errorln("[api][func: CreateTaskIssuing] Bad Request: Publishing and Opening Branch should match if Publishing Type is Single Branch")
+			log.Errorln("[api][func: CreateTaskIssuing] Bad Request: Publishing and Opening Branch should match if Publishing Type is Single Branch")
 			return nil, status.Errorf(codes.InvalidArgument, "Bad Request: Publishing and Opening Branch should match if Publishing Type is Single Branch")
 		}
 	}
@@ -350,6 +348,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	transactionClient := s.svcConn.TransactionServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
 	menuClient := s.svcConn.MenuServiceClient()
+	accountClient := s.svcConn.AccountServiceClient()
 
 	// check user have access to BG Issuing on menu license
 	menuMe, err := menuClient.GetMyMenu(newCtx, &menu_pb.GetMyMenuReq{}, grpc.Header(&userMD), grpc.Trailer(&trailer))
@@ -381,11 +380,11 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 				PassCode: req.PassCode,
 			})
 			if err != nil {
-				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute BRIGateHardTokenValidation:", err.Error())
+				log.Errorln("[api][func: CreateTaskIssuing] Failed when validate OTP", err.Error())
 				return nil, err
 			}
 			if tokenValidRes.Data.ResponseCode != "00" {
-				logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
+				log.Errorln("[api][func: CreateTaskIssuing] Failed when validate OTP", tokenValidRes.Data.ResponseMessage)
 				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
 			}
 		}
@@ -393,12 +392,12 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	company, err := companyClient.ListCompanyDataV2(newCtx, &company_pb.ListCompanyDataReq{CompanyID: currentUser.CompanyID}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListCompanyDataV2:", err.Error())
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListCompanyDataV2:", err.Error())
 		return nil, err
 	}
 
 	if !(len(company.GetData()) > 0) {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Company not found")
+		log.Errorln("[api][func: CreateTaskIssuing] Company not found")
 		return nil, status.Errorf(codes.NotFound, "Company not found")
 	}
 
@@ -410,12 +409,12 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		},
 	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListMdBranch:", err.Error())
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListMdBranch:", err.Error())
 		return nil, err
 	}
 
 	if len(openingBranchORMs.Data) == 0 {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Opening Branch not found")
+		log.Errorln("[api][func: CreateTaskIssuing] Opening Branch not found")
 		return nil, status.Errorf(codes.NotFound, "Opening Branch not found")
 	}
 
@@ -427,7 +426,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		},
 	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListMdBranch:", err.Error())
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListMdBranch:", err.Error())
 		return nil, err
 	}
 
@@ -440,9 +439,23 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 	data.Publishing.OpeningBranchName = openingBranch.GetDescription()
 	data.Publishing.PublishingBranchName = publishingBranch.GetDescription()
 
+	accountRes, err := accountClient.ListAccount(newCtx, &account_pb.ListAccountRequest{
+		Account: &account_pb.Account{
+			AccountNumber: data.GetAccount().GetAccountNumber(),
+		},
+	})
+	if err != nil {
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute ListAccount:", err.Error())
+		return nil, err
+	}
+
+	if len(accountRes.GetData()) < 1 {
+		return nil, status.Errorf(codes.NotFound, "Account not found")
+	}
+
 	taskData, err := json.Marshal(data)
 	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal Data:", err.Error())
+		log.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal Data:", err.Error())
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
@@ -458,6 +471,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 		TransactionCurrency: req.Data.Project.BgCurrency,
 		CompanyID:           currentUser.CompanyID,
 		HoldingID:           currentUser.CompanyID,
+		SelectedAccountID:   accountRes.GetData()[0].GetAccountID(),
 	}
 
 	if req.IsDraft {
@@ -466,7 +480,28 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 	taskRes, err := taskClient.SaveTaskWithData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: CreateTaskIssuing] Failed when execute SaveTaskWithData:", err.Error())
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute SaveTaskWithData:", err.Error())
+		return nil, err
+	}
+
+	updateTaskData := req.Data
+	updateTaskData.TransactionID = "BGI" + strconv.FormatUint(taskRes.Data.TaskID, 10)
+
+	updateData, err := json.Marshal(updateTaskData)
+	if err != nil {
+		log.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal BG Issuing Data:", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	log.Println("[api][func: CreateTaskIssuing] Task Data:", string(updateData))
+
+	_, err = taskClient.UpdateTaskData(newCtx, &task_pb.UpdateTaskDataReq{
+		Type:   "BG Issuing",
+		TaskID: taskRes.Data.TaskID,
+		Data:   string(updateData),
+	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+	if err != nil {
+		log.Errorln("[api][func: CreateTaskIssuing] Unable to Update Task Data:", err)
 		return nil, err
 	}
 
@@ -474,7 +509,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 		go func(ctx context.Context) error {
 
-			logrus.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: START")
+			log.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: START")
 
 			var newCtx context.Context
 
@@ -492,15 +527,23 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 			}
 			var trailer metadata.MD
 
+			var workflow *workflow_pb.ValidateWorkflowData
+			err = json.Unmarshal([]byte(taskRes.Data.WorkflowDoc), &workflow)
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Unable to Unmarshal Data:", err)
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+			nextStep := workflow.Workflow.CurrentStep
+
 			companyWorkflow, err := workflowClient.GetCompanyWorkflow(newCtx, &workflow_pb.GetCompanyWorkflowRequest{
 				CompanyID: currentUser.CompanyID,
 			})
 			if err != nil {
-				logrus.Println("[api][func: CreateTaskIssuing] Failed when execute GetCompanyWorkflow function:", err.Error())
+				log.Println("[api][func: CreateTaskIssuing] Failed when execute GetCompanyWorkflow function:", err.Error())
 				return err
 			}
 
-			logrus.Println("[api][func: CreateTaskIssuing] Workflow STP is:", companyWorkflow.Data.IsTransactionSTP)
+			log.Println("[api][func: CreateTaskIssuing] Workflow STP is:", companyWorkflow.Data.IsTransactionSTP)
 
 			if companyWorkflow.Data.IsTransactionSTP {
 
@@ -511,7 +554,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 					Reasons: "",
 				}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
-					logrus.Println("[api][func: CreateTaskIssuing] Failed when execute SetTask function:", err.Error())
+					log.Println("[api][func: CreateTaskIssuing] Failed when execute SetTask function:", err.Error())
 					return err
 				}
 
@@ -520,7 +563,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 					Data:   data,
 				})
 				if err != nil {
-					logrus.Println("[api][func: CreateTaskIssuing] Failed when execute CreateIssuing function:", err.Error())
+					log.Println("[api][func: CreateTaskIssuing] Failed when execute CreateIssuing function:", err.Error())
 					return err
 				}
 
@@ -529,7 +572,7 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 
 				taskData, err = json.Marshal(data)
 				if err != nil {
-					logrus.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal Data:", err)
+					log.Errorln("[api][func: CreateTaskIssuing] Unable to Marshal Data:", err)
 					return status.Errorf(codes.Internal, "Internal Error")
 				}
 
@@ -539,13 +582,63 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 					Data:   string(taskData),
 				}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
-					logrus.Println("[api][func: CreateTaskIssuing] Failed when execute UpdateTaskData function:", err.Error())
+					log.Println("[api][func: CreateTaskIssuing] Failed when execute UpdateTaskData function:", err.Error())
 					return err
 				}
 
+				nextStep = " "
+
 			}
 
-			logrus.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: END")
+			taskByIDRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{
+				Type: "BG Issuing",
+				ID:   taskRes.Data.TaskID,
+			})
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Unable to Get Task By ID:", err)
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
+			_, err = s.provider.CreateBgTask(ctx, &pb.BgTaskORM{
+				TaskID:             taskByIDRes.GetData().GetTaskID(),
+				TransactionID:      fmt.Sprintf("BGI%v", taskByIDRes.GetData().GetTaskID()),
+				Status:             int32(taskByIDRes.GetData().GetStatus()),
+				Step:               int32(taskByIDRes.GetData().GetStep()),
+				CreatedByID:        taskByIDRes.GetData().GetCreatedByID(),
+				LastApprovedByID:   taskByIDRes.GetData().GetLastApprovedByID(),
+				Data:               taskByIDRes.GetData().GetData(),
+				Comment:            taskByIDRes.GetData().GetComment(),
+				Reasons:            taskByIDRes.GetData().GetReasons(),
+				LastApprovedByName: taskByIDRes.GetData().GetLastApprovedByName(),
+				CreatedByName:      taskByIDRes.GetData().GetCreatedByName(),
+				DataBak:            taskByIDRes.GetData().GetDataBak(),
+				WorkflowDoc:        taskByIDRes.GetData().GetWorkflowDoc(),
+				CompanyID:          taskByIDRes.GetData().GetCompanyID(),
+				HoldingID:          taskByIDRes.GetData().GetHoldingID(),
+			})
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Failed when execute CreateBgTask:", err.Error())
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
+			log.Println("[api][func: CreateTaskIssuing] Auto Approve Task If Company Workflow is STP: END")
+
+			log.Println("[api][func: CreateTaskIssuing] Send for Approval Notification: START")
+
+			notificationClient := s.svcConn.NotificationServiceClient()
+
+			sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, nextStep, taskRes.GetData(), "send approval", currentUser.Username, []string{})
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Failed when execute NotificationRequestbuilder:", err.Error())
+				return status.Errorf(codes.Internal, "Internal Error")
+			}
+
+			_, err = notificationClient.SendNotificationWorkflow(newCtx, sendNotificationPayload)
+			if err != nil {
+				log.Errorln("[api][func: CreateTaskIssuing] Unable to Send Notification:", err.Error())
+			}
+
+			log.Println("[api][func: CreateTaskIssuing] Send for Approval Notification: DONE")
 
 			return nil
 
@@ -603,32 +696,10 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	taskClient := s.svcConn.TaskServiceClient()
 	workflowClient := s.svcConn.WorkflowServiceClient()
-	transactionClient := s.svcConn.TransactionServiceClient()
-
-	// get OTP Validation
-	if strings.ToLower(req.GetAction()) == "approve" || strings.ToLower(req.GetAction()) == "reject" || strings.ToLower(req.GetAction()) == "rework" {
-		if currentUser.IdToken != "" {
-			if req.PassCode == "" {
-				return nil, status.Error(codes.InvalidArgument, "Invalid argument")
-			}
-			tokenValidRes, err := transactionClient.BRIGateHardTokenValidation(newCtx, &transaction_pb.BRIGateHardTokenValidationRequest{
-				UserName: currentUser.IdToken,
-				PassCode: req.PassCode,
-			})
-			if err != nil {
-				logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", err.Error())
-				return nil, err
-			}
-			if tokenValidRes.Data.ResponseCode != "00" {
-				logrus.Errorln("[api][func: TaskAction] Failed when execute BRIGateHardTokenValidation:", tokenValidRes.Data.ResponseMessage)
-				return nil, status.Error(codes.Aborted, "Hard Token Validation Fail")
-			}
-		}
-	}
 
 	task, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: "BG Issuing", ID: req.GetTaskID()}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: SetTaskInternalTransfer] Failed when execute GetTaskByID function:", err.Error())
+		log.Errorln("[api][func: SetTaskInternalTransfer] Failed when execute GetTaskByID function:", err.Error())
 		return nil, err
 	}
 
@@ -636,21 +707,65 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 		return nil, status.Error(codes.NotFound, "Task not found")
 	}
 
+	if task.GetData().GetStatus() == task_pb.Statuses_Draft {
+
+		if req.GetAction() == "delete" {
+
+			action, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{
+				TaskID:  req.GetTaskID(),
+				Action:  req.GetAction(),
+				Comment: req.GetComment(),
+				Reasons: req.GetReasons(),
+			}, grpc.Header(&userMD), grpc.Trailer(&trailer))
+			if err != nil {
+				log.Errorln("[api][func: SetTaskInternalTransfer] Unable to Set Task:", err.Error())
+				return nil, err
+			}
+
+			res := &pb.TaskIssuingActionResponse{
+				Error:   false,
+				Code:    200,
+				Message: "Task Deleted",
+				Data: &pb.Task{
+					TaskID:             action.Data.TaskID,
+					Type:               action.Data.Type,
+					Status:             action.Data.Status.String(),
+					Step:               action.Data.Step.String(),
+					FeatureID:          action.Data.FeatureID,
+					LastApprovedByID:   action.Data.LastApprovedByID,
+					LastRejectedByID:   action.Data.LastRejectedByID,
+					LastApprovedByName: action.Data.LastApprovedByName,
+					LastRejectedByName: action.Data.LastRejectedByName,
+					CreatedByName:      action.Data.CreatedByName,
+					UpdatedByName:      action.Data.UpdatedByName,
+					Reasons:            action.Data.Reasons,
+					Comment:            action.Data.Comment,
+					CreatedAt:          action.Data.CreatedAt,
+					UpdatedAt:          action.Data.UpdatedAt,
+				},
+			}
+
+			return res, nil
+
+		}
+
+	}
+
 	taskData := task.GetData()
 	if taskData.GetWorkflowDoc() == "{}" || taskData.GetWorkflowDoc() == "" {
-		logrus.Errorln("[api][func: SetTaskInternalTransfer] Failed: Workflow is empty")
+		log.Errorln("[api][func: SetTaskInternalTransfer] Failed: Workflow is empty")
 		return nil, status.Error(codes.InvalidArgument, "Bad Request: Workflow is empty")
 	}
 
 	var workflow *workflow_pb.ValidateWorkflowData
 	err = json.Unmarshal([]byte(taskData.WorkflowDoc), &workflow)
 	if err != nil {
-		logrus.Errorln("[api][func: SetTaskInternalTransfer] Unable to Unmarshal Data:", err)
+		log.Errorln("[api][func: SetTaskInternalTransfer] Unable to Unmarshal Data:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	if workflow == nil {
-		logrus.Errorln("[api][func: SetTaskInternalTransfer] Failed: Workflow is nil")
+		log.Errorln("[api][func: SetTaskInternalTransfer] Failed: Workflow is nil")
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
@@ -668,7 +783,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REJECT
 		if req.GetComment() != "" {
 			if re.MatchString(req.GetComment()) {
-				logrus.Errorln("[api][func: SetTaskInternalTransfer] Invalid Reject Comment Characters:", req.GetComment())
+				log.Errorln("[api][func: SetTaskInternalTransfer] Invalid Reject Comment Characters:", req.GetComment())
 				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
 			} else {
 				task.Data.Comment = req.GetComment()
@@ -686,7 +801,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 		workflowAction = workflow_pb.ValidateWorkflowRequest_REQUEST_CHANGE
 		if req.GetComment() != "" {
 			if re.MatchString(req.GetComment()) {
-				logrus.Errorln("[api][func: SetTaskInternalTransfer] Invalid Rework Comment Characters:", req.GetComment())
+				log.Errorln("[api][func: SetTaskInternalTransfer] Invalid Rework Comment Characters:", req.GetComment())
 				return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
 			} else {
 				task.Data.Comment = req.GetComment()
@@ -712,14 +827,14 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 	send, _ := metadata.FromOutgoingContext(ctx)
 	ctx = metadata.NewOutgoingContext(ctx, metadata.Join(send, md))
 
-	logrus.Println("[api][func: TaskAction] Workflow Action:", workflowAction)
+	log.Println("[api][func: TaskAction] Workflow Action:", workflowAction)
 
 	validateWorkflow, err := workflowClient.ValidateWorkflow(newCtx, &workflow_pb.ValidateWorkflowRequest{
 		CurrentWorkflow: workflow.Workflow,
 		Action:          workflowAction,
 	}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: TaskAction] Failed when execute ValidateWorkflow function:", err.Error())
+		log.Errorln("[api][func: TaskAction] Failed when execute ValidateWorkflow function:", err.Error())
 		return nil, err
 	}
 
@@ -729,37 +844,37 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	workflowResByte, err := json.Marshal(validateWorkflow.Data)
 	if err != nil {
-		logrus.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
+		log.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
-	logrus.Println("[api][func: TaskAction] Validate Workflow:", string(workflowResByte))
+	log.Println("[api][func: TaskAction] Validate Workflow:", string(workflowResByte))
 
 	currentStep := validateWorkflow.GetData().GetWorkflow().GetCurrentStep()
 
-	logrus.Println("[api][func: TaskAction] Current Step:", currentStep)
+	log.Println("[api][func: TaskAction] Current Step:", currentStep)
 
 	var dataToSave []byte
 
 	var issuingData *pb.IssuingData
 	err = json.Unmarshal([]byte(taskData.Data), &issuingData)
 	if err != nil {
-		logrus.Errorln("[api][func: TaskAction] Unable to Unmarshal Data:", err)
+		log.Errorln("[api][func: TaskAction] Unable to Unmarshal Data:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
-	logrus.Errorln("[api][func: TaskAction] Task Status:", task.GetData().GetStatus())
+	log.Errorln("[api][func: TaskAction] Task Status:", task.GetData().GetStatus())
 
 	if currentStep == "complete" && task.GetData().GetStatus() != task_pb.Statuses_Approved {
 
-		logrus.Println("[api][func: TaskAction] Workflow Complete, Execute CreateIssuing...")
+		log.Println("[api][func: TaskAction] Workflow Complete, Execute CreateIssuing...")
 
 		createIssuing, err := s.CreateIssuing(ctx, &pb.CreateIssuingRequest{
 			TaskID: task.Data.TaskID,
 			Data:   issuingData,
 		})
 		if err != nil {
-			logrus.Errorln("[api][func: TaskAction] Failed when execute CreateIssuing function:", err.Error())
+			log.Errorln("[api][func: TaskAction] Failed when execute CreateIssuing function:", err.Error())
 			return nil, err
 		}
 
@@ -768,7 +883,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 		dataToSave, err = json.Marshal(issuingData)
 		if err != nil {
-			logrus.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
+			log.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 
@@ -782,7 +897,7 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	currentWorkflow, err := json.Marshal(validateWorkflow.GetData())
 	if err != nil {
-		logrus.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
+		log.Errorln("[api][func: TaskAction] Unable to Marshal Data:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 	taskData.WorkflowDoc = string(currentWorkflow)
@@ -796,9 +911,70 @@ func (s *Server) TaskIssuingAction(ctx context.Context, req *pb.TaskIssuingActio
 
 	savedTask, err := taskClient.SaveTaskWithWorkflow(newCtx, saveReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Errorln("[api][func: TaskAction] Failed when execute SaveTaskWithWorkflow function:", err)
+		log.Errorln("[api][func: TaskAction] Failed when execute SaveTaskWithWorkflow function:", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
+
+	taskByIDRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{
+		Type: "BG Issuing",
+		ID:   req.GetTaskID(),
+	})
+	if err != nil {
+		log.Errorln("[api][func: TaskAction] Unable to Get Task By ID:", err)
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	_, err = s.provider.UpdateBgTask(ctx, taskByIDRes.GetData().GetTaskID(), &pb.BgTaskORM{
+		TransactionID:      fmt.Sprintf("BGI%v", taskByIDRes.GetData().GetTaskID()),
+		Status:             int32(taskByIDRes.GetData().GetStatus()),
+		Step:               int32(taskByIDRes.GetData().GetStep()),
+		CreatedByID:        taskByIDRes.GetData().GetCreatedByID(),
+		LastApprovedByID:   taskByIDRes.GetData().GetLastApprovedByID(),
+		LastRejectedByID:   taskByIDRes.GetData().GetLastRejectedByID(),
+		Data:               taskByIDRes.GetData().GetData(),
+		Comment:            taskByIDRes.GetData().GetComment(),
+		Reasons:            taskByIDRes.GetData().GetReasons(),
+		LastApprovedByName: taskByIDRes.GetData().GetLastApprovedByName(),
+		LastRejectedByName: taskByIDRes.GetData().GetLastRejectedByName(),
+		CreatedByName:      taskByIDRes.GetData().GetCreatedByName(),
+		UpdatedByName:      taskByIDRes.GetData().GetUpdatedByName(),
+		DataBak:            taskByIDRes.GetData().GetDataBak(),
+		WorkflowDoc:        taskByIDRes.GetData().GetWorkflowDoc(),
+		CompanyID:          taskByIDRes.GetData().GetCompanyID(),
+		HoldingID:          taskByIDRes.GetData().GetHoldingID(),
+	})
+	if err != nil {
+		log.Errorln("[api][func: CreateTaskIssuing] Failed when execute CreateBgTask:", err.Error())
+		return nil, status.Errorf(codes.Internal, "Internal Error")
+	}
+
+	go func() error {
+		log.Println("[api][func: TaskAction] Task Action Notification: START")
+
+		notificationClient := s.svcConn.NotificationServiceClient()
+
+		// replace notificationAction from req.action to "complete" if currentStep is "complete"
+		notificationAction := strings.ToLower(req.GetAction())
+		if currentStep == "complete" {
+			notificationAction = "complete"
+		}
+
+		sendNotificationPayload, err := s.NotificationRequestBuilder(ctx, currentStep, savedTask.GetData(), notificationAction, currentUser.Username, []string{})
+		if err != nil {
+			log.Errorln("[api][func: TaskAction] Failed when execute NotificationRequestbuilder:", err.Error())
+			return status.Errorf(codes.Internal, "Internal Error")
+		}
+
+		_, err = notificationClient.SendNotificationWorkflow(newCtx, sendNotificationPayload)
+		if err != nil {
+			log.Errorln("[api][func: TaskAction] Unable to Send Notification", err.Error())
+		}
+
+		log.Println("[api][func: TaskAction] Task Action Notification: DONE")
+
+		return nil
+
+	}()
 
 	res := &pb.TaskIssuingActionResponse{
 		Error:   false,

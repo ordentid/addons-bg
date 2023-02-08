@@ -10,7 +10,6 @@ import (
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/leekchan/accounting"
-	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
@@ -20,6 +19,7 @@ import (
 )
 
 func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingFileRequest) (*httpbody.HttpBody, error) {
+
 	result := &httpbody.HttpBody{}
 
 	reqPB := &pb.GetTaskIssuingRequest{
@@ -33,7 +33,8 @@ func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingF
 
 	resPB, err := s.GetTaskIssuing(ctx, reqPB)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "%v", err)
+		log.Errorln("[api][func: GetTaskIssuingFile] Unable to Get Task Issuing:", err.Error())
+		return nil, err
 	}
 
 	file := GetTaskIssuingFileGenerator(resPB)
@@ -43,7 +44,6 @@ func (s *Server) GetTaskIssuingFile(ctx context.Context, req *pb.GetTaskIssuingF
 	if req.FileFormat.String() == "csv" {
 		return file.TaskIssuingToCsv(ctx)
 	}
-
 	if req.FileFormat.String() == "xls" {
 		return file.TaskIssuingToXls(ctx)
 	}
@@ -94,7 +94,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -197,7 +197,7 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 		// Cell render loop
@@ -221,17 +221,17 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 	}
 
 	err = pdf.Output(&buf)
 	if err == nil {
-		logrus.Println("Length of buffer: %d\n", buf.Len())
+		log.Println("Length of buffer: %d\n", buf.Len())
 		// return nil, status.Errorf(codes.Internal, "Server error")
 	} else {
-		logrus.Errorf("Error generating PDF: %s\n", err)
+		log.Errorf("Error generating PDF: %s\n", err)
 		return nil, status.Errorf(codes.Internal, "Server error")
 	}
 
@@ -244,9 +244,11 @@ func (file *TaskIssuingFile) TaskIssuingToPDFv2(ctx context.Context) (*httpbody.
 		Data:        buf.Bytes(),
 		Extensions:  nil,
 	}, nil
+
 }
 
 func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.HttpBody, error) {
+
 	var buf bytes.Buffer
 
 	w := csv.NewWriter(&buf)
@@ -317,6 +319,7 @@ func (file *TaskIssuingFile) TaskIssuingToCsv(ctx context.Context) (*httpbody.Ht
 }
 
 func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.HttpBody, error) {
+
 	f := excelize.NewFile()
 	sheet := f.NewSheet("Sheet1")
 
@@ -387,4 +390,5 @@ func (file *TaskIssuingFile) TaskIssuingToXls(ctx context.Context) (*httpbody.Ht
 		Data:        buf.Bytes(),
 		Extensions:  nil,
 	}, nil
+
 }

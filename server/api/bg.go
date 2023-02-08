@@ -8,15 +8,19 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/db"
 	manager "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/jwt"
+	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	notification_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/notification"
 	system_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
+	workflow_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
@@ -275,7 +279,7 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 		return nil, s.UnauthorizedError()
 	}
 
-	logrus.Println("==========> User Type:", currentUser.UserType)
+	log.Println("==========> User Type:", currentUser.UserType)
 
 	if currentUser.UserType == "ba" {
 
@@ -319,14 +323,14 @@ func (s *Server) GetThirdParty(ctx context.Context, req *pb.GetThirdPartyRequest
 			}
 
 			filter.Filter = strings.Join(filterMapped, ",")
-			logrus.Println("==========> Mapping Filter:", filter.Filter)
+			log.Println("==========> Mapping Filter:", filter.Filter)
 
 			thirdPartyNameList, err := s.provider.GetMapping(ctx, filter)
 			if err != nil {
 				return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 			}
 
-			logrus.Println("==========> ThirdParty List:", thirdPartyNameList)
+			log.Println("==========> ThirdParty List:", thirdPartyNameList)
 
 			ids := []string{}
 
@@ -462,27 +466,39 @@ func (s *Server) GetTransactionAttachment(ctx context.Context, req *pb.GetTransa
 		Message: "Data",
 	}
 
-	if req.ReferenceNo != "" {
+	result.Data = &pb.GetTransactionAttachmentResponseData{
+		RegistrationNo:  "",
+		ReferenceNo:     "",
+		WarkatUrl:       "",
+		WarkatUrlPublic: "",
+		Status:          "",
+		ModifiedDate:    "",
+	}
+
+	if req.RegistrationNo != "" {
 
 		apiReq := &ApiDownloadRequest{
-			ReferenceNo: req.ReferenceNo,
+			RegistrationNo: req.RegistrationNo,
 		}
 
 		res, err := s.ApiDownload(ctx, apiReq)
 		if err != nil {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+			log.Println("[api][func: GetTransactionAttachment] Failed on execution ApiDownload", err)
+			return result, nil
 		}
 
 		if res.ResponseCode != "00" {
-			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
+			log.Println("[api][func: GetTransactionAttachment] Error response code:", res.ResponseCode, res.ResponseMessage)
+			return result, nil
 		}
 
-		if len(res.ResponseData) > 0 {
-
-			for _, v := range res.ResponseData {
-				result.Data = append(result.Data, v.Url)
-			}
-
+		result.Data = &pb.GetTransactionAttachmentResponseData{
+			RegistrationNo:  res.ResponseData.RegistrationNo,
+			ReferenceNo:     res.ResponseData.ReferenceNo,
+			WarkatUrl:       res.ResponseData.WarkatUrl,
+			WarkatUrlPublic: res.ResponseData.WarkatUrlPublic,
+			Status:          res.ResponseData.Status,
+			ModifiedDate:    res.ResponseData.ModifiedDate,
 		}
 
 	}
@@ -624,7 +640,7 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	if res.ResponseCode != "00" {
 
-		logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
+		log.Error("Failed To Transfer Data : ", res.ResponseMessage)
 
 	} else {
 
@@ -700,7 +716,7 @@ func (s *Server) GetTransactionDetail(ctx context.Context, req *pb.GetTransactio
 		}
 
 		if res.ResponseCode != "00" {
-			logrus.Error("Failed To Transfer Data : ", res.ResponseMessage)
+			log.Error("Failed To Transfer Data : ", res.ResponseMessage)
 			return nil, status.Errorf(codes.Internal, "Internal Error: %v", res.ResponseMessage)
 		}
 
@@ -755,7 +771,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 	}
 
 	var opts []grpc.DialOption
-	opts = append(opts, grpc.WithInsecure())
+	opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if ok {
@@ -765,7 +781,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 
 	taskConn, err := grpc.Dial(getEnv("TASK_SERVICE", ":9090"), opts...)
 	if err != nil {
-		logrus.Errorln("Failed connect to Task Service: %v", err)
+		log.Errorln("Failed connect to Task Service: %v", err)
 		return nil, status.Errorf(codes.Internal, "Error Internal")
 	}
 	taskConn.Connect()
@@ -794,7 +810,7 @@ func (s *Server) CreateTransaction(ctx context.Context, req *pb.CreateTransactio
 						if check.ThirdPartyID == v.ThirdPartyID {
 
 							needDelete = false
-							logrus.Println("Break at: " + strconv.FormatUint(check.ThirdPartyID, 10))
+							log.Println("Break at: " + strconv.FormatUint(check.ThirdPartyID, 10))
 							break
 
 						}
@@ -1120,7 +1136,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 			taskMappingDigitalRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping Digital"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 			if err != nil {
-				logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
+				log.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 				if !errors.Is(err, gorm.ErrRecordNotFound) {
 					return nil, err
 				}
@@ -1138,7 +1154,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 					_, err := taskClient.SetTask(newCtx, &task_pb.SetTaskRequest{TaskID: taskMappingDigitalResData.TaskID, Action: "delete", Comment: "delete"}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 					if err != nil {
-						logrus.Println("[api][DeleteTransaction] Failed when execute SetTask:", err)
+						log.Println("[api][DeleteTransaction] Failed when execute SetTask:", err)
 						return nil, err
 					}
 
@@ -1256,7 +1272,7 @@ func (s *Server) DeleteTransaction(ctx context.Context, req *pb.DeleteTransactio
 
 				taskMappingRes, err := taskClient.GetListTask(newCtx, &task_pb.ListTaskRequest{Filter: strings.Join(filter, ","), Task: &task_pb.Task{Type: "BG Mapping"}, Page: 1, Limit: 1}, grpc.Header(&userMD), grpc.Trailer(&trailer))
 				if err != nil {
-					logrus.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
+					log.Println("[api][DeleteTransaction] Failed when execute GetListTask:", err)
 					if !errors.Is(err, gorm.ErrRecordNotFound) {
 						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 					}
@@ -1463,7 +1479,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			logrus.Println("Error Limit Individual: ", err.Error())
+			log.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Non Cash Loan facility")
 		}
 
@@ -1489,7 +1505,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 		inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Data.Account.Cif})
 		if err != nil {
-			logrus.Println("Error Limit Individual: ", err.Error())
+			log.Println("Error Limit Individual: ", err.Error())
 			return nil, status.Errorf(codes.InvalidArgument, "You are not allowed for Combination facility")
 		}
 
@@ -1568,7 +1584,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	createIssuingRes, err := s.ApiCreateIssuing(ctx, &httpReqData)
 	if err != nil {
-		logrus.Println("Failed to create issuing: ", err)
+		log.Println("Failed to create issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1580,7 +1596,7 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	checkIssuingRes, err := s.ApiCheckIssuingStatus(ctx, apiReq)
 	if err != nil {
-		logrus.Println("Failed to check issuing: ", err)
+		log.Println("Failed to check issuing: ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1634,7 +1650,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Print(taskData)
+	log.Print(taskData)
 
 	httpReqParamsOpt := ApiBgTrackingRequest{
 		RegistrationNo: taskData.RegistrationNo,
@@ -1655,7 +1671,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
-		logrus.Error("Failed To Marshal : ", taskData)
+		log.Error("Failed To Marshal : ", taskData)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1667,7 +1683,7 @@ func (s *Server) CheckIssuingStatus(ctx context.Context, req *pb.CheckIssuingReq
 
 	_, err = taskClient.UpdateTaskData(newCtx, taskReq, grpc.Header(&userMD), grpc.Trailer(&trailer))
 	if err != nil {
-		logrus.Error("Failed To Transfer Data : ", "FAK")
+		log.Error("Failed To Transfer Data : ", err)
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
@@ -1738,7 +1754,7 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 
 	inquiryLimit, err := s.ApiInquiryLimitIndividual(ctx, &ApiInquiryLimitIndividualRequest{Cif: req.Cif})
 	if err != nil {
-		logrus.Println("Error Limit Individual: ", err.Error())
+		log.Println("Error Limit Individual: ", err.Error())
 	}
 
 	if inquiryLimit.ResponseCode == "00" {
@@ -1746,6 +1762,143 @@ func (s *Server) CheckIndividualLimit(ctx context.Context, req *pb.CheckIndividu
 	}
 
 	return result, nil
+
+}
+
+func (s *Server) NotificationRequestBuilder(ctx context.Context, nextStep string, task *task_pb.Task, action string, username string, emails []string) (*notification_pb.SendNotificationWorkflowRequest, error) {
+
+	var newCtx context.Context
+
+	md, ok := metadata.FromIncomingContext(ctx)
+	if ok {
+		newCtx = metadata.NewOutgoingContext(context.Background(), md)
+	}
+
+	taskClient := s.svcConn.TaskServiceClient()
+	companyClient := s.svcConn.CompanyServiceClient()
+
+	taskRes, err := taskClient.GetTaskByID(newCtx, &task_pb.GetTaskByIDReq{Type: task.GetType(), ID: task.GetTaskID()})
+	if err != nil {
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Get Task by ID:", err.Error())
+		return nil, err
+	}
+
+	if !taskRes.GetFound() {
+		log.Errorln("[api][func: NotificationRequestBuilder] Task not found")
+		return nil, status.Errorf(codes.NotFound, "Task not found")
+	}
+
+	task = taskRes.GetData()
+
+	loc, _ := time.LoadLocation("Asia/Jakarta")
+
+	var workflowDoc *workflow_pb.ValidateWorkflowData
+	err = json.Unmarshal([]byte(taskRes.GetData().GetWorkflowDoc()), &workflowDoc)
+	if err != nil {
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Unmarshal Workflow Data:", err)
+		return nil, err
+	}
+
+	userID := []uint64{}
+
+	eventName := ""
+	switch action {
+	case "send approval":
+		eventName = "Created new transaction and sent for approval"
+	case "send other approval":
+		eventName = "Created new transaction and sent for approval"
+	case "complete":
+		eventName = "Transaction request gets final approval and sent for processing"
+		userID = []uint64{task.GetCreatedByID()}
+	case "approve":
+		eventName = "Transaction request gets approval"
+		userID = []uint64{task.GetCreatedByID()}
+	case "error":
+		eventName = "Transaction error"
+		userID = []uint64{task.GetCreatedByID()}
+	case "timeout":
+		eventName = "Transaction suspended/timeout"
+		userID = []uint64{task.GetCreatedByID()}
+	case "success":
+		eventName = "Transaction success"
+		userID = []uint64{task.GetCreatedByID()}
+	case "waiting":
+		eventName = "Transaction waiting"
+		userID = []uint64{task.GetCreatedByID()}
+	case "reject":
+		eventName = "Transaction request gets rejected"
+		userID = []uint64{task.GetCreatedByID()}
+	case "rework":
+		eventName = "Transaction request sent for rework"
+		userID = []uint64{task.GetCreatedByID()}
+	default:
+		return nil, nil
+	}
+
+	company, err := companyClient.DetailCompany(newCtx, &company_pb.CompanyParams{
+		CompanyID: taskRes.GetData().GetCompanyID(),
+	})
+	if err != nil {
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Detail Company:", err)
+		return nil, err
+	}
+
+	// Set status info
+	statusInfo := ""
+	if nextStep != "" {
+		statusInfo = fmt.Sprintf(" on %v", strings.Title(nextStep))
+	}
+
+	notificationData := &pb.NotificationData{
+		USERNAME_MAKER:    task.CreatedByName,
+		USERNAME_APPROVER: task.LastApprovedByName,
+		CREATED_DATETIME:  task.CreatedAt.AsTime().In(loc).Format("2006-01-02 15:04:05"),
+		CREATED_DATE:      task.CreatedAt.AsTime().In(loc).Format("2006-01-02"),
+		CREATED_TIME:      task.CreatedAt.AsTime().In(loc).Format("15:04:05"),
+		EVENT_DATETIME:    task.UpdatedAt.AsTime().In(loc).Format("2006-01-02 15:04:05"),
+		EVENT_DATE:        task.UpdatedAt.AsTime().In(loc).Format("2006-01-02"),
+		EVENT_TIME:        task.UpdatedAt.AsTime().In(loc).Format("15:04:05"),
+		TASK_ID:           strconv.FormatUint(task.GetTaskID(), 10),
+		USERNAME_REJECTOR: task.LastRejectedByName,
+		COMPANY_NAME:      company.GetCompanyName(),
+		USERNAME_CHECKER:  username,
+		USERNAME_RELEASER: username,
+		MODULE:            taskRes.GetData().GetType(),
+		STATUS_ACTION:     action,
+		STATUS_INFO:       statusInfo,
+		STATUS_SEND:       "Needs Approval",
+		REASON:            task.Reasons,
+		COMMENT:           task.Comment,
+	}
+
+	notificationDataByte, err := json.Marshal(notificationData)
+	if err != nil {
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Notification Data:", err)
+		return nil, err
+	}
+
+	requestData := &notification_pb.SendNotificationWorkflowRequest{
+		ModuleID:    0,
+		EventID:     0,
+		ModuleName:  taskRes.GetData().GetType(),
+		EventName:   eventName,
+		Data:        string(notificationDataByte),
+		RoleIDs:     workflowDoc.GetWorkflow().GetCurrentRoleIDs(),
+		Step:        workflowDoc.GetWorkflow().GetCurrentStep(),
+		CompanyID:   task.GetCompanyID(),
+		UserID:      userID,
+		CustomEmail: emails,
+	}
+
+	requestDataByte, err := json.Marshal(requestData)
+	if err != nil {
+		log.Errorln("[api][func: NotificationRequestBuilder] Unable to Marshal Send Notification Workflow Request Data:", err)
+		return nil, err
+	}
+
+	log.Println("[api][func: NotificationRequestBuilder] Send Notification Workflow Request Data:", string(requestDataByte))
+
+	return requestData, nil
 
 }
 
@@ -1771,12 +1924,6 @@ func (s *Server) FilterBuilder(ctx context.Context, currentUser manager.UserData
 			status = []string{"1", "6", "4", "5"}
 			filter = []string{"status:<>0", "status:<>2", "status:<>3", "status:<>7"}
 
-		}
-
-		if contains(currentUser.Authorities, "checker") {
-			filter = append(filter, "workflow_doc.workflow.currentStep:checker")
-		} else if contains(currentUser.Authorities, "signer") {
-			filter = append(filter, "workflow_doc.workflow.currentStep:signer")
 		}
 
 	} else {

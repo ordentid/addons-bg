@@ -8,7 +8,6 @@ import (
 	company_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
 	task_pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -43,8 +42,8 @@ func (s *Server) GetTaskMappingDigital(ctx context.Context, req *pb.GetTaskMappi
 	taskClient := s.svcConn.TaskServiceClient()
 	companyClient := s.svcConn.CompanyServiceClient()
 
-	logrus.Println("======> Current User: ", currentUser)
-	logrus.Println("======> Authorities: ", currentUser.Authorities)
+	log.Println("======> Current User: ", currentUser)
+	log.Println("======> Authorities: ", currentUser.Authorities)
 
 	statuses := []string{}
 	// - Maker: 1. Draft, 2. Returned, 3. Pending, 4. Request for Delete, 5. Approved, 6. Rejected
@@ -328,7 +327,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		Type:         pb.BeneficiaryType_AllBeneficiary,
 	})
 	if err != nil {
-		logrus.Errorln("Failed to get beneficiary name")
+		log.Errorln("Failed to get beneficiary name")
 		return nil, err
 	}
 
@@ -342,7 +341,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		}
 	}
 	if !pass {
-		logrus.Errorln("Invalid request data")
+		log.Errorln("Invalid request data")
 		return nil, status.Errorf(codes.InvalidArgument, "Invalid Argument")
 	}
 
@@ -355,7 +354,7 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println(httpResData.ResponseCode)
+	log.Println(httpResData.ResponseCode)
 
 	if httpResData.ResponseCode == "00" {
 		name = httpResData.ResponseData.FullName
@@ -373,18 +372,18 @@ func (s *Server) CreateTaskMappingDigital(ctx context.Context, req *pb.CreateTas
 		})
 	}
 
-	logrus.Println("--------------------")
-	logrus.Println(taskData)
-	logrus.Println("--------------------")
+	log.Println("--------------------")
+	log.Println(taskData)
+	log.Println("--------------------")
 
 	data, err := json.Marshal(taskData)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
 	}
 
-	logrus.Println("--------------------")
-	logrus.Println(string(data))
-	logrus.Println("--------------------")
+	log.Println("--------------------")
+	log.Println(string(data))
+	log.Println("--------------------")
 
 	taskReq := &task_pb.SaveTaskRequest{
 		TaskID: req.TaskID,

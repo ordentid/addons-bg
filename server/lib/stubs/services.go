@@ -12,24 +12,28 @@ import (
 	accountPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/account"
 	authPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/auth"
 	companyPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/company"
+	cutOffPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/cut_off"
 	menuPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/menu"
+	notificationPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/notification"
 	systemPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/system"
 	taskPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/task"
 	transactionPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/transaction"
-	workflowPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 	userPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/user"
+	workflowPB "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/lib/stubs/workflow"
 )
 
 type ServiceConnection struct {
-	TaskService        *grpc.ClientConn
-	AuthService        *grpc.ClientConn
-	CompanyService     *grpc.ClientConn
-	WorkflowService    *grpc.ClientConn
-	SystemService      *grpc.ClientConn
-	TransactionService *grpc.ClientConn
-	AccountService     *grpc.ClientConn
-	MenuService        *grpc.ClientConn
-	UserService        *grpc.ClientConn
+	TaskService         *grpc.ClientConn
+	AuthService         *grpc.ClientConn
+	CompanyService      *grpc.ClientConn
+	WorkflowService     *grpc.ClientConn
+	SystemService       *grpc.ClientConn
+	TransactionService  *grpc.ClientConn
+	AccountService      *grpc.ClientConn
+	MenuService         *grpc.ClientConn
+	UserService         *grpc.ClientConn
+	CutOffService       *grpc.ClientConn
+	NotificationService *grpc.ClientConn
 }
 
 func InitServicesConn(
@@ -43,13 +47,15 @@ func InitServicesConn(
 	accountAddress string,
 	menuAddress string,
 	userAddress string,
+	cutOffAddress string,
+	notificationAddress string,
 ) *ServiceConnection {
 	var err error
 	var creds credentials.TransportCredentials
 	if certFile != "" {
 		creds, err = credentials.NewClientTLSFromFile(certFile, "")
 		if err != nil {
-			logrus.Panic(err)
+			logrus.Errorln("Create New TLS Failed")
 		}
 	} else {
 		creds = insecure.NewCredentials()
@@ -62,7 +68,7 @@ func InitServicesConn(
 	// Task Service
 	services.TaskService, err = initGrpcClientConn(taskAddres, "Task Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Task Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -70,7 +76,7 @@ func InitServicesConn(
 	// Auth Service
 	services.AuthService, err = initGrpcClientConn(authAddress, "Auth Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Auth Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -78,7 +84,7 @@ func InitServicesConn(
 	// Company Service
 	services.CompanyService, err = initGrpcClientConn(companyAddress, "Company Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Company Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -86,7 +92,7 @@ func InitServicesConn(
 	// Workflow Service
 	services.WorkflowService, err = initGrpcClientConn(workflowAddress, "Workflow Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Workflow Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -94,7 +100,7 @@ func InitServicesConn(
 	// System Service
 	services.SystemService, err = initGrpcClientConn(systemAddress, "System Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init System Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -102,7 +108,7 @@ func InitServicesConn(
 	// Transaction Service
 	services.TransactionService, err = initGrpcClientConn(transactionAddress, "Transaction Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Transaction Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -110,7 +116,7 @@ func InitServicesConn(
 	// Account Service
 	services.AccountService, err = initGrpcClientConn(accountAddress, "Account Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Account Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -118,7 +124,7 @@ func InitServicesConn(
 	// Menu Service
 	services.MenuService, err = initGrpcClientConn(menuAddress, "Menu Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init Menu Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -126,7 +132,23 @@ func InitServicesConn(
 	// User Service
 	services.UserService, err = initGrpcClientConn(userAddress, "User Service", opts...)
 	if err != nil {
-		logrus.Fatalf("%v", err)
+		logrus.Errorln("Init User Grpc Client Failed")
+		os.Exit(1)
+		return nil
+	}
+
+	// Cut Off Service
+	services.CutOffService, err = initGrpcClientConn(cutOffAddress, "Cut Off Service", opts...)
+	if err != nil {
+		logrus.Errorln("Init Cutoff Grpc Client Failed")
+		os.Exit(1)
+		return nil
+	}
+
+	// Notification Service
+	services.NotificationService, err = initGrpcClientConn(notificationAddress, "Notification Service", opts...)
+	if err != nil {
+		logrus.Errorln("Init Notification Grpc Client Failed")
 		os.Exit(1)
 		return nil
 	}
@@ -143,9 +165,6 @@ func initGrpcClientConn(address string, name string, opts ...grpc.DialOption) (*
 	if err != nil {
 		return nil, fmt.Errorf("failed connect to %s: %v", name, err)
 	}
-
-	logrus.Println(fmt.Sprintf("[service - connection] %s State: %s", name, conn.GetState().String()))
-	logrus.Println(fmt.Sprintf("[service - connection] %s Connected, on %s", name, address))
 
 	return conn, nil
 }
@@ -186,6 +205,14 @@ func (s *ServiceConnection) UserServiceClient() userPB.ApiServiceClient {
 	return userPB.NewApiServiceClient(s.UserService)
 }
 
+func (s *ServiceConnection) CutOffServiceClient() cutOffPB.CutOffServiceClient {
+	return cutOffPB.NewCutOffServiceClient(s.CutOffService)
+}
+
+func (s *ServiceConnection) NotificationServiceClient() notificationPB.ApiServiceClient {
+	return notificationPB.NewApiServiceClient(s.NotificationService)
+}
+
 func (s *ServiceConnection) CloseAllServicesConn() {
 	s.TaskService.Close()
 	s.AuthService.Close()
@@ -196,6 +223,8 @@ func (s *ServiceConnection) CloseAllServicesConn() {
 	s.AccountService.Close()
 	s.MenuService.Close()
 	s.UserService.Close()
+	s.CutOffService.Close()
+	s.NotificationService.Close()
 }
 
 func (s *ServiceConnection) CloseTaskServiceConn() error {
@@ -232,4 +261,12 @@ func (s *ServiceConnection) CloseMenuServiceConn() error {
 
 func (s *ServiceConnection) CloseUserServiceConn() error {
 	return s.UserService.Close()
+}
+
+func (s *ServiceConnection) CloseCutOffServiceConn() error {
+	return s.CutOffService.Close()
+}
+
+func (s *ServiceConnection) CloseNotificationServiceConn() error {
+	return s.NotificationService.Close()
 }

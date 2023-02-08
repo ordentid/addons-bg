@@ -5,10 +5,10 @@ import (
 	"errors"
 
 	pb "bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
-	"github.com/sirupsen/logrus"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type QueryBuilder struct {
@@ -31,7 +31,7 @@ func (p *GormProvider) GetCurrency(ctx context.Context, v *ListFilter) (data []*
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -48,7 +48,7 @@ func (p *GormProvider) GetMapping(ctx context.Context, v *ListFilter) (data []*p
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -62,7 +62,7 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 
 	if err := query.Find(&data).Error; err != nil {
 		if !errors.Is(err, gorm.ErrRecordNotFound) {
-			logrus.Errorln(err)
+			log.Errorln(err)
 			return nil, status.Errorf(codes.Internal, "Internal Error")
 		}
 	}
@@ -71,10 +71,10 @@ func (p *GormProvider) GetMappingDetail(ctx context.Context, v *pb.MappingORM) (
 
 func (p *GormProvider) DeleteMapping(ctx context.Context, ids []string) error {
 	if len(ids) > 0 {
-		logrus.Println("----------------------")
-		logrus.Println("Deleted Mapping Data:")
-		logrus.Println(ids)
-		logrus.Println("----------------------")
+		log.Println("----------------------")
+		log.Println("Deleted Mapping Data:")
+		log.Println(ids)
+		log.Println("----------------------")
 		if err := p.db_main.Where("\"id\" IN (?)", ids).Delete(&pb.MappingORM{}).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return status.Error(codes.NotFound, "ID Not Found")
@@ -107,4 +107,38 @@ func (p *GormProvider) UpdateOrCreateMapping(ctx context.Context, data *pb.Mappi
 
 		return data, nil
 	}
+}
+
+func (p *GormProvider) CreateBgTask(ctx context.Context, data *pb.BgTaskORM) (*pb.BgTaskORM, error) {
+	query := p.db_main.Clauses(clause.OnConflict{
+		UpdateAll: true,
+	})
+
+	if err := query.Debug().Create(&data).Error; err != nil {
+		return nil, status.Errorf(codes.Internal, "DB Internal Error: %v", err)
+	}
+
+	return data, nil
+}
+
+func (p *GormProvider) UpdateBgTask(ctx context.Context, taskId uint64, data *pb.BgTaskORM) (*pb.BgTaskORM, error) {
+	model := &pb.BgTaskORM{
+		TaskID: taskId,
+	}
+	query := p.db_main.Model(&pb.BgTaskORM{}).Where(model)
+	if err := query.Find(&model).Error; err != nil {
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			log.Errorln(err)
+			return nil, status.Errorf(codes.Internal, "Internal Error")
+		}
+	}
+	if err := p.db_main.Model(&model).Updates(&data).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, status.Error(codes.NotFound, "Data Not Found")
+		} else {
+			return nil, status.Error(codes.Internal, "Internal Error : "+err.Error())
+		}
+	}
+
+	return model, nil
 }

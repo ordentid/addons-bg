@@ -10,7 +10,6 @@ import (
 
 	"bitbucket.bri.co.id/scm/addons/addons-bg-service/server/pb"
 	"github.com/jung-kurt/gofpdf"
-	"github.com/sirupsen/logrus"
 	"github.com/xuri/excelize/v2"
 	"google.golang.org/genproto/googleapis/api/httpbody"
 	"google.golang.org/grpc"
@@ -94,7 +93,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -187,7 +186,7 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 		// Cell render loop
@@ -211,17 +210,17 @@ func (file *TaskMappingFile) TaskMappingToPDFv2(ctx context.Context) (*httpbody.
 			pdf.AddPage()
 			pdf.SetX(marginH)
 			pdf.Ln(-1)
-			x, y = pdf.GetXY()
+			_, y = pdf.GetXY()
 		}
 
 	}
 
 	err = pdf.Output(&buf)
 	if err == nil {
-		logrus.Println("Length of buffer: %d\n", buf.Len())
+		log.Println("Length of buffer: %d\n", buf.Len())
 		// return nil, status.Errorf(codes.Internal, "Server error")
 	} else {
-		logrus.Errorf("Error generating PDF: %s\n", err)
+		log.Errorf("Error generating PDF: %s\n", err)
 		return nil, status.Errorf(codes.Internal, "Server error")
 	}
 
@@ -247,7 +246,7 @@ func (file *TaskMappingFile) TaskMappingToCsv(ctx context.Context) (*httpbody.Ht
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
@@ -318,7 +317,7 @@ func (file *TaskMappingFile) TaskMappingToXls(ctx context.Context) (*httpbody.Ht
 
 	location, err := time.LoadLocation("Asia/Jakarta")
 	if err != nil {
-		logrus.Error(err)
+		log.Error(err)
 		return nil, err
 	}
 
