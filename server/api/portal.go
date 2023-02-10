@@ -493,6 +493,8 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		return nil, err
 	}
 
+	log.Printf("[api][func: ApiListTransaction] REQUEST: %s", httpReqParams.Encode())
+
 	httpReq, err := http.NewRequest("GET", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/listTransaction?"+httpReqParams.Encode(), nil)
 	if err != nil {
 		return nil, err
@@ -517,7 +519,7 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 		return nil, err
 	}
 
-	log.Println("Response:", string(httpResPayload))
+	log.Printf("[api][func: ApiListTransaction] RESPONSE: %s", string(httpResPayload))
 
 	return &httpResData, nil
 
