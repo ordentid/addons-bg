@@ -357,15 +357,17 @@ message ProjectData {
     double bgAmount = 8 [(validator.field) = {float_gte: 0}];
     string cashAccountNo = 9;
     double cashAccountAmount = 10 [(validator.field) = {float_gte: 0}];
-    string cashAccountAmountString = 11;
-    string nonCashAccountNo = 12;
-    double nonCashAccountAmount = 13 [(validator.field) = {float_gte: 0}];
-    string nonCashAccountAmountString = 14;
-    ContractGuaranteeType contractGuaranteeType = 15;
-    double counterGuaranteeAmount = 16 [(validator.field) = {float_gte: 0}];
-    string counterGuaranteeAmountString = 17;
-    string insuranceLimitId = 18;
-	string sp3No = 19;
+    string cashAccountAmountCurrency = 11;
+    string cashAccountAmountString = 12;
+    string nonCashAccountNo = 13;
+    double nonCashAccountAmount = 14 [(validator.field) = {float_gte: 0}];
+    string nonCashAccountAmountCurrency = 15;
+    string nonCashAccountAmountString = 16;
+    ContractGuaranteeType contractGuaranteeType = 17;
+    double counterGuaranteeAmount = 18 [(validator.field) = {float_gte: 0}];
+    string counterGuaranteeAmountString = 19;
+    string insuranceLimitId = 20;
+	string sp3No = 21;
 }
 
 message DocumentData {
