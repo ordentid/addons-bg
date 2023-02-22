@@ -543,7 +543,8 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 	mappingORMs, err := s.provider.GetMapping(ctx, filter)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		log.Errorf("[api][func: GetTransaction] Unable to retrieve mapping: %s", err.Error())
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	beneficiaryIDs := []string{}
@@ -554,22 +555,23 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 
 			if v.BeneficiaryID == 10101010 {
 
-				res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
-				if err != nil {
-					if !errors.Is(err, gorm.ErrRecordNotFound) {
-						return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
-					}
-				}
+				// res, err := s.GetBeneficiaryName(ctx, &pb.GetBeneficiaryNameRequest{ThirdPartyID: v.ThirdPartyID})
+				// if err != nil {
+				// 	log.Errorf("[api][func: GetTransaction] Unable to beneficiary: %s", err.Error())
+				// 	if !errors.Is(err, gorm.ErrRecordNotFound) {
+				// 		return nil, status.Errorf(codes.Internal, "Internal Error")
+				// 	}
+				// }
 
-				if len(res.Data) > 0 {
+				// if len(res.Data) > 0 {
 
-					for _, d := range res.Data {
-						if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
-							beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
-						}
-					}
+				// 	for _, d := range res.Data {
+				// 		if !contains(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10)) {
+				// 			beneficiaryIDs = append(beneficiaryIDs, strconv.FormatUint(d.BeneficiaryId, 10))
+				// 		}
+				// 	}
 
-				}
+				// }
 
 			} else {
 
@@ -591,56 +593,77 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 	if len(beneficiaryIDs) > 0 {
 		httpReqParamsOpt.BeneficiaryId = strings.Join(beneficiaryIDs, ",")
 	} else {
-		httpReqParamsOpt.BeneficiaryId = "10101010"
+		httpReqParamsOpt.BeneficiaryId = ""
 	}
 
 	if req.Transaction != nil {
+
 		if req.Transaction.StartDate != "" && req.Transaction.EndDate != "" {
+
 			httpReqParamsOpt.StartDate = req.Transaction.StartDate
 			httpReqParamsOpt.EndDate = req.Transaction.EndDate
+
 		} else {
+
 			return nil, status.Errorf(codes.InvalidArgument, "Start Date and End Date is Required")
+
 		}
 
 		if req.Transaction.BeneficiaryID > 0 {
+
 			httpReqParamsOpt.BeneficiaryId = strconv.FormatUint(req.Transaction.BeneficiaryID, 10)
+
 		}
 
 		if req.Transaction.ThirdPartyID > 0 {
+
 			httpReqParamsOpt.ThirdPartyId = req.Transaction.ThirdPartyID
+
 		}
 
 		if req.Transaction.ClaimPeriod > 0 {
+
 			httpReqParamsOpt.ClaimPeriod = strconv.FormatUint(uint64(req.Transaction.ClaimPeriod), 10)
+
 		}
 
 		if req.Transaction.Status != "" {
+
 			httpReqParamsOpt.Status = req.Transaction.Status
+
 		}
 
 		if req.Transaction.ReferenceNo != "" {
+
 			httpReqParamsOpt.ReferenceNo = req.Transaction.ReferenceNo
+
 		}
 
 		if req.Transaction.ChannelID > 0 {
+
 			httpReqParamsOpt.ChannelId = req.Transaction.ChannelID
+
 		}
 
 		if req.Transaction.ApplicantName != "" {
+
 			httpReqParamsOpt.ApplicantName = req.Transaction.ApplicantName
+
 		}
+
 	}
 
 	apiReq := &httpReqParamsOpt
 
 	res, err := s.ApiListTransaction(ctx, apiReq)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Internal Error: %v", err)
+		log.Errorf("[api][func: GetTransaction] Failed when execute ApiListTransaction function: %s", err.Error())
+		return nil, status.Errorf(codes.Internal, "Internal Error")
 	}
 
 	if res.ResponseCode != "00" {
 
-		log.Error("Failed To Transfer Data : ", res.ResponseMessage)
+		log.Errorf("[api][func: GetTransaction] Failed when execute ApiListTransaction function: %s", res.ResponseMessage)
 
 	} else {
 
