@@ -527,13 +527,15 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 			}
 			var trailer metadata.MD
 
+			nextStep := " "
 			var workflow *workflow_pb.ValidateWorkflowData
 			err = json.Unmarshal([]byte(taskRes.Data.WorkflowDoc), &workflow)
-			if err != nil {
-				log.Errorln("[api][func: CreateTaskIssuing] Unable to Unmarshal Data:", err)
-				return status.Errorf(codes.Internal, "Internal Error")
+			if err == nil {
+				nextStep = workflow.GetWorkflow().GetCurrentStep()
+			} else {
+				log.Errorln("[api][func: CreateTaskIssuing] Unable to unmarshal data:", err)
+				log.Errorln("[api][func: CreateTaskIssuing] Data workflow doc:", taskRes.Data.WorkflowDoc)
 			}
-			nextStep := workflow.Workflow.CurrentStep
 
 			companyWorkflow, err := workflowClient.GetCompanyWorkflow(newCtx, &workflow_pb.GetCompanyWorkflowRequest{
 				CompanyID: currentUser.CompanyID,
@@ -585,8 +587,6 @@ func (s *Server) CreateTaskIssuing(ctx context.Context, req *pb.CreateTaskIssuin
 					log.Println("[api][func: CreateTaskIssuing] Failed when execute UpdateTaskData function:", err.Error())
 					return err
 				}
-
-				nextStep = " "
 
 			}
 
