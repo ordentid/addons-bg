@@ -22,7 +22,7 @@ func CustomHTTPError(ctx context.Context, _ *runtime.ServeMux, marshaler runtime
 	w.WriteHeader(httpErrorCode)
 
 	if grpcErrorCode == codes.InvalidArgument {
-		msg = "Invalid argument"
+		msg = err.Error()
 	}
 
 	log.Println("[Debug info] Error gateway: ", err)
