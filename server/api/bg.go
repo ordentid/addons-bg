@@ -533,8 +533,18 @@ func (s *Server) GetTransaction(ctx context.Context, req *pb.GetTransactionReque
 		"is_mapped:true",
 	}
 
+	// if req.Transaction.GetThirdPartyID() > 0 {
+	// 	filterData = append(filterData, "third_party_id:"+strconv.FormatUint(req.Transaction.ThirdPartyID, 10))
+	// }
+
 	if req.Transaction.GetThirdPartyID() > 0 {
-		filterData = append(filterData, "third_party_id:"+strconv.FormatUint(req.Transaction.ThirdPartyID, 10))
+		thirdPartyIDStr := strconv.FormatUint(req.Transaction.GetThirdPartyID(), 10)
+		filterData = append(filterData, "third_party_id:"+thirdPartyIDStr)
+
+		splitTransaction := strings.Split(thirdPartyIDStr, ",")
+		for _, t := range splitTransaction {
+			filterData = append(filterData, "third_party_id:"+t)
+		}
 	}
 
 	filter := &db.ListFilter{
