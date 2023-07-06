@@ -670,12 +670,12 @@ message GetTransactionAttachmentResponse {
 }
 
 message GetTransactionAttachmentResponseData {
-	string RegistrationNo = 1;
-	string ReferenceNo = 2;
-	string WarkatUrl = 3;
-	string WarkatUrlPublic = 4;
-	string Status = 5;
-	string ModifiedDate = 6;
+	string registrationNo = 1;
+	string referenceNo = 2;
+	string warkatUrl = 3;
+	string warkatUrlPublic = 4;
+	string status = 5;
+	string modifiedDate = 6;
 }
 
 message GetTransactionFileRequest {
