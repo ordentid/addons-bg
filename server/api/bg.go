@@ -1570,6 +1570,25 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 
 	path := getEnv("PATH_UPLOAD", "/upload/002/")
 
+	var LegalDocument string
+	if req.Data.Document.GetFileBusinessLegal() != "" {
+		LegalDocument = path + req.Data.Document.GetFileBusinessLegal()
+	}
+
+	var ContractDocument string
+	if req.Data.Document.GetFileTender() != "" {
+		ContractDocument = path + req.Data.Document.GetFileTender()
+	}
+
+	var Sp3Document string
+	if req.Data.Document.GetFileSp() != "" {
+		Sp3Document = path + req.Data.Document.GetFileSp()
+	}
+	var OthersDocument string
+	if req.Data.Document.GetFileSp() != "" {
+		OthersDocument = path + req.Data.Document.GetFileOther()
+	}
+
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
@@ -1611,10 +1630,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
 		ApplicantCustomerId:    "0",
 		BeneficiaryCustomerId:  "0",
-		LegalDocument:          path + req.Data.Document.GetFileBusinessLegal(),
-		ContractDocument:       path + req.Data.Document.GetFileTender(),
-		Sp3Document:            path + req.Data.Document.GetFileSp(),
-		OthersDocument:         path + req.Data.Document.GetFileOther(),
+		LegalDocument:          LegalDocument,
+		ContractDocument:       ContractDocument,
+		Sp3Document:            Sp3Document,
+		OthersDocument:         OthersDocument,
 	}
 
 	createIssuingRes, err := s.ApiCreateIssuing(ctx, &httpReqData)
