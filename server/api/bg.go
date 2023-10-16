@@ -1568,6 +1568,8 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 	openingBranchPadded := fmt.Sprintf("%05d", openingBranchID)
 	publishingBranchPadded := fmt.Sprintf("%05d", publishingBranchID)
 
+	path := getEnv("PATH_UPLOAD", "/upload/002/")
+
 	httpReqData := ApiBgIssuingRequest{
 		AccountNo:              req.Data.Account.GetAccountNumber(),
 		ApplicantName:          req.Data.Applicant.GetName(),
@@ -1609,10 +1611,10 @@ func (s *Server) CreateIssuing(ctx context.Context, req *pb.CreateIssuingRequest
 		ChannelId:              getEnv("BG_CHANNEL_ID", "2"),
 		ApplicantCustomerId:    "0",
 		BeneficiaryCustomerId:  "0",
-		LegalDocument:          req.Data.Document.GetFileBusinessLegal(),
-		ContractDocument:       req.Data.Document.GetFileTender(),
-		Sp3Document:            req.Data.Document.GetFileSp(),
-		OthersDocument:         req.Data.Document.GetFileOther(),
+		LegalDocument:          path + req.Data.Document.GetFileBusinessLegal(),
+		ContractDocument:       path + req.Data.Document.GetFileTender(),
+		Sp3Document:            path + req.Data.Document.GetFileSp(),
+		OthersDocument:         path + req.Data.Document.GetFileOther(),
 	}
 
 	createIssuingRes, err := s.ApiCreateIssuing(ctx, &httpReqData)
