@@ -532,6 +532,8 @@ func (s *Server) ApiListTransaction(ctx context.Context, req *ApiListTransaction
 
 func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest) (*ApiBgIssuingResponse, error) {
 
+	log.WithField("request", req).Infoln("[api][func ApiCreateIssuing] request coming...")
+
 	var transport = &http.Transport{
 		Dial: (&net.Dialer{
 			Timeout: 15 * time.Second,
@@ -549,6 +551,8 @@ func (s *Server) ApiCreateIssuing(ctx context.Context, req *ApiBgIssuingRequest)
 	if err != nil {
 		return nil, err
 	}
+
+	log.Indo("[api][func: ApiCreateIssuing] REQUEST Marshal :", string(httpReqPayload))
 
 	httpReq, err := http.NewRequest("POST", getEnv("PORTAL_BG_URL", "http://api.close.dev.bri.co.id:5557/gateway/apiPortalBG/1.0")+"/applyBG", bytes.NewBuffer(httpReqPayload))
 	if err != nil {
